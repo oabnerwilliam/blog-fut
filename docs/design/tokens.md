@@ -201,7 +201,9 @@ Valores tirados do CSS de `variacao-2/capa.html`. Medidas fixas que não viraram
 - Fora da tela até receber foco: `position: absolute; top: -200px; left: var(--layout-gutter); z-index: 20`.
 - No `:focus`: `top: .75rem`.
 - Visual: fundo `--color-amber`, texto `--color-badge-ink` (9,69:1), `font: 600 .8125rem/1 var(--font-mono)`, caixa-alta, `letter-spacing: .06em`, `padding: .85rem 1rem`, raio 0.
-- Foco: contorno de `--focus-width` em `--color-ink` (o azul sobre âmbar não teria contraste).
+- Foco: contorno de `--focus-width` em `--color-ink`, afastado do âmbar por um vão de `--focus-offset` **preenchido com `--color-bg`**: `outline: var(--focus-width) solid var(--color-ink); outline-offset: var(--focus-offset); box-shadow: 0 0 0 var(--focus-offset) var(--color-bg)`. O halo garante que o vão seja sempre papel, qualquer que seja o que estiver atrás do link.
+  - Por isso o contraste do contorno é medido como `--color-ink` / `--color-bg`: 15,29:1 no claro e 15,70:1 no escuro (mínimo 3:1). **Não** medir contra o âmbar: `--color-ink` / `--color-amber` dá 9,69:1 no claro, mas no escuro (`#ECEBE5` sobre `#FFB000`) cai para 1,53:1. Sem o halo, o contorno escuro-claro encostaria no âmbar e reprovaria.
+  - O azul (`--color-focus`) não serve aqui: sobre âmbar não teria contraste.
 
 ### 5.2 Cabeçalho (`<header>`, sobre o papel)
 Estrutura: linha de data → wordmark (+ slogan) → nav. Todo o conteúdo dentro de `.wrap`, exceto a nav, cujas bordas vão de ponta a ponta e o `<ul>` interno tem `max-width: var(--layout-max)` e o mesmo `padding-inline`.
@@ -234,7 +236,11 @@ Estrutura: linha de data → wordmark (+ slogan) → nav. Todo o conteúdo dentr
 - Fundo `--color-night`, texto `--color-night-ink`; dentro dele, todo foco usa `--color-focus-night`.
 - `margin-top: clamp(3rem, 7vw, 6rem); padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem`. Conteúdo em `.wrap`.
 - Grade: `display: grid; gap: 2rem`; a partir de 56rem `grid-template-columns: 7fr 5fr; align-items: end`.
-- Coluna 1: wordmark grande `Zona<i>Mista</i>` com `aria-hidden="true"` (o nome legível está no colofão), `font: 400 var(--text-footer-mark)/.85 var(--font-display); letter-spacing: -.04em`; "Mista" itálico com `-.05em` e `margin-left: .1em`.
+- Itens da grade com `min-width: 0` (`.grade > * { min-width: 0 }`). Sem isso, o `min-width: auto` padrão do grid deixa a marca alargar a coluna e vazar a tela.
+- Coluna 1: um invólucro com `container-type: inline-size` (a marca passa a medir a coluna, não a viewport) e, dentro dele, o wordmark grande `Zona<i>Mista</i>` com `aria-hidden="true"` (o nome legível está no colofão): `font: 400 min(var(--text-footer-mark), 27cqi) / .85 var(--font-display); letter-spacing: -.04em`; "Mista" itálico com `-.05em` e `margin-left: .1em`.
+  - **Por que o teto de `27cqi`** (bug QA-01): "ZonaMista" não tem ponto de quebra e mede cerca de 3,4em. Com a fonte do navegador a 175–200% em telas de 320–400px, `--text-footer-mark` (em rem) crescia e a marca estourava a largura, criando rolagem horizontal. O `min()` limita a marca a 27% da coluna (≈ 3,4em × 27% ≈ 92% da largura).
+  - Na fonte padrão o teto nunca age: o token fica sempre abaixo de 27cqi (ex.: 320px → 56px contra ≈78px; 56rem → ≈95px contra ≈125px; desktop largo → 144px contra ≈190px). O visual aprovado não muda.
+  - **Não remover** o contêiner, o `min()` nem o `min-width: 0` ao reimplementar este rodapé: os três juntos impedem o bug. Referência: `src/components/layout/SiteFooter.module.css`.
 - Coluna 2: parágrafo `max-width: 46ch; line-height: 1.55`: "As matérias da Zona Mista são produzidas pelo squad-fut, uma redação de agentes que apura, escreve, checa e revisa cada texto." (atende ao critério 15). Abaixo, com `margin-top: 1rem`, uma `<nav aria-label="Editorias no rodapé">` com os 7 links: `<ul>` flex com `flex-wrap: wrap; gap: 0 1.1rem`, links `inline-flex; min-height: var(--tap-min); align-items: center`, hover `--color-amber`. Essa nav é opcional na história 1; se entrar, vem depois da nav do cabeçalho na ordem de Tab e não altera o critério 17.
 - Colofão: `display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 2rem; border-top: 1px solid var(--color-night-rule); padding-top: 1rem; margin-top: 2.5rem`, em `--text-label`. Esquerda: "© 2026 Zona Mista" (ano em mono). Direita, em `--color-night-ink-muted`: "Depois do apito" + "◆" em `--color-amber`.
 
