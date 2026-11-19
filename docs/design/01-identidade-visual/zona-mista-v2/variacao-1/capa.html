@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zona Mista · capa (v2, variação 1 "Refletor")</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap" rel="stylesheet">
+<script>
+  /* Mockup: ?theme=light|dark força o tema; ?shot esconde o botão de tema nos screenshots */
+  (function () {
+    var q = new URLSearchParams(location.search), t = q.get('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    if (q.has('shot')) document.documentElement.classList.add('shot');
+  })();
+</script>
+
+<style>
+  /* ===== Zona Mista v2 · Variação 1 "Refletor" ===== */
+  :root {
+    --bg: #F6F6F3;
+    --ink: #111214;
+    --muted: #575A5F;
+    --hair: #CFCFC9;            /* linha fina (decorativa) */
+    --flare-text: #B23A0E;      /* sinalizador como texto sobre o fundo claro */
+    --flare: #FF5B1F;           /* sinalizador como cor de massa (só com texto escuro) */
+    --foot-bg: #111214;
+    --foot-text: #F6F6F3;
+    --foot-muted: #A6A8A4;
+    --foot-flare: #FF5B1F;
+    --badge-bg: #111214;
+    --badge-text: #F6F6F3;
+    --notice-bg: #FFE3D6;
+    --notice-text: #111214;
+    --focus: #111214;
+    --font-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+    --font-text: "Newsreader", Georgia, "Times New Roman", serif;
+    --gutter: clamp(1rem, 4vw, 3rem);
+    --page-max: 84rem;
+    --measure: 68ch;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B0C0E; --ink: #F1F0EA; --muted: #A0A39F; --hair: #2B2D31;
+      --flare-text: #FF6B33; --foot-bg: #16171A; --foot-text: #F1F0EA; --foot-muted: #A0A39F; --foot-flare: #FF6B33;
+      --badge-bg: #F1F0EA; --badge-text: #0B0C0E; --notice-bg: #3A1A0C; --notice-text: #F1F0EA; --focus: #F1F0EA;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B0C0E; --ink: #F1F0EA; --muted: #A0A39F; --hair: #2B2D31;
+    --flare-text: #FF6B33; --foot-bg: #16171A; --foot-text: #F1F0EA; --foot-muted: #A0A39F; --foot-flare: #FF6B33;
+    --badge-bg: #F1F0EA; --badge-text: #0B0C0E; --notice-bg: #3A1A0C; --notice-text: #F1F0EA; --focus: #F1F0EA;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-text); font-size: 1rem; line-height: 1.5;
+         font-kerning: normal; font-optical-sizing: auto; text-rendering: optimizeLegibility; overflow-wrap: break-word; }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: var(--gutter); top: -200px; z-index: 20; background: var(--ink); color: var(--bg);
+          font: 700 .875rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .08em; padding: .85rem 1rem; }
+  .skip:focus { top: .75rem; outline-color: var(--flare); }
+  .wrap { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--gutter); }
+  .num { font-variant-numeric: tabular-nums lining-nums; }
+
+  /* ---------- Cabeçalho ---------- */
+  .mast { border-top: 6px solid var(--ink); }
+  .mast__top { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding-top: 1.1rem; padding-bottom: .6rem; }
+  .wordmark { display: inline-flex; align-items: baseline; gap: .12em; font-family: var(--font-display); line-height: .8; text-transform: uppercase;
+              font-size: clamp(1.9rem, 1.2rem + 3vw, 3.6rem); letter-spacing: -.01em; padding-block: .1em; }
+  .wordmark .wm-zona { font-weight: 900; font-stretch: 62%; letter-spacing: -.015em; }
+  .wordmark .wm-mista { font-weight: 300; font-stretch: 125%; letter-spacing: -.03em; }
+  .mast__date { margin: 0; font: 500 .75rem/1.3 var(--font-display); font-stretch: 90%; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); text-align: right; }
+  .mast__date b { display: block; color: var(--ink); font-weight: 700; }
+
+  .nav { position: relative; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--hair); }
+  .nav ul { list-style: none; margin: 0 auto; max-width: var(--page-max); padding: 0 var(--gutter); display: flex; gap: clamp(1rem, 2.2vw, 2.25rem);
+            overflow-x: auto; scrollbar-width: none; scroll-padding-inline: var(--gutter) 3rem; }
+  .nav ul::-webkit-scrollbar { display: none; }
+  .nav li { flex: none; }
+  .nav li:last-child { padding-right: 2rem; }
+  .nav a { display: inline-flex; align-items: center; min-height: 44px; font: 600 .8125rem/1 var(--font-display); font-stretch: 100%;
+           text-transform: uppercase; letter-spacing: .09em; color: var(--ink); box-shadow: inset 0 -3px 0 transparent; }
+  .nav a:hover { box-shadow: inset 0 -3px 0 var(--hair); }
+  .nav a[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--flare-text); }
+  .nav a:focus-visible { outline-offset: -3px; }
+  .nav a { padding-inline: .4rem; margin-inline: -.4rem; }
+  .nav::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 2.75rem; pointer-events: none; background: linear-gradient(to right, transparent, var(--bg) 80%); }
+  @media (min-width: 56rem) { .nav::after { display: none; } .nav li:last-child { padding-right: 0; } }
+
+  /* ---------- Marcadores ---------- */
+  .kicker { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .75rem; font: 700 .75rem/1.2 var(--font-display);
+            text-transform: uppercase; letter-spacing: .1em; }
+  .kicker .ed { color: var(--flare-text); }
+  .kicker .ed:hover { text-decoration: underline; text-underline-offset: .2em; }
+  .kicker .min { color: var(--muted); font-weight: 500; }
+  /* Selo "Exemplo": bloco de tinta invertido, quinas retas e uma tarja hachurada; nunca confunde com a editoria (texto solto em laranja) */
+  .badge { display: inline-flex; align-items: center; gap: .4em; background: var(--badge-bg); color: var(--badge-text);
+           font: 700 .6875rem/1 var(--font-display); font-stretch: 100%; text-transform: uppercase; letter-spacing: .12em; padding: .32em .55em .3em .4em; }
+  .badge::before { content: ""; width: .95em; height: .95em; background: repeating-linear-gradient(-45deg, var(--badge-text) 0 2px, transparent 2px 4.2px); }
+
+  .sec { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0 0 1.25rem; padding-top: .55rem;
+         border-top: 2px solid var(--ink); font: 800 .875rem/1 var(--font-display); font-stretch: 100%; text-transform: uppercase; letter-spacing: .14em; }
+  .sec small { font-weight: 500; letter-spacing: .08em; color: var(--muted); font-size: .75rem; }
+  .sec a:hover { text-decoration: underline; text-underline-offset: .2em; }
+
+  /* ---------- Capa: destaque ---------- */
+  .lead { padding-block: clamp(1.75rem, 4vw, 3.5rem) clamp(2.5rem, 6vw, 5rem); }
+  .lead__title { margin: .9rem 0 0; font: 800 clamp(2.6rem, 1rem + 6.4vw, 7rem)/.9 var(--font-display); font-stretch: 72%; letter-spacing: -.022em;
+                 max-width: 15ch; text-wrap: balance; }
+  .lead__title a:hover { text-decoration: underline; text-decoration-thickness: .06em; text-underline-offset: .08em; }
+  .lead__foot { margin-top: clamp(1.5rem, 3vw, 2.5rem); display: grid; gap: 1.25rem; border-top: 1px solid var(--hair); padding-top: 1.1rem; }
+  .lead__dek { margin: 0; font: 400 clamp(1.125rem, 1rem + .6vw, 1.5rem)/1.4 var(--font-text); max-width: 46ch; text-wrap: pretty; }
+  .meta { margin: 0; font: 500 .75rem/1.5 var(--font-display); font-stretch: 90%; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
+  .meta b { color: var(--ink); font-weight: 700; }
+  @media (min-width: 64rem) {
+    .lead__grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); column-gap: 0; align-items: end; }
+    .lead__grid .kicker { grid-column: 1 / -1; }
+    .lead__title { max-width: none; font-size: clamp(4rem, 1rem + 6vw, 7.5rem); padding-right: 2.5rem; }
+    .lead__foot { margin-top: 0; border-top: 0; padding: 0 0 .35rem 2rem; border-left: 1px solid var(--hair); align-self: stretch; align-content: end; }
+    .lead__dek { font-size: 1.25rem; }
+  }
+
+  /* ---------- Capa: últimas (ritmo 1 grande + 2 médias + 3 curtas) ---------- */
+  .block { padding-bottom: clamp(2.5rem, 6vw, 4.5rem); }
+  .story { position: relative; padding-block: 1.1rem; border-top: 1px solid var(--hair); }
+  .story__title { margin: .55rem 0 0; font: 700 1.375rem/1.04 var(--font-display); font-stretch: 82%; letter-spacing: -.01em; text-wrap: balance; }
+  .story__title a::after { content: ""; position: absolute; inset: 0; }
+  .story:hover .story__title a { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .12em; }
+  .story:has(a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .story a:focus-visible { outline: none; }
+  .story__dek { margin: .5rem 0 0; font: 400 1.0625rem/1.45 var(--font-text); color: var(--muted); text-wrap: pretty; }
+  .story .meta { margin-top: .65rem; }
+  .story--xl { border-top: 0; padding-top: 0; }
+  .story--xl .story__title { font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.4rem); font-weight: 800; font-stretch: 74%; line-height: .95; letter-spacing: -.02em; }
+  .story--xl .story__dek { font-size: clamp(1.0625rem, 1rem + .3vw, 1.25rem); color: var(--ink); max-width: 44ch; }
+  .story--md .story__title { font-size: clamp(1.375rem, 1.2rem + .6vw, 1.75rem); }
+  .story--sm .story__title { font-size: 1.25rem; font-stretch: 88%; }
+  .last { display: grid; }
+  @media (min-width: 40rem) {
+    .last { grid-template-columns: 1fr 1fr; column-gap: 2rem; }
+    .last .story--xl { grid-column: 1 / -1; padding-bottom: 1.5rem; }
+  }
+  @media (min-width: 64rem) {
+    .last { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 0; }
+    .last .story--xl { grid-column: 1 / 8; grid-row: 1 / 3; padding-right: 2.5rem; padding-bottom: 0; }
+    .last .story--md { grid-column: 8 / 13; padding-left: 2rem; border-left: 1px solid var(--hair); }
+    .last .story--md:first-of-type, .last .story--xl + .story--md { border-top: 0; padding-top: 0; }
+    .last .story--sm { grid-column: span 4; margin-top: 2rem; border-top: 2px solid var(--ink); padding-inline: 0 1.5rem; }
+    .last .story--sm + .story--sm { padding-left: 1.5rem; box-shadow: inset 1px 0 0 var(--hair); }
+  }
+
+  /* ---------- Capa: índice das editorias (números como tipografia) ---------- */
+  .index ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; }
+  .index li { border-top: 1px solid var(--hair); }
+  .index a { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; min-height: 44px; padding-block: .55rem; }
+  .index .n { font: 800 2rem/1 var(--font-display); font-stretch: 62%; font-variant-numeric: tabular-nums lining-nums; color: var(--ink); letter-spacing: -.01em; }
+  .index .name { font: 700 1.25rem/1 var(--font-display); font-stretch: 85%; }
+  .index a:hover .name { text-decoration: underline; text-underline-offset: .15em; }
+  .index a:hover .n, .index a:focus-visible .n { color: var(--flare-text); }
+  .index a:focus-visible { outline-offset: -3px; }
+  @media (min-width: 40rem) { .index ol { grid-template-columns: 1fr 1fr; column-gap: 2rem; } }
+  @media (min-width: 64rem) {
+    .index ol { grid-template-columns: repeat(7, minmax(0, 1fr)); column-gap: 0; border-bottom: 1px solid var(--hair); }
+    .index li { border-top: 0; }
+    .index li + li { box-shadow: inset 1px 0 0 var(--hair); }
+    .index a { flex-direction: column-reverse; align-items: flex-start; justify-content: flex-end; gap: .6rem; padding: 1rem 1rem 1.25rem; }
+    .index li:first-child a { padding-left: 0; }
+    .index .n { font-size: 4.25rem; }
+    .index .name { font-size: .9375rem; text-transform: uppercase; letter-spacing: .08em; font-stretch: 100%; }
+  }
+
+  /* ---------- Capa: arquivo de uma editoria ---------- */
+  .archive { list-style: none; margin: 0; padding: 0; }
+  .archive li { position: relative; display: grid; grid-template-columns: 4.25rem 1fr; gap: .25rem 1rem; padding-block: .9rem; border-top: 1px solid var(--hair); }
+  .archive time { font: 800 1.5rem/1 var(--font-display); font-stretch: 62%; font-variant-numeric: tabular-nums; padding-top: .15rem; }
+  .archive h3 { margin: 0; font: italic 400 clamp(1.25rem, 1.1rem + .5vw, 1.5rem)/1.2 var(--font-text); text-wrap: balance; }
+  .archive h3 a::after { content: ""; position: absolute; inset: 0; }
+  .archive li:hover h3 a { text-decoration: underline; text-underline-offset: .15em; }
+  .archive li:has(a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .archive a:focus-visible { outline: none; }
+  .archive .row { grid-column: 2; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+  .split { display: grid; gap: 2.5rem; }
+  .split__intro p, .split__intro h2 { margin: 0; font: 400 1.0625rem/1.5 var(--font-text); color: var(--muted); max-width: 34ch; }
+  .split__intro .big { font: 800 clamp(3rem, 2rem + 5vw, 6.5rem)/.85 var(--font-display); font-stretch: 62%; text-transform: uppercase; letter-spacing: -.02em; color: var(--ink); margin-bottom: 1rem; }
+  @media (min-width: 64rem) { .split { grid-template-columns: 4fr 8fr; gap: 3rem; } }
+
+  /* ---------- Rodapé ---------- */
+  .foot { background: var(--foot-bg); color: var(--foot-text); padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem; margin-top: clamp(2rem, 5vw, 4rem); }
+  .foot :focus-visible { outline-color: var(--foot-flare); }
+  .foot .foot__mark { display: flex; max-width: none; color: var(--foot-text); align-items: baseline; gap: .1em; font-family: var(--font-display); text-transform: uppercase; line-height: .78;
+                font-size: clamp(3.25rem, 13.2vw, 12.5rem); letter-spacing: -.02em; margin: 0 0 2rem; white-space: nowrap; overflow: hidden; }
+  .foot__mark .wm-zona { font-weight: 900; font-stretch: 62%; }
+  .foot__mark .wm-mista { font-weight: 300; font-stretch: 125%; letter-spacing: -.035em; }
+  .foot__grid { display: grid; gap: 1.5rem; border-top: 1px solid var(--foot-muted); padding-top: 1.25rem; }
+  .foot p { margin: 0; font: 400 1rem/1.5 var(--font-text); max-width: 48ch; color: var(--foot-text); }
+  .foot .small { font: 500 .75rem/1.6 var(--font-display); text-transform: uppercase; letter-spacing: .09em; color: var(--foot-muted); }
+  .foot ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
+  .foot ul a { display: inline-flex; min-height: 44px; align-items: center; font: 600 .8125rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .09em; }
+  .foot ul a:hover { color: var(--foot-flare); }
+  .foot .flare { color: var(--foot-flare); }
+  @media (min-width: 56rem) { .foot__grid { grid-template-columns: 5fr 7fr; align-items: start; } .foot ul { justify-content: flex-end; } }
+
+  /* ---------- Matéria ---------- */
+  .art__head { padding-block: clamp(1.75rem, 4vw, 3.5rem) 0; }
+  .art__title { margin: 1rem 0 0; font: 800 clamp(2.5rem, 1rem + 5.8vw, 6.5rem)/.9 var(--font-display); font-stretch: 72%; letter-spacing: -.022em; max-width: 16ch; text-wrap: balance; }
+  .art__dek { margin: clamp(1.25rem, 2.5vw, 2rem) 0 0; font: 400 clamp(1.1875rem, 1rem + .9vw, 1.75rem)/1.35 var(--font-text); max-width: 40ch; text-wrap: pretty; }
+  .art__meta { margin-top: clamp(1.5rem, 3vw, 2.5rem); display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--hair); padding-block: .75rem; }
+  .art__meta .meta { color: var(--muted); }
+  .art__layout { display: grid; gap: 2rem; padding-top: clamp(2rem, 4vw, 3.5rem); }
+  .toc { display: none; }
+  .prose { max-width: var(--measure); font: 400 clamp(1.0625rem, 1rem + .3vw, 1.1875rem)/1.62 var(--font-text); counter-reset: sec;
+           font-variant-numeric: oldstyle-nums proportional-nums; hyphens: manual; }
+  .prose p { margin: 0 0 1.15em; text-wrap: pretty; }
+  .prose > p:first-of-type::first-letter { float: left; font: 800 4.1em/.8 var(--font-display); font-stretch: 62%; color: var(--flare-text);
+                                           margin: .06em .08em 0 0; font-variant-numeric: normal; }
+  @supports (initial-letter: 3) {
+    .prose > p:first-of-type::first-letter { float: none; initial-letter: 3; font-size: 1em; line-height: 1; margin: 0 .12em 0 0; font-weight: 900; }
+  }
+  .prose h2 { counter-increment: sec; margin: 2.4em 0 .7em; font: 700 clamp(1.5rem, 1.25rem + 1vw, 2.125rem)/1.02 var(--font-display); font-stretch: 80%;
+              letter-spacing: -.012em; text-wrap: balance; scroll-margin-top: 1rem; }
+  .prose h2::before { content: counter(sec, decimal-leading-zero); display: block; margin-bottom: .45rem; font: 800 .875rem/1 var(--font-display); font-stretch: 100%;
+                      letter-spacing: .08em; color: var(--flare-text); font-variant-numeric: tabular-nums lining-nums; }
+  .prose > p:last-child::after { content: ""; display: inline-block; width: .6em; height: .6em; background: var(--flare); margin-left: .3em; vertical-align: .02em; }
+  @media (min-width: 64rem) {
+    .art__title { max-width: 19ch; }
+    .art__dek { margin-left: 16.5rem; max-width: 38ch; }
+    .art__meta { padding-left: 16.5rem; }
+    .art__layout { grid-template-columns: 13rem minmax(0, var(--measure)) 1fr; gap: 0 3.5rem; }
+    .toc { display: block; position: sticky; top: 1.5rem; align-self: start; }
+    .toc h2 { margin: 0 0 .5rem; font: 800 .75rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .14em; padding-top: .5rem; border-top: 2px solid var(--ink); }
+    .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: t; }
+    .toc li { counter-increment: t; border-top: 1px solid var(--hair); }
+    .toc a { display: grid; grid-template-columns: 1.75rem 1fr; gap: .25rem; padding-block: .55rem; font: 500 .875rem/1.25 var(--font-display); font-stretch: 90%; }
+    .toc a::before { content: counter(t, decimal-leading-zero); font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .toc a:hover { color: var(--flare-text); }
+    /* numerais das seções penduram para fora da coluna de texto */
+    .prose h2::before { position: absolute; transform: translateX(calc(-100% - 1.1rem)); margin-top: .5rem; }
+    .prose h2 { position: relative; }
+  }
+
+  .more { padding-top: clamp(2.5rem, 6vw, 4.5rem); }
+  .more__list { display: grid; }
+  @media (min-width: 48rem) {
+    .more__list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .more__list .story { border-top: 0; padding-top: .25rem; padding-right: 1.5rem; }
+    .more__list .story + .story { padding-left: 1.5rem; box-shadow: inset 1px 0 0 var(--hair); }
+  }
+
+  /* Especificação do topo de matéria fictícia */
+  .spec { margin-top: clamp(2.5rem, 6vw, 4.5rem); border: 1px dashed var(--muted); padding: clamp(1rem, 3vw, 2rem); }
+  .spec__label { margin: 0 0 1.25rem; font: 600 .75rem/1.4 var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .notice { margin: 0 0 1.25rem; background: var(--notice-bg); color: var(--notice-text); font: 400 1rem/1.45 var(--font-text); padding: .9rem 1rem .85rem;
+            border-top: 6px solid transparent; border-image: repeating-linear-gradient(-45deg, var(--ink) 0 7px, var(--flare) 7px 14px) 6; max-width: var(--measure); }
+  .notice strong { font: 800 .8125rem/1.3 var(--font-display); text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: .2rem; }
+  .spec .art__title { font-size: clamp(2rem, 1rem + 3.6vw, 4rem); }
+
+  /* ---------- Mockup ---------- */
+  .mock-toggle { position: fixed; right: 1rem; bottom: 1rem; z-index: 30; min-height: 44px; padding: 0 1rem; border: 2px solid var(--ink); background: var(--bg); color: var(--ink);
+                 font: 700 .75rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .1em; cursor: pointer; }
+  .mock-toggle:hover { background: var(--ink); color: var(--bg); }
+  .shot .mock-toggle { display: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="mast">
+  <div class="wrap mast__top">
+    <a class="wordmark" href="capa.html" aria-label="Zona Mista, página inicial"><span class="wm-zona">Zona</span><span class="wm-mista">Mista</span></a>
+    <p class="mast__date"><b>Quinta-feira</b><span class="num">19.11.2026</span></p>
+  </div>
+  <nav class="nav" aria-label="Editorias">
+    <ul>
+      <li><a href="#">Análise</a></li>
+      <li><a href="#">Crônica</a></li>
+      <li><a href="#">Notícia</a></li>
+      <li><a href="#">Coluna</a></li>
+      <li><a href="#">Perfil</a></li>
+      <li><a href="#">Entrevista</a></li>
+      <li><a href="#">Reportagem</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="conteudo">
+  <h1 class="sr-only">Zona Mista: futebol depois do apito</h1>
+
+  <section class="lead" aria-labelledby="destaque">
+    <div class="wrap lead__grid">
+      <p class="kicker"><a class="ed" href="#">Análise</a><span class="min num">9 min de leitura</span></p>
+      <h2 class="lead__title" id="destaque"><a href="materia.html">O mercado enxuto do PSG deu certo até aqui. Falta aguentar até maio</a></h2>
+      <div class="lead__foot">
+        <p class="lead__dek">O clube arrecadou mais de 350 milhões de euros em vendas, trouxe só cinco reforços e tem números melhores que os de um ano atrás. Mas as lesões de Kvaratskhelia, Dembélé e Marquinhos já põem o grupo pequeno de Luis Enrique à prova.</p>
+        <p class="meta">Por <b>squad-fut</b><br><span class="num">19.11.2026</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="ultimas">
+    <div class="wrap">
+      <h2 class="sec" id="ultimas">Últimas <small class="num">06 matérias</small></h2>
+      <div class="last">
+        <article class="story story--xl">
+          <p class="kicker"><a class="ed" href="#">Crônica</a><span class="badge">Exemplo</span></p>
+          <h3 class="story__title"><a href="#">O dia em que o Ventania parou a cidade de Pedra Branca</a></h3>
+          <p class="story__dek">A torcida lotou o Estádio do Morro para ver o time voltar à primeira divisão estadual depois de onze anos.</p>
+          <p class="meta num">17.11 · 5 min</p>
+        </article>
+        <article class="story story--md">
+          <p class="kicker"><a class="ed" href="#">Entrevista</a><span class="badge">Exemplo</span></p>
+          <h3 class="story__title"><a href="#">“Jogo melhor quando ninguém espera nada”, diz o meia Tiquinho Albuquerque</a></h3>
+          <p class="story__dek">Camisa 10 do Real Cajueiro fala sobre a reserva, a volta por cima e o gol que quase não aconteceu.</p>
+          <p class="meta num">15.11 · 8 min</p>
+        </article>
+        <article class="story story--md">
+          <p class="kicker"><a class="ed" href="#">Notícia</a><span class="badge">Exemplo</span></p>
+          <h3 class="story__title"><a href="#">Maré Alta FC anuncia técnico uruguaio até o fim de 2027</a></h3>
+          <p class="meta num">16.11 · 3 min</p>
+        </article>
+        <article class="story story--sm">
+          <p class="kicker"><a class="ed" href="#">Perfil</a><span class="badge">Exemplo</span></p>
+          <h3 class="story__title"><a href="#">Dona Celeste, a roupeira que viu quarenta anos de União Bandeirinha</a></h3>
+          <p class="meta num">14.11 · 7 min</p>
+        </article>
+        <article class="story story--sm">
+          <p class="kicker"><a class="ed" href="#">Coluna</a><span class="badge">Exemplo</span></p>
+          <h3 class="story__title"><a href="#">O 4-2-4 voltou, e ninguém avisou a zaga do Arraial</a></h3>
+          <p class="meta num">13.11 · 4 min</p>
+        </article>
+        <article class="story story--sm">
+          <p class="kicker"><a class="ed" href="#">Reportagem</a><span class="badge">Exemplo</span></p>
+          <h3 class="story__title"><a href="#">Seiscentos quilômetros de estrada: a rota da torcida do Tupã Novo</a></h3>
+          <p class="meta num">12.11 · 12 min</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block index" aria-labelledby="editorias">
+    <div class="wrap">
+      <h2 class="sec" id="editorias">Editorias <small>matérias publicadas</small></h2>
+      <ol>
+        <li><a href="#"><span class="name">Análise</span><span class="n" aria-label="1 matéria">01</span></a></li>
+        <li><a href="#"><span class="name">Crônica</span><span class="n" aria-label="4 matérias">04</span></a></li>
+        <li><a href="#"><span class="name">Notícia</span><span class="n" aria-label="3 matérias">03</span></a></li>
+        <li><a href="#"><span class="name">Coluna</span><span class="n" aria-label="2 matérias">02</span></a></li>
+        <li><a href="#"><span class="name">Perfil</span><span class="n" aria-label="2 matérias">02</span></a></li>
+        <li><a href="#"><span class="name">Entrevista</span><span class="n" aria-label="1 matéria">01</span></a></li>
+        <li><a href="#"><span class="name">Reportagem</span><span class="n" aria-label="2 matérias">02</span></a></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="cronica">
+    <div class="wrap">
+      <p class="sec"><span>Da editoria</span> <small><a href="#">Ver todas as crônicas →</a></small></p>
+      <div class="split">
+        <div class="split__intro">
+          <h2 class="big" id="cronica">Crô&shy;nica</h2>
+          <p>O jogo visto da arquibancada, do vestiário e da cidade. Textos curtos, de uma sentada.</p>
+        </div>
+        <ol class="archive">
+          <li><time class="num" datetime="2026-11-10">10.11</time><h3><a href="#">Chuva em Pedra Branca e um goleiro de luvas emprestadas</a></h3><p class="row"><span class="badge">Exemplo</span><span class="meta num">4 min</span></p></li>
+          <li><time class="num" datetime="2026-11-06">06.11</time><h3><a href="#">A arquibancada de madeira que resistiu a três reformas</a></h3><p class="row"><span class="badge">Exemplo</span><span class="meta num">6 min</span></p></li>
+          <li><time class="num" datetime="2026-11-02">02.11</time><h3><a href="#">O radinho do seu Abílio ainda narra os jogos do Ventania</a></h3><p class="row"><span class="badge">Exemplo</span><span class="meta num">5 min</span></p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p class="foot__mark" aria-hidden="true"><span class="wm-zona">Zona</span><span class="wm-mista">Mista</span></p>
+    <div class="foot__grid">
+      <div>
+        <p>As matérias da Zona Mista são produzidas pelo squad-fut, uma redação de agentes que apura, escreve, checa e revisa cada texto.</p>
+        <p class="small" style="margin-top:1rem">© <span class="num">2026</span> Zona Mista <span class="flare">·</span> Depois do apito</p>
+      </div>
+      <nav aria-label="Editorias no rodapé">
+        <ul>
+          <li><a href="#">Análise</a></li><li><a href="#">Crônica</a></li><li><a href="#">Notícia</a></li><li><a href="#">Coluna</a></li>
+          <li><a href="#">Perfil</a></li><li><a href="#">Entrevista</a></li><li><a href="#">Reportagem</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<button class="mock-toggle" type="button" id="mockTheme" aria-label="Alternar tema do mockup">Tema</button>
+<script>
+  (function () {
+    var b = document.getElementById('mockTheme'), h = document.documentElement;
+    function atual() { return h.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    function rotulo() { b.textContent = 'Tema: ' + (atual() === 'dark' ? 'escuro' : 'claro'); }
+    b.addEventListener('click', function () { h.setAttribute('data-theme', atual() === 'dark' ? 'light' : 'dark'); rotulo(); });
+    rotulo();
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O mercado enxuto do PSG deu certo até aqui. Falta aguentar até maio · Zona Mista (v2, variação 2 "Súmula")</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script>
+  /* Mockup: ?theme=light|dark força o tema; ?shot esconde o botão de tema nos screenshots */
+  (function () {
+    var q = new URLSearchParams(location.search), t = q.get('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    if (q.has('shot')) document.documentElement.classList.add('shot');
+  })();
+</script>
+
+<style>
+  /* ===== Zona Mista v2 · Variação 2 "Súmula" ===== */
+  :root {
+    --bg: #EFEEE9;
+    --ink: #16181D;
+    --muted: #585B63;
+    --hair: #C9C7BF;            /* linha fina (decorativa) */
+    --accent: #2638C9;          /* azul-caneta: links, editoria, foco */
+    --led: #FFB000;             /* âmbar do placar: só sobre a noite ou como massa com texto escuro */
+    --night: #0E1120;           /* faixa noturna (topo da capa, topo da matéria, rodapé) */
+    --night-text: #ECEBE5;
+    --night-muted: #A3A7B6;
+    --night-hair: #2C3148;
+    --badge-bg: #FFB000;
+    --badge-text: #16181D;
+    --notice-bg: #FFE9B0;
+    --notice-text: #16181D;
+    --focus: #2638C9;
+    --font-display: "Instrument Serif", "Times New Roman", Georgia, serif;
+    --font-text: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --gutter: clamp(1rem, 4vw, 3rem);
+    --page-max: 84rem;
+    --measure: 66ch;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1120; --ink: #ECEBE5; --muted: #A3A7B6; --hair: #272B3F; --accent: #9DAAFF;
+      --night: #1A2142; --night-hair: #343C63; --notice-bg: #2B2410; --notice-text: #FFE2A0; --focus: #9DAAFF;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1120; --ink: #ECEBE5; --muted: #A3A7B6; --hair: #272B3F; --accent: #9DAAFF;
+    --night: #1A2142; --night-hair: #343C63; --notice-bg: #2B2410; --notice-text: #FFE2A0; --focus: #9DAAFF;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-text); font-size: 1rem; line-height: 1.5;
+         font-kerning: normal; text-rendering: optimizeLegibility; overflow-wrap: break-word; }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: var(--gutter); top: -200px; z-index: 20; background: var(--led); color: var(--badge-text);
+          font: 600 .8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; padding: .85rem 1rem; }
+  .skip:focus { top: .75rem; outline-color: var(--ink); }
+  .wrap { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--gutter); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero; }
+  .label { font: 500 .6875rem/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Cabeçalho (papel) ---------- */
+  .mast { padding-top: .9rem; }
+  .mast__line { display: flex; justify-content: space-between; gap: 1rem; color: var(--muted); padding-bottom: .65rem; border-bottom: 1px solid var(--hair); }
+  .mast__line > span:last-child { text-align: right; }
+  @media (max-width: 29.99rem) { .mast__line > span:last-child { display: none; } }
+  .mast__main { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding-block: .6rem .2rem; }
+  .wordmark { font: 400 clamp(2.6rem, 1.6rem + 4.4vw, 5.5rem)/.82 var(--font-display); letter-spacing: -.035em; padding-bottom: .08em; white-space: nowrap; }
+  .wordmark i { font-style: italic; letter-spacing: -.045em; margin-left: .1em; }
+  .mast__tag { margin: 0; color: var(--muted); text-align: right; padding-bottom: .55rem; display: none; }
+  @media (min-width: 48rem) { .mast__tag { display: block; } }
+
+  /* nav: quebra de linha, como o índice de uma súmula; sem rolagem escondida */
+  .nav { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--hair); }
+  .nav ul { list-style: none; margin: 0 auto; max-width: var(--page-max); padding: .2rem var(--gutter); display: flex; flex-wrap: wrap; gap: 0 1.15rem; counter-reset: ed; }
+  .nav li { counter-increment: ed; }
+  .nav a { display: inline-flex; align-items: baseline; gap: .3rem; min-height: 40px; padding-block: .7rem .55rem; font: 500 .9375rem/1 var(--font-text); font-stretch: 92%; }
+  .nav a::before { content: counter(ed, decimal-leading-zero); font: 500 .625rem/1 var(--font-mono); color: var(--muted); }
+  .nav a:hover { color: var(--accent); }
+  .nav a[aria-current="page"] { color: var(--accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .35em; }
+  .nav a:focus-visible { outline-offset: 0; }
+  @media (min-width: 64rem) { .nav ul { justify-content: space-between; } .nav a { font-size: 1rem; } }
+
+  /* ---------- Marcadores ---------- */
+  .kicker { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .8rem; }
+  .kicker .ed { color: var(--accent); }
+  .kicker .ed:hover { text-decoration: underline; text-underline-offset: .2em; }
+  .kicker .sep { color: var(--muted); }
+  /* Selo "Exemplo": carimbo âmbar em mono, quinas retas, com a marca ◇ de ficção */
+  .badge { display: inline-flex; align-items: center; gap: .35em; background: var(--badge-bg); color: var(--badge-text);
+           font: 600 .6875rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; padding: .34em .5em .3em; }
+  .badge::before { content: "◇"; font-size: .95em; line-height: 1; }
+
+  .sec { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: .9rem; margin: 0 0 1.5rem; }
+  .sec h2, .sec .h { margin: 0; font: italic 400 clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem)/1 var(--font-display); letter-spacing: -.015em; }
+  .sec::after { content: ""; grid-column: 2; grid-row: 1; height: 1px; background: var(--ink); align-self: center; }
+  .sec .label { grid-column: 3; color: var(--muted); }
+  .sec .label a:hover { color: var(--accent); }
+
+  /* ---------- Faixa noturna (destaque da capa, topo da matéria) ---------- */
+  .night { background: var(--night); color: var(--night-text); }
+  .night :focus-visible { outline-color: var(--led); }
+  .night .kicker .ed { color: var(--led); }
+  .night .muted { color: var(--night-muted); }
+  .lead { padding-block: clamp(2rem, 5vw, 4rem) clamp(2.25rem, 5vw, 4rem); margin-top: clamp(1.25rem, 3vw, 2rem); }
+  .lead__title { margin: 1.1rem 0 0; font: 400 clamp(2.75rem, 1rem + 7vw, 8rem)/.92 var(--font-display); letter-spacing: -.03em; max-width: 17ch; text-wrap: balance; }
+  .lead__title a:hover { text-decoration: underline; text-decoration-thickness: .04em; text-underline-offset: .1em; }
+  .lead__row { display: grid; gap: 1.25rem; margin-top: clamp(1.5rem, 3vw, 2.5rem); border-top: 1px solid var(--night-hair); padding-top: 1.1rem; }
+  .lead__dek { margin: 0; font: 400 clamp(1.0625rem, 1rem + .4vw, 1.3125rem)/1.5 var(--font-text); max-width: 54ch; text-wrap: pretty; }
+  .lead__meta { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .3rem 1rem; align-content: start; }
+  .lead__meta dt { color: var(--night-muted); }
+  .lead__meta dd { margin: 0; }
+  @media (min-width: 56rem) { .lead__row { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); column-gap: 3rem; } }
+
+  /* ---------- Capa: últimas ---------- */
+  .block { padding-top: clamp(2.5rem, 6vw, 4.5rem); }
+  .feature { position: relative; display: grid; gap: .9rem; padding-bottom: 1.75rem; }
+  .feature__title { margin: 0; font: 400 clamp(2.1rem, 1.2rem + 3.2vw, 4rem)/.98 var(--font-display); letter-spacing: -.025em; text-wrap: balance; }
+  .feature__dek { margin: 0; font: 400 1.125rem/1.5 var(--font-text); color: var(--muted); max-width: 44ch; text-wrap: pretty; }
+  @media (min-width: 56rem) {
+    .feature { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); column-gap: 3rem; align-items: end; }
+    .feature .kicker { grid-column: 1 / -1; }
+    .feature__aside { display: grid; gap: .75rem; padding-bottom: .4rem; }
+  }
+  .feature a::after, .row a::after, .trio a::after { content: ""; position: absolute; inset: 0; }
+  .feature:hover .feature__title a, .row:hover .row__title a, .trio article:hover h3 a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .12em; }
+  .feature:has(a:focus-visible), .row:has(a:focus-visible), .trio article:has(a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
+  .feature a:focus-visible, .row a:focus-visible, .trio a:focus-visible { outline: none; }
+
+  /* linhas da súmula: data · editoria · título · tempo */
+  .rows { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--ink); }
+  .row { position: relative; display: grid; grid-template-columns: 3.4rem 1fr; gap: .35rem 1rem; padding-block: 1rem 1.1rem; border-top: 1px solid var(--hair); }
+  .row:first-child { border-top-color: var(--ink); }
+  .row__date { grid-row: span 2; color: var(--muted); padding-top: .35rem; }
+  .row__title { margin: 0; font: 400 clamp(1.45rem, 1.25rem + .7vw, 1.9rem)/1.06 var(--font-display); letter-spacing: -.012em; text-wrap: balance; }
+  .row__dek { display: none; }
+  .row .kicker { grid-column: 2; }
+  .row__min { color: var(--muted); grid-column: 2; }
+  @media (min-width: 56rem) {
+    .row { grid-template-columns: 5.5rem 10rem minmax(0, 1fr) minmax(0, 22rem) 4rem; align-items: baseline; gap: 1.25rem; padding-block: 1.1rem; }
+    .row__date { grid-row: auto; padding-top: 0; }
+    .row .kicker { grid-column: 2; grid-row: 1; flex-direction: column; align-items: flex-start; gap: .5rem; }
+    .row__title { grid-column: 3; grid-row: 1; }
+    .row__dek { display: block; margin: 0; font: 400 .9375rem/1.45 var(--font-text); color: var(--muted); grid-column: 4; grid-row: 1; }
+    .row__min { grid-column: 5; grid-row: 1; text-align: right; }
+  }
+
+  /* ---------- Capa: editorias como frase ---------- */
+  .eds { margin: 0; font: 400 clamp(2.1rem, 1.2rem + 4vw, 5.25rem)/1.08 var(--font-display); letter-spacing: -.025em; text-wrap: balance; }
+  .eds a { white-space: nowrap; }
+  .eds a:nth-child(even) { font-style: italic; }
+  .eds a:hover { color: var(--accent); }
+  .eds sup { font: 500 .8rem/1 var(--font-mono); letter-spacing: 0; vertical-align: super; margin-left: .15em; color: var(--accent); font-style: normal; font-variant-numeric: tabular-nums; }
+  .eds .slash { color: var(--hair); margin-inline: .12em; font-style: normal; }
+
+  /* ---------- Capa: crônica em três colunas ---------- */
+  .trio { display: grid; border-top: 1px solid var(--ink); }
+  .trio article { position: relative; padding-block: 1.1rem 1.4rem; border-bottom: 1px solid var(--hair); display: grid; gap: .75rem; align-content: start; }
+  .trio p { margin: 0; }
+  .trio .day { font: 400 3.25rem/.9 var(--font-display); letter-spacing: -.02em; font-variant-numeric: lining-nums tabular-nums; }
+  .trio .day small { font: 500 .6875rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-left: .35rem; vertical-align: .9em; }
+  .trio h3 { margin: 0; font: italic 400 1.6rem/1.1 var(--font-display); letter-spacing: -.01em; text-wrap: balance; }
+  .trio .kicker { gap: .6rem; }
+  @media (min-width: 48rem) {
+    .trio { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .trio article { border-bottom: 0; padding-right: 1.5rem; }
+    .trio article + article { padding-left: 1.5rem; box-shadow: inset 1px 0 0 var(--hair); }
+  }
+
+  /* ---------- Rodapé (noite) ---------- */
+  .foot { margin-top: clamp(3rem, 7vw, 6rem); padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem; }
+  .foot__grid { display: grid; gap: 2rem; }
+  .foot__mark { margin: 0; font: 400 clamp(3.5rem, 2rem + 7vw, 9rem)/.85 var(--font-display); letter-spacing: -.04em; }
+  .foot__mark i { letter-spacing: -.05em; margin-left: .1em; }
+  .foot p { margin: 0; max-width: 46ch; line-height: 1.55; }
+  .foot ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 1.1rem; }
+  .foot ul a { display: inline-flex; min-height: 40px; align-items: center; }
+  .foot ul a:hover { color: var(--led); }
+  .foot__colophon { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 2rem; border-top: 1px solid var(--night-hair); padding-top: 1rem; margin-top: 2.5rem; }
+  .foot .foot__colophon { max-width: none; }
+  .foot .led { color: var(--led); }
+  @media (min-width: 56rem) { .foot__grid { grid-template-columns: 7fr 5fr; align-items: end; } }
+
+  /* ---------- Matéria ---------- */
+  .art__head { padding-block: clamp(2rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem); margin-top: clamp(1.25rem, 3vw, 2rem); }
+  .art__title { margin: 1.1rem 0 0; font: 400 clamp(2.6rem, 1rem + 6.2vw, 7.25rem)/.93 var(--font-display); letter-spacing: -.03em; max-width: 18ch; text-wrap: balance; }
+  .art__row { display: grid; gap: 1.25rem; margin-top: clamp(1.5rem, 3vw, 2.5rem); border-top: 1px solid var(--night-hair); padding-top: 1.1rem; }
+  .art__dek { margin: 0; font: 500 clamp(1.125rem, 1rem + .5vw, 1.375rem)/1.45 var(--font-text); max-width: 50ch; text-wrap: pretty; }
+  @media (min-width: 56rem) { .art__row { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); column-gap: 3rem; } }
+
+  .prose { max-width: var(--measure); margin: clamp(2.25rem, 5vw, 4rem) auto 0; font: 400 clamp(1.0625rem, 1rem + .25vw, 1.15rem)/1.68 var(--font-text);
+           font-variant-numeric: proportional-nums; }
+  .prose p { margin: 0 0 1.15em; text-wrap: pretty; }
+  /* abertura: primeiro parágrafo maior, primeira linha em versalete espaçado */
+  .prose > p:first-of-type { font: 400 clamp(1.25rem, 1.1rem + .6vw, 1.5rem)/1.5 var(--font-text); }
+  .prose > p:first-of-type::first-line { font-variant-caps: all-small-caps; letter-spacing: .05em; font-weight: 600; }
+  .prose h2 { margin: 2.3em 0 .65em; padding-top: .7em; border-top: 1px solid var(--ink); font: italic 400 clamp(1.85rem, 1.5rem + 1.3vw, 2.6rem)/1.02 var(--font-display);
+              letter-spacing: -.015em; text-wrap: balance; scroll-margin-top: 1rem; }
+  @media (min-width: 64rem) { .prose { margin-left: 25%; } }
+  .prose > p:last-child::after { content: " ◆"; color: var(--accent); font-size: .8em; }
+
+  .more { margin-top: clamp(3rem, 7vw, 5rem); }
+
+  .spec { margin-top: clamp(3rem, 7vw, 5rem); border: 1px dashed var(--muted); padding: clamp(1rem, 3vw, 2rem); }
+  .spec__label { margin: 0 0 1.25rem; color: var(--muted); }
+  .spec .night { padding: clamp(1.25rem, 3vw, 2rem); }
+  .spec .art__title { font-size: clamp(2.1rem, 1rem + 3.6vw, 4.25rem); margin-bottom: 0; }
+  /* Aviso: faixa âmbar-clara entre filetes, rótulo em mono e frase completa */
+  .notice { margin: 1.25rem 0 1rem; display: grid; gap: .35rem 1.25rem; background: var(--notice-bg); color: var(--notice-text);
+            border-block: 2px solid var(--notice-text); padding: .85rem 1rem; max-width: var(--measure); }
+  .notice .label { font-weight: 600; }
+  .notice p { margin: 0; font: 400 1rem/1.45 var(--font-text); }
+  .notice strong { font-weight: 700; }
+  @media (min-width: 40rem) { .notice { grid-template-columns: 7rem 1fr; align-items: baseline; } }
+
+  /* ---------- Mockup ---------- */
+  .mock-toggle { position: fixed; right: 1rem; bottom: 1rem; z-index: 30; min-height: 44px; padding: 0 1rem; border: 1px solid var(--ink); background: var(--bg); color: var(--ink);
+                 font: 500 .75rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; }
+  .mock-toggle:hover { background: var(--ink); color: var(--bg); }
+  .shot .mock-toggle { display: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="mast">
+  <div class="wrap">
+    <p class="mast__line label" style="margin:0"><span>Quinta, <span class="mono">19.11.2026</span></span><span>Futebol depois do apito</span></p>
+    <div class="mast__main">
+      <a class="wordmark" href="capa.html" aria-label="Zona Mista, página inicial">Zona<i>Mista</i></a>
+      <p class="mast__tag label">Análise, crônica e reportagem<br>apuradas pelo squad-fut</p>
+    </div>
+  </div>
+  <nav class="nav" aria-label="Editorias">
+    <ul>
+      <li><a href="#" aria-current="page">Análise</a></li>
+      <li><a href="#">Crônica</a></li>
+      <li><a href="#">Notícia</a></li>
+      <li><a href="#">Coluna</a></li>
+      <li><a href="#">Perfil</a></li>
+      <li><a href="#">Entrevista</a></li>
+      <li><a href="#">Reportagem</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="conteudo">
+  <article>
+    <header class="night art__head">
+      <div class="wrap">
+        <p class="kicker label"><a class="ed" href="#">Análise</a></p>
+        <h1 class="art__title">O mercado enxuto do PSG deu certo até aqui. Falta aguentar até maio</h1>
+        <div class="art__row">
+          <p class="art__dek">O clube arrecadou mais de 350 milhões de euros em vendas, trouxe só cinco reforços e tem números melhores que os de um ano atrás. Mas as lesões de Kvaratskhelia, Dembélé e Marquinhos já põem o grupo pequeno de Luis Enrique à prova.</p>
+          <dl class="lead__meta label">
+            <dt>Por</dt><dd>squad-fut</dd>
+            <dt>Data</dt><dd class="mono"><time datetime="2026-11-19">19.11.2026</time></dd>
+            <dt>Leitura</dt><dd class="mono">9 min</dd>
+          </dl>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <div class="prose">
+<p>Na noite de 3 de novembro, em La Cerámica, o PSG entrou em campo sem Kvaratskhelia, Dembélé, Marquinhos e Nuno Mendes, todos lesionados. Aos 17 minutos, já vencia o Villarreal por 4 a 0. Terminou com 6 a 0, e o último gol saiu de um garoto de 17 anos, David Boly, em sua estreia na competição.</p>
+<p>O placar resume o primeiro terço da temporada do bicampeão europeu. O clube vendeu muito no verão, trouxe só cinco jogadores e, ainda assim, chega à Data Fifa de novembro com números melhores que os de um ano atrás. Na Ligue 1 e na Champions, o mercado enxuto funcionou.</p>
+<p>Só que três daqueles desfalques vieram de uma única noite, duas semanas antes, contra o Barcelona. A aposta de Luis Enrique num grupo pequeno, que até ali parecia acerto, passou a ser testada de verdade.</p>
+<h2 id="a-regua-do-bicampeao">A régua do bicampeão</h2>
+<p>O PSG terminou 2025/26 com cinco títulos: Supercopa da Uefa, Intercontinental da Fifa, Trophée des Champions, Ligue 1 (o 14º do clube) e Champions League, decidida nos pênaltis contra o Arsenal, em Budapeste. Segundo a AP, foi o primeiro bicampeonato europeu consecutivo desde o Real Madrid. A única mancha foi a eliminação na Copa da França, diante do Paris FC.</p>
+<p>Luis Enrique, no cargo desde 2023, renovou até 2030 em 4 de setembro. Pela contagem da AFP, a Supercopa de agosto foi seu 13º troféu no clube. Para um time assim, liderar o Campeonato Francês é obrigação. O que interessa medir é se o patamar se mantém.</p>
+<h2 id="vender-caro-comprar-pouco">Vender caro, comprar pouco</h2>
+<p>A lista de saídas do verão foi pesada. Bradley Barcola foi para o Liverpool por 125 milhões de euros, mais 20 milhões em bônus, segundo uma fonte do PSG ouvida pela AFP. Foi a maior venda da janela. Ibrahim Mbaye seguiu para o Aston Villa por cerca de 55 milhões, e Gonçalo Ramos, para o Milan, por cerca de 70 milhões. Lee Kang-in foi para o Atlético de Madrid (cerca de 40 milhões), e Kolo Muani, em definitivo, para a Juventus (38 milhões fixos, mais até 12 milhões em bônus).</p>
+<p>Como os clubes não divulgaram os valores, os totais variam. A Maxifoot calcula mais de 350 milhões de euros em vendas. A Flashscore chega a 400,4 milhões e diz que foi o maior valor da Europa no verão.</p>
+<p>Na outra ponta, chegaram Maghnes Akliouche (Monaco, cerca de 50 milhões), Ferran Torres (Barcelona, cerca de 50 milhões), o ponta belga Mika Godts (Ajax, até 55 milhões com bônus), o lateral Lucas Digne (Aston Villa, cerca de 10 milhões) e o goleiro Alessandro Longoni, de 18 anos (Milan, sem custo). Segundo a Maxifoot, o investimento passou de 160 milhões.</p>
+<p>Em 3 de setembro, Luis Enrique chamou a janela de "excepcional", segundo a Maxifoot. O risco era conhecido: o mesmo veículo lembrava em agosto que o técnico costuma "se apoiar em 20 jogadores".</p>
+<h2 id="um-comeco-torto-e-uma-arrancada">Um começo torto e uma arrancada</h2>
+<p>A temporada começou com um título e uma derrota em quatro dias. Em 12 de agosto, em Salzburgo, o PSG venceu o Aston Villa por 2 a 1 e se tornou o terceiro clube a ganhar a Supercopa da Uefa duas vezes seguidas, depois de Milan e Real Madrid. Em 16 de agosto, perdeu por 1 a 0 para o Lens o Trophée des Champions, que opõe o campeão francês ao da Copa da França. O Lens segurou o resultado com um jogador a menos por cerca de 50 minutos e ganhou a competição pela primeira vez.</p>
+<p>Na Ligue 1, o arranque foi o pior de Luis Enrique no campeonato: dois pontos em nove possíveis. O PSG empatou por 2 a 2 com o Rennes e com o Lille, nos dois casos fora de casa e depois de estar perdendo por 2 a 0. Em Lille, os dois gols saíram nos acréscimos. Depois, perdeu por 2 a 1 para o Monaco, no Parc des Princes. A primeira vitória só veio na 4ª rodada, em Brest, e a primeira em casa, apenas na 6ª.</p>
+<p>Desde Brest, foram sete vitórias seguidas. O time assumiu a liderança pela primeira vez em 26 de outubro, com o 2 a 0 sobre o Lyon, e fechou a 10ª rodada com 23 pontos, dois à frente do Lille. No mesmo ponto de 2025/26, tinha 21.</p>
+<p>Na Champions, a diferença é maior. Na fase de liga, os 36 clubes ficam numa tabela única, e os oito primeiros vão direto às oitavas. O PSG venceu os quatro jogos: 6 a 1 no Slovan Bratislava, da Eslováquia; 4 a 2 no Manchester City, no Etihad; 4 a 2 no Barcelona; e os 6 a 0 em Villarreal. Lidera com 12 pontos, à frente do Real Madrid pelo saldo de gols, e tem o melhor ataque da fase, com 20 gols. Há um ano, depois de quatro rodadas, o PSG tinha nove pontos e estava em 3º.</p>
+<p>Somados os 16 jogos oficiais, a conta dá 12 vitórias, dois empates e duas derrotas, com 44 gols a favor e 17 contra. A série de 11 vitórias seguidas, iniciada em 9 de setembro e ainda em aberto, é a maior sob Luis Enrique, segundo o beIN.</p>
+<h2 id="gols-de-todo-lado-ate-da-defesa">Gols de todo lado, até da defesa</h2>
+<p>Na Ligue 1, nenhum jogador do PSG está entre os dez artilheiros. Ao todo, 12 jogadores diferentes marcaram os 22 gols do time. Atrás de Ferran Torres, com quatro, vêm dois defensores, Marquinhos e Hakimi, com três cada; o zagueiro Zabarnyi tem dois, como Godts e Mayulu.</p>
+<p>Hakimi fez o primeiro hat-trick da carreira nos 5 a 1 sobre o Le Havre, num jogo em que o PSG começou com só dois titulares da final de maio, segundo a AFP. Luis Enrique o chamou de "o melhor lateral direito do mundo", segundo a agência.</p>
+<p>Dá para ler isso de duas formas. A distribuição dos gols fala de um time que não depende de ninguém. Mas também mostra que falta um atacante que decida sozinho.</p>
+<p>Ferran Torres é o caso mais claro. Somando todas as competições, é o artilheiro do PSG, com sete gols, entre eles um hat-trick contra o Slovan, na estreia pelo PSG na Champions. Só que fez todos nas seis primeiras partidas pelo clube e depois passou oito jogos sem marcar, segundo o beIN.</p>
+<p>Os outros reforços têm entregado. Akliouche marcou duas vezes, uma na liga e uma na Champions, e Godts fez dois gols na liga, um deles saindo do banco contra o Lyon. Os jovens também ganharam minutos: Senny Mayulu tem três gols na temporada e foi titular contra o Troyes, e Dro Fernández começou jogando em Le Havre. Parte desse espaço, porém, veio por necessidade.</p>
+<h2 id="a-conta-das-lesoes">A conta das lesões</h2>
+<p>A virada foi em 20 de outubro, contra o Barcelona. Kvaratskhelia rompeu o ligamento cruzado anterior do joelho direito; não há prazo oficial, e a AFP considera improvável que ele volte nesta temporada. Dembélé teve uma lesão muscular na coxa, com previsão de "várias semanas" fora, segundo a AFP. Marquinhos também machucou a coxa, e a Al Jazeera falou no mesmo prazo. Nuno Mendes já tinha se lesionado na coxa contra o Strasbourg, e Akliouche machucou a panturrilha em 6 de novembro.</p>
+<p>Em 7 de novembro, contra o Troyes, penúltimo colocado, eram cinco desfalques. Zaïre-Emery jogou de lateral direito, e Hakimi foi poupado. O PSG venceu por 1 a 0, gol de cabeça de Zabarnyi, após cruzamento de Mayulu.</p>
+<p>Luis Enrique não vê nas lesões motivo para ir ao mercado. "Nenhuma lesão significa que é preciso obrigatoriamente contratar um novo jogador", disse em 24 de outubro, em coletiva, segundo o site oficial do clube. "Somos o mesmo time com e sem lesões, porque temos um pensamento coletivo." Mas lembrou que o clube segue atento a cada janela.</p>
+<p>Até aqui, os números lhe dão razão. A questão é por quanto tempo.</p>
+<h2 id="roma-aston-villa-e-a-janela-de-janeiro">Roma, Aston Villa e a janela de janeiro</h2>
+<p>A Ligue 1 volta no sábado, 21, contra o Nice, fora de casa. Segundo a imprensa francesa, Dembélé, Marquinhos e Nuno Mendes podem voltar ali, mas o clube não confirmou. Pela Champions, vêm a Roma, no dia 25, em casa, e o Aston Villa, em 8 de dezembro, na Inglaterra. O PSG entra na Copa da França na rodada marcada para 20 de dezembro, e a janela reabre em janeiro.</p>
+<p>O veredito parcial é favorável. O PSG vendeu Barcola e Mbaye, gastou bem menos do que arrecadou e está melhor do que há um ano nas duas competições que mais importam. Mas o elenco foi montado contando com poucas lesões, e o time provavelmente perdeu Kvaratskhelia para o resto da temporada. Daqui em diante, a dúvida não é mais se o mercado enxuto deu certo. É se ele aguenta até maio.</p>
+      </div>
+    </div>
+  </article>
+
+  <section class="wrap more" aria-labelledby="leia">
+    <div class="sec"><h2 id="leia">Leia também</h2><span class="label mono">03</span></div>
+    <ol class="rows">
+      <li class="row">
+        <span class="row__date label mono">13.11</span>
+        <p class="kicker label"><a class="ed" href="#">Coluna</a><span class="badge">Exemplo</span></p>
+        <h3 class="row__title"><a href="#">O 4-2-4 voltou, e ninguém avisou a zaga do Arraial</a></h3>
+        <p class="row__dek">Uma formação antiga, dois pontas abertos e uma defesa que ainda marca como em 2019.</p>
+        <span class="row__min label mono">4 min</span>
+      </li>
+      <li class="row">
+        <span class="row__date label mono">12.11</span>
+        <p class="kicker label"><a class="ed" href="#">Reportagem</a><span class="badge">Exemplo</span></p>
+        <h3 class="row__title"><a href="#">Seiscentos quilômetros de estrada: a rota da torcida do Tupã Novo</a></h3>
+        <p class="row__dek">Três ônibus, duas paradas e uma madrugada inteira para ver um jogo de noventa minutos.</p>
+        <span class="row__min label mono">12 min</span>
+      </li>
+      <li class="row">
+        <span class="row__date label mono">16.11</span>
+        <p class="kicker label"><a class="ed" href="#">Notícia</a><span class="badge">Exemplo</span></p>
+        <h3 class="row__title"><a href="#">Maré Alta FC anuncia técnico uruguaio até o fim de 2027</a></h3>
+        <p class="row__dek">Contratado após a queda nas quartas, o treinador chega com a missão de reduzir os gols sofridos em bola parada.</p>
+        <span class="row__min label mono">3 min</span>
+      </li>
+    </ol>
+  </section>
+
+  <aside class="wrap" aria-labelledby="spec-t">
+    <div class="spec">
+      <p class="spec__label label" id="spec-t">Especificação do mockup: topo de uma matéria fictícia</p>
+      <div class="night">
+        <p class="kicker label"><a class="ed" href="#">Crônica</a><span class="badge">Exemplo</span></p>
+        <p class="art__title">O dia em que o Ventania parou a cidade de Pedra Branca</p>
+      </div>
+      <div class="notice" role="note">
+        <span class="label">◇ Aviso</span>
+        <p><strong>Conteúdo fictício de demonstração.</strong> Clubes, pessoas e fatos desta matéria foram inventados para mostrar o layout do portal.</p>
+      </div>
+      <p class="label" style="margin:0;color:var(--muted)">Selo = carimbo âmbar curto “◇ Exemplo”, nos cards e no chapéu. Aviso = faixa entre dois filetes, logo depois da faixa noturna e antes do texto, com a frase completa.</p>
+    </div>
+  </aside>
+</main>
+
+<footer class="night foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <p class="foot__mark" aria-hidden="true">Zona<i>Mista</i></p>
+      <div>
+        <p>As matérias da Zona Mista são produzidas pelo squad-fut, uma redação de agentes que apura, escreve, checa e revisa cada texto.</p>
+        <nav aria-label="Editorias no rodapé" style="margin-top:1rem">
+          <ul>
+            <li><a href="#">Análise</a></li><li><a href="#">Crônica</a></li><li><a href="#">Notícia</a></li><li><a href="#">Coluna</a></li>
+            <li><a href="#">Perfil</a></li><li><a href="#">Entrevista</a></li><li><a href="#">Reportagem</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <p class="foot__colophon label"><span>© <span class="mono">2026</span> Zona Mista</span><span class="muted">Depois do apito <span class="led">◆</span></span></p>
+  </div>
+</footer>
+
+<button class="mock-toggle" type="button" id="mockTheme" aria-label="Alternar tema do mockup">Tema</button>
+<script>
+  (function () {
+    var b = document.getElementById('mockTheme'), h = document.documentElement;
+    function atual() { return h.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    function rotulo() { b.textContent = 'Tema: ' + (atual() === 'dark' ? 'escuro' : 'claro'); }
+    b.addEventListener('click', function () { h.setAttribute('data-theme', atual() === 'dark' ? 'light' : 'dark'); rotulo(); });
+    rotulo();
+  })();
+</script>
+
+</body>
+</html>

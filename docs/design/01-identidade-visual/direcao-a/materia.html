@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folha Seca · matéria (mockup direção A)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..600&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var t = new URLSearchParams(location.search).get('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    if (new URLSearchParams(location.search).has('shot')) document.documentElement.classList.add('shot');
+  })();
+</script>
+<style>
+  /* ===== Tokens: direção A, "Folha Seca" ===== */
+  :root {
+    --color-bg: #F5EFE3;
+    --color-surface: #FBF8F1;
+    --color-text: #1B1814;
+    --color-text-muted: #5C5347;
+    --color-accent: #A3201A;
+    --color-border: #D8CDB8;
+    --color-border-strong: #1B1814;
+    --color-focus: #1F55C4;
+    --color-badge-bg: #F3DFAE;
+    --color-badge-text: #6B4300;
+    --color-notice-bg: #E3EAF4;
+    --color-notice-text: #1E3A5F;
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem;
+    --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4rem;
+    --radius: 2px;
+    --gutter: clamp(1rem, 4vw, 2.5rem);
+    --page-max: 76rem;
+    --measure: 68ch;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-bg: #15120E; --color-surface: #1F1B16; --color-text: #ECE5D8; --color-text-muted: #B0A593;
+      --color-accent: #F2836F; --color-border: #3A3229; --color-border-strong: #ECE5D8; --color-focus: #8DB2FF;
+      --color-badge-bg: #3A2C0E; --color-badge-text: #F3D28A; --color-notice-bg: #18243A; --color-notice-text: #C9DAF5;
+      color-scheme: dark;
+    }
+  }
+  [data-theme="dark"] {
+    --color-bg: #15120E; --color-surface: #1F1B16; --color-text: #ECE5D8; --color-text-muted: #B0A593;
+    --color-accent: #F2836F; --color-border: #3A3229; --color-border-strong: #ECE5D8; --color-focus: #8DB2FF;
+    --color-badge-bg: #3A2C0E; --color-badge-text: #F3D28A; --color-notice-bg: #18243A; --color-notice-text: #C9DAF5;
+    color-scheme: dark;
+  }
+
+  /* ===== Base ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--color-bg); color: var(--color-text);
+    font-family: var(--font-body); font-size: clamp(1.0625rem, 1rem + .25vw, 1.1875rem); line-height: 1.6;
+    font-optical-sizing: auto; text-rendering: optimizeLegibility;
+  }
+  a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .18em; }
+  a:hover { color: var(--color-accent); }
+  :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; border-radius: var(--radius); }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 650; line-height: 1.1; margin: 0; overflow-wrap: break-word; hyphens: manual; }
+  p { margin: 0; }
+  .wrap { max-width: var(--page-max); margin: 0 auto; padding-inline: var(--gutter); }
+  .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--color-text); color: var(--color-bg); padding: var(--space-2) var(--space-4); z-index: 10; }
+  .skip:focus { top: var(--space-4); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .smallcaps { font-variant-caps: all-small-caps; letter-spacing: .08em; font-weight: 600; }
+
+  /* ===== Cabeçalho ===== */
+  .topline { display: flex; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-3); color: var(--color-text-muted); font-size: .875rem; border-bottom: 1px solid var(--color-border); }
+  .topline span:last-child { text-align: right; }
+  @media (max-width: 30rem) { .topline span:last-child { display: none; } }
+  .masthead { text-align: center; padding-block: var(--space-5) var(--space-4); }
+  .brand { font-family: var(--font-display); font-weight: 800; font-style: italic; font-size: clamp(2.75rem, 9vw + .5rem, 6.5rem); line-height: .95; letter-spacing: -.02em; text-decoration: none; font-variation-settings: "opsz" 144, "SOFT" 50; display: inline-block; }
+  .brand:hover { color: var(--color-text); }
+  .brand .dot { color: var(--color-accent); font-style: normal; }
+  .tagline { margin-top: var(--space-2); color: var(--color-text-muted); font-style: italic; font-size: 1rem; }
+  .nav { border-top: 3px solid var(--color-border-strong); border-bottom: 1px solid var(--color-border-strong); position: relative; }
+  .nav::before { content: ""; position: absolute; inset: 3px 0 auto; border-top: 1px solid var(--color-border-strong); }
+  .nav ul { list-style: none; margin: 0; padding: var(--space-2) 0; display: flex; flex-wrap: wrap; justify-content: center; column-gap: clamp(.25rem, 2vw, 1.75rem); row-gap: 0; }
+  .nav a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: var(--space-2); text-decoration: none; font-size: 1.0625rem; }
+  .nav a:hover { text-decoration: underline; color: var(--color-accent); }
+  .nav a[aria-current] { color: var(--color-accent); }
+
+  /* ===== Destaque ===== */
+  main { padding-block: var(--space-6) var(--space-8); }
+  .kicker { color: var(--color-accent); font-size: .95rem; }
+  .meta { color: var(--color-text-muted); font-size: .9rem; }
+  .lead { display: grid; gap: var(--space-5); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border-strong); }
+  .lead h2 { font-size: clamp(2.1rem, 1.4rem + 3.6vw, 4.25rem); letter-spacing: -.015em; margin-top: var(--space-2); font-variation-settings: "opsz" 120; }
+  .lead h2 a { text-decoration: none; }
+  .lead h2 a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+  .lead .dek { font-size: clamp(1.15rem, 1rem + .6vw, 1.4rem); line-height: 1.45; margin-top: var(--space-4); font-style: italic; }
+  .lead .meta { margin-top: var(--space-4); }
+  .lead .opening { columns: 1; column-gap: var(--space-6); column-rule: 1px solid var(--color-border); }
+  .lead .opening p + p { margin-top: var(--space-3); }
+  .lead .opening p:first-child::first-letter { font-family: var(--font-display); font-weight: 700; float: left; font-size: 3.6em; line-height: .82; padding: .06em .08em 0 0; color: var(--color-accent); }
+  .lead .more { display: inline-block; margin-top: var(--space-4); color: var(--color-accent); font-weight: 600; }
+  @media (min-width: 60rem) {
+    .lead { grid-template-columns: 1.35fr 1fr; column-gap: var(--space-7); align-items: start; }
+    .lead .opening { border-left: 1px solid var(--color-border); padding-left: var(--space-6); }
+  }
+
+  /* ===== Seções ===== */
+  .section-title { display: flex; align-items: baseline; gap: var(--space-3); margin-top: var(--space-7); padding-bottom: var(--space-2); border-bottom: 1px solid var(--color-border-strong); }
+  .section-title h2 { font-size: clamp(1.35rem, 1.2rem + .6vw, 1.75rem); font-style: italic; }
+  .section-title .meta { margin-left: auto; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; }
+  .card { padding-block: var(--space-5); border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: var(--space-2); }
+  .card h3 { font-size: clamp(1.3rem, 1.15rem + .6vw, 1.6rem); font-weight: 600; }
+  .card h3 a { text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; }
+  .card .dek { color: var(--color-text); font-size: 1rem; line-height: 1.5; }
+  .card .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+  @media (min-width: 40rem) {
+    .grid { grid-template-columns: repeat(2, 1fr); column-gap: var(--space-6); }
+  }
+  @media (min-width: 60rem) {
+    .grid { grid-template-columns: repeat(3, 1fr); column-gap: 0; }
+    .grid .card { padding-inline: var(--space-5); border-left: 1px solid var(--color-border); }
+    .grid .card:nth-child(3n+1) { padding-left: 0; border-left: 0; }
+    .grid .card:nth-child(3n) { padding-right: 0; }
+  }
+
+  /* Faixa por editoria: lista numerada */
+  .strip { list-style: none; margin: 0; padding: 0; counter-reset: n; display: grid; gap: 0; }
+  .strip li { counter-increment: n; display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); padding-block: var(--space-4); border-bottom: 1px solid var(--color-border); }
+  .strip li::before { content: counter(n); font-family: var(--font-display); font-size: 2.25rem; line-height: 1; color: var(--color-accent); font-weight: 700; font-style: italic; min-width: 1.2ch; }
+  .strip h3 { font-size: 1.2rem; font-weight: 600; }
+  .strip h3 a { text-decoration: none; }
+  .strip h3 a:hover { text-decoration: underline; }
+  @media (min-width: 60rem) { .strip { grid-template-columns: repeat(3, 1fr); column-gap: var(--space-6); } }
+
+  /* Selo "Exemplo": etiqueta pequena, inline, ao lado da editoria */
+  .badge { display: inline-flex; align-items: center; gap: .3em; padding: .05em .5em .1em; border: 1px dashed currentColor; border-radius: var(--radius); background: var(--color-badge-bg); color: var(--color-badge-text); font-family: var(--font-body); font-size: .8rem; font-variant-caps: all-small-caps; letter-spacing: .1em; font-weight: 700; line-height: 1.5; }
+
+  /* ===== Rodapé ===== */
+  footer { border-top: 3px solid var(--color-border-strong); position: relative; padding-block: var(--space-6) var(--space-7); }
+  footer::before { content: ""; position: absolute; inset: 3px 0 auto; border-top: 1px solid var(--color-border-strong); }
+  footer .inner { display: grid; gap: var(--space-4); }
+  footer .brand { font-size: 2.25rem; }
+  footer p { color: var(--color-text-muted); font-size: .95rem; max-width: 52ch; }
+  footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
+  footer ul a { display: inline-flex; min-height: 44px; align-items: center; color: var(--color-text); }
+  @media (min-width: 60rem) { footer .inner { grid-template-columns: auto 1fr; align-items: end; column-gap: var(--space-7); } footer ul { grid-column: 1 / -1; } }
+
+  /* ===== Controle do mockup (não faz parte do portal) ===== */
+  .mock-toggle { position: fixed; right: 12px; bottom: 12px; z-index: 20; font: 600 .8rem/1 system-ui, sans-serif; padding: .7rem .9rem; border-radius: 999px; border: 1px solid var(--color-border-strong); background: var(--color-surface); color: var(--color-text); cursor: pointer; box-shadow: 0 2px 10px rgb(0 0 0 / .15); }
+  .shot .mock-toggle { display: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+<style>
+  /* ===== Matéria ===== */
+  .article { display: grid; grid-template-columns: minmax(0, 1fr); padding-top: var(--space-2); }
+  .article-head { max-width: 52rem; }
+  .article-head h1 { font-size: clamp(2.1rem, 1.3rem + 4vw, 4.5rem); letter-spacing: -.015em; margin-top: var(--space-3); font-variation-settings: "opsz" 120; }
+  .article-head .dek { font-size: clamp(1.2rem, 1.05rem + .7vw, 1.5rem); line-height: 1.45; font-style: italic; margin-top: var(--space-4); }
+  .byline { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-5); padding-block: var(--space-3); border-top: 1px solid var(--color-border-strong); border-bottom: 1px solid var(--color-border); color: var(--color-text-muted); font-size: .95rem; }
+  .byline strong { color: var(--color-text); font-weight: 600; }
+  .body { max-width: var(--measure); margin-top: var(--space-6); }
+  .body p { margin-top: var(--space-4); }
+  .body p:first-child { margin-top: 0; }
+  .body > p:first-child::first-letter { font-family: var(--font-display); font-weight: 700; float: left; font-size: 4.1em; line-height: .8; padding: .05em .08em 0 0; color: var(--color-accent); }
+  .body h2 { font-size: clamp(1.5rem, 1.3rem + .9vw, 2rem); margin-top: var(--space-7); padding-top: var(--space-3); position: relative; }
+  .body h2::before { content: ""; position: absolute; top: 0; left: 0; width: 3rem; border-top: 3px solid var(--color-accent); }
+  .body h2 + p { margin-top: var(--space-3); }
+  .body a { color: var(--color-accent); }
+  .omit { margin-top: var(--space-6); padding: var(--space-3) var(--space-4); border: 1px dashed var(--color-border); color: var(--color-text-muted); font: 500 .85rem/1.4 system-ui, sans-serif; }
+  .side { color: var(--color-text-muted); font-size: .95rem; }
+  .tags { list-style: none; padding: 0; margin: var(--space-6) 0 0; display: flex; flex-wrap: wrap; gap: var(--space-2); max-width: var(--measure); }
+  .tags a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 var(--space-3); border: 1px solid var(--color-border-strong); border-radius: 999px; text-decoration: none; font-size: .95rem; }
+  .tags a:hover { background: var(--color-text); color: var(--color-bg); }
+  @media (min-width: 72rem) {
+    .article { grid-template-columns: 13rem minmax(0, var(--measure)) 1fr; column-gap: var(--space-7); }
+    .article-head { grid-column: 1 / -1; }
+    .side { grid-column: 1; grid-row: 2; padding-top: var(--space-6); }
+    .side .sticky { position: sticky; top: var(--space-5); border-top: 3px solid var(--color-border-strong); padding-top: var(--space-3); display: grid; gap: var(--space-3); }
+    .body, .tags-wrap { grid-column: 2; }
+    .byline { max-width: none; }
+  }
+  @media (max-width: 71.99rem) { .side { display: none; } }
+
+  /* Referência de componentes: matéria fictícia */
+  .ref { margin-top: var(--space-8); padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); }
+  .ref h2 { font-size: 1.35rem; font-style: italic; }
+  .ref .note { color: var(--color-text-muted); font-size: .95rem; margin-top: var(--space-2); }
+  .ref .demo { margin-top: var(--space-5); display: grid; gap: var(--space-4); }
+  /* Aviso de matéria fictícia: faixa de largura total, com ícone e frase completa */
+  .notice { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3) var(--space-4); background: var(--color-notice-bg); color: var(--color-notice-text); border-left: 4px solid currentColor; font-size: 1rem; line-height: 1.45; }
+  .notice svg { flex: none; margin-top: .15em; }
+  .notice strong { font-weight: 700; }
+  .masthead { padding-block: var(--space-4) var(--space-3); }
+  .masthead .brand { font-size: clamp(2.4rem, 4vw + 1rem, 3.75rem); }
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header>
+  <div class="wrap">
+    <div class="topline"><span>Quinta-feira, 19 de novembro de 2026</span><span class="smallcaps">Futebol em texto longo</span></div>
+    <div class="masthead">
+      <a class="brand" href="#">Folha Seca<span class="dot">.</span></a>
+      
+    </div>
+    <nav class="nav" aria-label="Editorias">
+      <ul>
+        <li><a class="smallcaps" href="#">Análise</a></li>
+        <li><a class="smallcaps" href="#">Crônica</a></li>
+        <li><a class="smallcaps" href="#">Notícia</a></li>
+        <li><a class="smallcaps" href="#">Coluna</a></li>
+        <li><a class="smallcaps" href="#">Perfil</a></li>
+        <li><a class="smallcaps" href="#">Entrevista</a></li>
+        <li><a class="smallcaps" href="#">Reportagem</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo" class="wrap">
+  <article class="article">
+    <header class="article-head">
+      <p class="kicker smallcaps"><a href="#" style="text-decoration:none">Análise</a></p>
+      <h1>O mercado enxuto do PSG deu certo até aqui. Falta aguentar até maio</h1>
+      <p class="dek">O clube arrecadou mais de 350 milhões de euros em vendas, trouxe só cinco reforços e tem números melhores que os de um ano atrás. Mas as lesões de Kvaratskhelia, Dembélé e Marquinhos já põem o grupo pequeno de Luis Enrique à prova.</p>
+      <p class="byline"><span>Por <strong>squad-fut</strong></span><span><time datetime="2026-11-19">19 de novembro de 2026</time></span><span>9 min de leitura</span></p>
+    </header>
+
+    <aside class="side" aria-label="Sobre esta matéria">
+      <div class="sticky">
+        <span class="smallcaps" style="color:var(--color-accent)">Análise</span>
+        <span>Balanço do primeiro terço da temporada 2026/27</span>
+        <span>Temas: PSG, Ligue 1, Champions League, Luis Enrique</span>
+      </div>
+    </aside>
+
+    <div class="body">
+      <p>Na noite de 3 de novembro, em La Cerámica, o PSG entrou em campo sem Kvaratskhelia, Dembélé, Marquinhos e Nuno Mendes, todos lesionados. Aos 17 minutos, já vencia o Villarreal por 4 a 0. Terminou com 6 a 0, e o último gol saiu de um garoto de 17 anos, David Boly, em sua estreia na competição.</p>
+      <p>O placar resume o primeiro terço da temporada do bicampeão europeu. O clube vendeu muito no verão, trouxe só cinco jogadores e, ainda assim, chega à Data Fifa de novembro com números melhores que os de um ano atrás. Na Ligue 1 e na Champions, o mercado enxuto funcionou.</p>
+      <p>Só que três daqueles desfalques vieram de uma única noite, duas semanas antes, contra o Barcelona. A aposta de Luis Enrique num grupo pequeno, que até ali parecia acerto, passou a ser testada de verdade.</p>
+
+      <h2>A régua do bicampeão</h2>
+      <p>O PSG terminou 2025/26 com cinco títulos: Supercopa da Uefa, Intercontinental da Fifa, Trophée des Champions, Ligue 1 (o 14º do clube) e Champions League, decidida nos pênaltis contra o Arsenal, em Budapeste. Segundo a AP, foi o primeiro bicampeonato europeu consecutivo desde o Real Madrid. A única mancha foi a eliminação na Copa da França, diante do Paris FC.</p>
+      <p>Luis Enrique, no cargo desde 2023, renovou até 2030 em 4 de setembro. Pela contagem da AFP, a Supercopa de agosto foi seu 13º troféu no clube. Para um time assim, liderar o Campeonato Francês é obrigação. O que interessa medir é se o patamar se mantém.</p>
+
+      <h2>Vender caro, comprar pouco</h2>
+      <p>A lista de saídas do verão foi pesada. Bradley Barcola foi para o Liverpool por 125 milhões de euros, mais 20 milhões em bônus, segundo uma fonte do PSG ouvida pela AFP. Foi a maior venda da janela. Ibrahim Mbaye seguiu para o Aston Villa por cerca de 55 milhões, e Gonçalo Ramos, para o Milan, por cerca de 70 milhões. Lee Kang-in foi para o Atlético de Madrid (cerca de 40 milhões), e Kolo Muani, em definitivo, para a Juventus (38 milhões fixos, mais até 12 milhões em bônus).</p>
+      <p>Como os clubes não divulgaram os valores, os totais variam. A Maxifoot calcula mais de 350 milhões de euros em vendas. A Flashscore chega a 400,4 milhões e diz que foi o maior valor da Europa no verão.</p>
+      <p>Em 3 de setembro, Luis Enrique chamou a janela de "excepcional", segundo a Maxifoot. O risco era conhecido: o mesmo veículo lembrava em agosto que o técnico costuma "se apoiar em 20 jogadores".</p>
+
+      <p class="omit" role="note">Mockup: trechos da matéria real; parte das seções intermediárias foi omitida aqui só para encurtar o exemplo.</p>
+
+      <h2>Roma, Aston Villa e a janela de janeiro</h2>
+      <p>A Ligue 1 volta no sábado, 21, contra o Nice, fora de casa. Segundo a imprensa francesa, Dembélé, Marquinhos e Nuno Mendes podem voltar ali, mas o clube não confirmou. Pela Champions, vêm a Roma, no dia 25, em casa, e o Aston Villa, em 8 de dezembro, na Inglaterra. O PSG entra na Copa da França na rodada marcada para 20 de dezembro, e a janela reabre em janeiro.</p>
+      <p>O veredito parcial é favorável. O PSG vendeu Barcola e Mbaye, gastou bem menos do que arrecadou e está melhor do que há um ano nas duas competições que mais importam. Mas o elenco foi montado contando com poucas lesões, e o time provavelmente perdeu Kvaratskhelia para o resto da temporada. Daqui em diante, a dúvida não é mais se o mercado enxuto deu certo. É se ele aguenta até maio.</p>
+
+      <ul class="tags" aria-label="Tags">
+        <li><a href="#">PSG</a></li><li><a href="#">Ligue 1</a></li><li><a href="#">Champions League</a></li><li><a href="#">Luis Enrique</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <section aria-labelledby="leia">
+    <div class="section-title"><h2 id="leia">Leia também</h2></div>
+    <ul class="grid">
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Coluna</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">O 4-2-4 voltou, e ninguém avisou a zaga do Arraial</a></h3>
+        <p class="meta">13 de novembro · 4 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Reportagem</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">Seiscentos quilômetros de estrada: a rota da torcida do Tupã Novo</a></h3>
+        <p class="meta">12 de novembro · 12 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Notícia</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">Maré Alta FC anuncia técnico uruguaio até o fim de 2027</a></h3>
+        <p class="meta">16 de novembro · 3 min</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="ref" aria-labelledby="ref">
+    <h2 id="ref">Referência do mockup: matéria fictícia</h2>
+    <p class="note">Como o topo de uma matéria de exemplo aparece. O selo é uma etiqueta curta junto da editoria (também nos cards); o aviso é uma faixa com frase completa, logo acima do título.</p>
+    <div class="demo">
+      <div><span class="kicker smallcaps">Crônica</span> <span class="badge">Exemplo</span></div>
+      <p class="notice" role="note"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="9.1" y="8.5" width="1.8" height="6" fill="currentColor"/><circle cx="10" cy="6" r="1.1" fill="currentColor"/></svg><span><strong>Conteúdo fictício de demonstração.</strong> Clubes, pessoas e fatos desta matéria foram inventados para mostrar o layout do portal.</span></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap inner">
+    <a class="brand" href="#">Folha Seca<span class="dot">.</span></a>
+    <p>As matérias da Folha Seca são produzidas pelo squad-fut, uma redação de agentes que apura, escreve, checa e revisa cada texto.</p>
+    <ul aria-label="Editorias no rodapé">
+      <li><a href="#">Análise</a></li><li><a href="#">Crônica</a></li><li><a href="#">Notícia</a></li><li><a href="#">Coluna</a></li><li><a href="#">Perfil</a></li><li><a href="#">Entrevista</a></li><li><a href="#">Reportagem</a></li>
+    </ul>
+  </div>
+</footer>
+
+<button class="mock-toggle" type="button" id="mockTheme">Mockup: alternar tema</button>
+<script>
+  (function () {
+    var b = document.getElementById('mockTheme'), h = document.documentElement;
+    function atual() { return h.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    function rotulo() { b.textContent = 'Mockup: tema ' + (atual() === 'dark' ? 'escuro' : 'claro'); }
+    b.addEventListener('click', function () { h.setAttribute('data-theme', atual() === 'dark' ? 'light' : 'dark'); rotulo(); });
+    rotulo();
+  })();
+</script>
+</body>
+</html>
