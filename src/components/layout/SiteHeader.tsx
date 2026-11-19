@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { NOME_DO_PORTAL, SLOGAN } from "@/lib/site";
+import { NOME_DO_PORTAL, SLOGAN, SLOGAN_LONGO } from "@/lib/site";
 import { EditoriasNav } from "./EditoriasNav";
 import styles from "./SiteHeader.module.css";
 
@@ -11,8 +11,8 @@ export type SiteHeaderProps = {
   edicao?: Date;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `edicao` é contrato da história 4.
-export function SiteHeader(props: SiteHeaderProps) {
+// `edicao` é contrato da história 4; por ora o parâmetro é recebido e ignorado.
+export function SiteHeader(_: SiteHeaderProps) {
   return (
     <header className={styles.cabecalho}>
       <div className="wrap">
@@ -28,9 +28,9 @@ export function SiteHeader(props: SiteHeaderProps) {
             Zona<i>Mista</i>
           </Link>
           <p className={`label ${styles.slogan}`}>
-            Análise, crônica e reportagem
+            {SLOGAN_LONGO[0]}
             <br />
-            apuradas pelo squad-fut
+            {SLOGAN_LONGO[1]}
           </p>
         </div>
       </div>

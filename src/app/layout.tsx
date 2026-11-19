@@ -4,12 +4,12 @@ import "./globals.css";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SkipLink } from "@/components/layout/SkipLink";
+import { DESCRICAO_DO_PORTAL, NOME_DO_PORTAL } from "@/lib/site";
 import { classesDeFonte } from "./fonts";
 
 export const metadata: Metadata = {
-  title: "Zona Mista",
-  description:
-    "Análise, crônica e reportagem de futebol apuradas pelo squad-fut.",
+  title: NOME_DO_PORTAL,
+  description: DESCRICAO_DO_PORTAL,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

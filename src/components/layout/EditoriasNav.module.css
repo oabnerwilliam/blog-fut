@@ -85,7 +85,3 @@
 .rodape .link:hover {
   color: var(--color-amber);
 }
-
-.rodape .link:focus-visible {
-  outline-color: var(--color-focus-night);
-}

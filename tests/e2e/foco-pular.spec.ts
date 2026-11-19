@@ -2,8 +2,9 @@ import { expect, test, type Page } from "@playwright/test";
 import { corDoToken, definirTema } from "./helpers";
 
 /**
- * QA, história 01: o contorno de foco do link de pular é --color-ink com outline-offset.
- * A alegação do dev é que o contorno fica sobre o fundo da página (e não sobre o âmbar).
+ * QA, história 01: o contorno de foco do link de pular é --color-ink com outline-offset, e um
+ * halo (box-shadow na cor de --color-bg) preenche o vão, de modo que o contorno fica sempre
+ * sobre o fundo da página (e não sobre o âmbar nem sobre os glifos do cabeçalho).
  * Aqui isso é conferido no render real: tiramos um screenshot com o link focado e lemos os
  * pixels do contorno, do vão entre o botão e o contorno, e do lado de fora do contorno.
  */
@@ -75,6 +76,8 @@ for (const largura of [1280, 320]) {
       test.use({
         colorScheme: c.esquema,
         viewport: { width: largura, height: 720 },
+        // Um pixel CSS = um pixel do screenshot: as coordenadas amostradas batem.
+        deviceScaleFactor: 1,
       });
 
       test("o contorno é --color-ink e o que fica dos dois lados dele é o fundo da página, com contraste >= 3:1", async ({
@@ -165,12 +168,18 @@ for (const largura of [1280, 320]) {
         const vao = amostras.filter((a) => a.faixa === "vao");
         expect(vao.filter((a) => perto(a.cor, rgbAmbar))).toEqual([]);
 
-        // Vão e lado de fora: o fundo da página. Em cima, à esquerda e à direita, o contorno
-        // só tem o papel em volta. Embaixo, o link sobrepõe o cabeçalho e o contorno cruza
-        // glifos do wordmark/slogan (que estão, eles mesmos, sobre o papel): lá só se exige
-        // que não haja âmbar, já conferido acima.
-        for (const lado of ["topo", "esquerda", "direita"]) {
-          for (const faixa of ["vao", "fora"] as const) {
+        // Vão: o fundo da página nos quatro lados. Embaixo o link sobrepõe o cabeçalho, mas o
+        // halo na cor de --color-bg cobre os glifos do wordmark/slogan entre o âmbar e o contorno.
+        // Lado de fora: em cima, à esquerda e à direita só há papel; embaixo, fora do contorno,
+        // ficam os glifos do cabeçalho, que não fazem parte do indicador.
+        const faixasPorLado = {
+          topo: ["vao", "fora"],
+          esquerda: ["vao", "fora"],
+          direita: ["vao", "fora"],
+          base: ["vao"],
+        } as const;
+        for (const [lado, faixasDoLado] of Object.entries(faixasPorLado)) {
+          for (const faixa of faixasDoLado) {
             const todas = amostras.filter(
               (a) => a.faixa === faixa && a.lado === lado,
             );
