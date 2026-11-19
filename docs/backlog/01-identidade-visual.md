@@ -296,11 +296,13 @@ Novo teste: `tests/e2e/rodape-fonte-ampliada.spec.ts`, com 81 casos.
 |---|---|
 | `npm run lint` | verde (0 problemas) |
 | `npm run typecheck` | verde |
-| `npm test` | verde: 5 arquivos, 20 testes |
+| `npm test` | verde: 6 arquivos, 22 testes |
 | `npm run test:e2e` (rodada 1) | verde: 136 passaram (55 anteriores + 81 novos) |
 | `npm run test:e2e` (rodada 2) | verde: 136 passaram. Sem instabilidade. |
 | `npm run build` | verde (`/` e `/_not-found` estáticos) |
 
 Nenhum bug novo.
+
+**Correção (história 09, 2026-11-19):** a contagem de `npm test` desta tabela dizia "5 arquivos, 20 testes", número de antes do commit `60b0da2`. Depois desse commit, são 6 arquivos e 22 testes. O mesmo commit fez `tests/e2e/foco-pular.spec.ts` exigir papel (`--color-bg`) também no vão da borda de baixo, onde fica o halo do link de pular, e não só nas bordas de cima, esquerda e direita. Com isso, a ressalva da seção "Verificação do desvio do dev", segundo a qual a spec dispensa a borda de baixo da exigência de ≥ 95% papel, ficou superada pelo `60b0da2`. A ressalva original foi mantida como registro daquela rodada.
 
 **Veredito atualizado: APROVADO.** O critério 21 (portões) passa a "passa". O critério 19 segue com o homologador.

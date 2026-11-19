@@ -6,7 +6,7 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
-    // Convenção: parâmetro com prefixo `_` é recebido de propósito e ainda não usado.
+    // Convenção: `_` só para parâmetro de contrato ainda não usado; ver docs/adr/0003-prefixo-underscore-no-lint.md.
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "warn",
