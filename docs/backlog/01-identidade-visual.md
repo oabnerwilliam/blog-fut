@@ -206,3 +206,71 @@ O texto final é livre, desde que tenha 1 `h1`, 1 parágrafo de apresentação, 
 - Nenhum `new Date()`/`getFullYear()` em render (`cacheComponents: true`).
 - Regex de cores literais sem falso positivo em `href="#conteudo"` e sem falso negativo em `style={{ color: "red" }}`.
 - `main` com `tabIndex={-1}` e sem contorno no foco programático, sem afetar o `:focus-visible` dos links.
+
+## Relatório de QA
+
+QA, 2026-11-19, branch `feat/01-identidade-visual` (5 commits do dev + 2 specs novas do QA).
+
+### Critério → teste → resultado
+
+| # | Teste | Resultado |
+|---|---|---|
+| 1–3, 5 | inspeção (`docs/design/01-identidade-visual/`, `docs/adr/0001-estrategia-de-estilo.md`) | ok (fora do escopo de teste automatizado) |
+| 4 | `tests/unit/tokens.test.ts` › "os valores claro e escuro batem com docs/design/tokens.md" | passa |
+| 6 | `tests/unit/tokens.test.ts` (5 testes: obrigatórios, @media = [data-theme=dark], color-scheme, valores, fontes) | passa |
+| 7 | `tests/e2e/tema.spec.ts` › "sem data-theme, sistema escuro/claro mostra o tema escuro/claro" | passa |
+| 8 | `tests/e2e/tema.spec.ts` › "data-theme=dark vence sistema claro", "data-theme=light vence sistema escuro"; `borda-320.spec.ts` repete a verificação em 320px | passa |
+| 9 | `tests/unit/cores-literais.test.ts` (detector + varredura de `src/`) | passa |
+| 10 | `tests/e2e/acessibilidade.spec.ts` (axe nos 4 cenários de tema + link de pular focado); `tests/unit/contraste.test.ts`; **novo** `tests/e2e/foco-pular.spec.ts` (contraste do contorno do link de pular medido no render real) | passa |
+| 11 | `tests/e2e/fontes.spec.ts` › "não requisita fonts.googleapis.com…", "carrega fontes de /_next/static/media" | passa |
+| 12 | `tests/e2e/fontes.spec.ts` › "h1 em Instrument Serif, parágrafo em Instrument Sans, rótulo em Geist Mono" | passa |
+| 13 | `tests/e2e/smoke.spec.ts` | passa |
+| 14 | `tests/unit/editorias.test.ts` (5) + `tests/e2e/layout.spec.ts` › "o nome do portal é link para /", "nav Editorias tem os 7 links…" | passa |
+| 15 | `tests/e2e/layout.spec.ts` › "rodapé tem o nome do portal e a frase do squad-fut" | passa |
+| 16 | `tests/e2e/teclado.spec.ts` › "o primeiro Tab foca o link de pular…", "Enter no link de pular leva ao main" | passa |
+| 17 | `tests/e2e/teclado.spec.ts` › "ordem de Tab…", "cada um tem contorno sólido de 3px…", "links do rodapé usam --color-focus-night" (claro e escuro) | passa |
+| 18 | `tests/e2e/responsivo.spec.ts` (claro e escuro) + **novo** `tests/e2e/borda-320.spec.ts` › "320px, Tab por todos os links" (4 cenários de tema) | passa |
+| 19 | homologador | pendente (fora do QA) |
+| 20 | `tests/e2e/capa.spec.ts` › "a capa tem um único h1", "tem parágrafo, link e texto secundário" | passa |
+| 21 | portões (abaixo) | `test:e2e` vermelho por causa do bug QA-01 |
+
+### Testes acrescentados
+
+- `tests/e2e/borda-320.spec.ts`
+  - "320px, Tab por todos os links" em 4 cenários (sistema claro, sistema escuro, `data-theme=dark` com sistema claro, `data-theme=light` com sistema escuro): Tab por **todos** os focáveis da página (cabeçalho, capa, rodapé). Cada um fica dentro da viewport, com contorno sólido de 3px na cor certa (`--color-ink` no link de pular, `--color-focus-night` no rodapé, `--color-focus` no resto), e a página segue sem rolagem horizontal a cada passo. Os 9 primeiros vêm na ordem do critério 17.
+  - "320px com fonte raiz a 200%" (claro e escuro): sem rolagem horizontal; nome do portal, editorias, h1, apresentação, link e rodapé visíveis e dentro da largura; nenhum elemento além da borda direita. **Falha: bug QA-01.**
+  - "640px / 1280px com fonte raiz a 200%" (claro e escuro), WCAG 1.4.4: sem rolagem horizontal, com h1 e editorias dentro da largura. Passa.
+  - Zoom do navegador a 200% numa janela de 640px equivale a uma viewport de 320 CSS px, já coberta pelos testes de 320px.
+- `tests/e2e/foco-pular.spec.ts`: em 1280px e 320px, nos 4 cenários de tema, foca o link de pular, tira screenshot e lê os pixels de todo o perímetro em três faixas: o meio do contorno, o meio do vão entre o âmbar e o contorno, e 2px para fora. Afirma: o contorno é 100% `--color-ink`; nenhum pixel do vão é âmbar; em cima, à esquerda e à direita, o vão e o lado de fora são ≥ 95% `--color-bg`; ink/bg ≥ 3:1.
+
+### Verificação do desvio do dev (foco do link de pular medido como ink/bg)
+
+**A alegação se sustenta.** `SkipLink.module.css` usa `outline-color: var(--color-ink)` e herda do `:focus-visible` global o `outline-offset: var(--focus-offset)` (3px), com `--radius: 0`. No render real, nos 8 cenários, há um vão de 3px na cor do fundo da página entre o âmbar e o contorno, e nenhum pixel âmbar encosta no contorno. O fundo adjacente ao indicador é, portanto, `--color-bg`: ink/bg = 15,29:1 no claro e 15,70:1 no escuro. Para comparação, ink/âmbar seria 9,69:1 no claro e **1,53:1 no escuro**. Medir contra o âmbar só reprovaria um par que não aparece na tela.
+
+Ressalvas:
+- O link de pular focado fica por cima da primeira linha do cabeçalho. Na borda de baixo, o contorno cruza glifos do wordmark e do slogan, que são cor de tinta sobre o papel. Isso não reprova o critério 10, porque o contorno segue contínuo e visível sobre o papel nos outros três lados. A spec dispensa a borda de baixo da exigência de "≥ 95% papel", mas mantém nela a de "nenhum âmbar". Fica o registro para o homologador.
+- A conformidade depende do offset. Se alguém zerar o `outline-offset` do link de pular, o contorno passa a encostar no âmbar e o tema escuro cai para 1,53:1. A `foco-pular.spec.ts` pega essa regressão.
+
+### Bugs encontrados
+
+**QA-01: o rodapé estoura a largura com texto ampliado em telas estreitas (rolagem horizontal).** Severidade baixa/média. Está fora da letra do critério 18, que mede no tamanho de fonte padrão, mas viola a regra do `CLAUDE.md` ("layout funcionando a partir de 320px sem rolagem horizontal") para quem usa no navegador uma fonte padrão maior.
+- Passos: viewport de 320px (ou 360px, ou 400px); abrir `/` e aplicar `html { font-size: 175% }` ou `200%` (equivale a configurar a fonte padrão do navegador em 28px ou 32px). Teste: `tests/e2e/borda-320.spec.ts` › "320px com fonte raiz a 200%".
+- Esperado: `document.documentElement.scrollWidth <= innerWidth` e nenhum elemento além da borda direita.
+- Obtido: `scrollWidth` = 412 em 320px, 360px e 400px (a 200%), e 361 em 320px (a 175%). Ficam fora da tela: `p.marca` ("ZonaMista", com 380px de largura), a frase do squad-fut e os links "Perfil" e "Reportagem" da nav do rodapé. O cabeçalho e a capa ficam dentro da largura. Com 480px ou mais, não ocorre.
+- Causa provável: em `src/components/layout/SiteFooter.module.css:26-27`, a `.marca` usa `--text-footer-mark` (`src/styles/tokens.css:53`, `clamp(3.5rem, …)`), cujo mínimo em `rem` cresce junto com a fonte. "Zona<i>Mista</i>" não tem ponto de quebra (`SiteFooter.tsx:10-11`), e o item da `.grade` (`SiteFooter.module.css:14`) fica com `min-width: auto`, alarga a coluna e leva junto a frase e a nav.
+- Sugestão (a decisão é do dev): limitar o wordmark do rodapé à largura disponível, por exemplo com um mínimo do tamanho em `vw`/`cqi` e não em `rem`, ou com `min-width: 0` no item da grade mais `max-width: 100%` na marca. A marca é `aria-hidden`, então reduzi-la não tira conteúdo.
+
+### Portões
+
+| Portão | Resultado |
+|---|---|
+| `npm run lint` | verde (0 problemas) |
+| `npm run typecheck` | verde |
+| `npm test` | verde: 5 arquivos, 20 testes |
+| `npm run test:e2e` (rodada 1) | **vermelho**: 51 passaram e 4 falharam, todos do QA-01 ("320px com fonte raiz a 200%" › "sem rolagem horizontal da página" e "nenhum texto fica cortado…", no claro e no escuro) |
+| `npm run test:e2e` (rodada 2) | resultado idêntico: 51 passaram e falharam as mesmas 4. Sem instabilidade. |
+| `npm run build` | verde (`/` e `/_not-found` estáticos) |
+
+As specs `tests/e2e/borda-320.spec.ts` e `tests/e2e/foco-pular.spec.ts` foram conferidas: estão em UTF-8, sem mojibake.
+
+**Veredito: DEVOLVER AO DEV** (bug QA-01). Todo o resto está aprovado, incluindo o desvio no contraste do foco do link de pular.
