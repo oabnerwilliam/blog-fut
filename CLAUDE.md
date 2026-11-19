@@ -13,31 +13,28 @@ Subagentes não chamam outros subagentes. Quem coordena é sempre o orquestrador
 
 | # | Agente | Função | Entrega |
 |---|---|---|---|
-| 1 | `product-owner` | Transforma o pedido em história com critérios de aceite verificáveis | `docs/backlog/NN-slug.md` |
+| 1 | `planejador` | História curta (até ~15 critérios) com notas técnicas enxutas; ADR só para decisão real | `docs/backlog/NN-slug.md` (+ `docs/adr/`) |
 | 2 | `designer` | Identidade visual, mockups (claro e escuro, 375px e desktop) e tokens | `docs/design/` |
-| 3 | `arquiteto` | Decisões técnicas, contratos (tipos e assinaturas), ADRs | `docs/adr/` + "Notas técnicas" na história |
-| 4 | `dev` | Implementa com TDD | código + testes |
-| 5 | `qa` | Testes de borda e e2e, roda todos os portões | "Relatório de QA" na história |
-| 6 | `code-reviewer` | Revisa o diff contra a história e as regras deste arquivo | parecer APROVADO / MUDANÇAS |
-| 7 | `homologador` | Sobe o site, navega como leitor, tira screenshots e confere os critérios de aceite | parecer APROVADO / REPROVADO |
-| 8 | `versionador` | **Único que roda git e gh de escrita**: branch, commits, PR, comentários, merge | branch, PR, merge |
+| 3 | `dev` | Implementa com TDD | código + testes |
+| 4 | `revisor` | Code review + testes dos riscos que faltam + os cinco portões, numa passada | parecer APROVADO / MUDANÇAS |
+| 5 | `homologador` | **Só com UI nova:** sobe o site, navega como leitor e tira screenshots | parecer APROVADO / REPROVADO |
+| 6 | `versionador` | Publica matérias da caixa de entrada (`content/entrada` → PR) | PR `content/<slug>` |
+
+O **orquestrador** roda o git e o gh das histórias: branch, commits, PR, comentários e merge.
 
 ## Fluxo de cada história
 
-1. **PO** escreve `docs/backlog/NN-slug.md`.
-2. **Designer**, só se houver UI nova. Uma identidade visual nova ou uma mudança visual grande **volta para o usuário aprovar**: o orquestrador pergunta com opções.
-3. **Arquiteto** acrescenta "Notas técnicas" à história (arquivos, assinaturas, ADR se houver decisão).
-4. **Versionador** atualiza a `main` e cria a branch `feat/NN-slug` (ou `fix/`, `content/`, `chore/`).
-5. **Dev** implementa com TDD e informa as etapas concluídas. A cada etapa, o **versionador** faz um commit.
-6. **QA** acrescenta testes e roda os portões. Se falhar → volta ao passo 5.
-7. **Versionador** faz o push e abre o PR, com a história e os critérios de aceite no corpo.
-8. **Code-reviewer** revisa, e o versionador publica o parecer como comentário no PR. MUDANÇAS → volta ao passo 5.
-9. **Homologador** homologa, e o versionador publica o resumo no PR. REPROVADO → volta ao passo 5.
-10. Com os dois aprovados, o **versionador** faz merge com squash na `main`, apaga a branch e atualiza a `main` local.
+1. **Planejador** escreve `docs/backlog/NN-slug.md` com critérios e notas técnicas. Dúvidas do usuário → o orquestrador pergunta com opções.
+2. **Designer**, só se houver UI nova. Uma identidade visual nova ou uma mudança visual grande **volta para o usuário aprovar**.
+3. **Orquestrador** atualiza a `main`, cria a branch `feat/NN-slug` (ou `fix/`, `chore/`) e faz o commit da história.
+4. **Dev** implementa com TDD e entrega 2 a 5 etapas com mensagem de commit. O orquestrador faz os commits.
+5. **Revisor** revisa, testa os riscos e roda os portões. Com UI nova, o **homologador** roda em paralelo.
+6. Bloqueante ou importante → o dev corrige tudo numa leva só e o revisor confere só a correção. Sugestões viram registro no PR, não nova rodada.
+7. Com tudo aprovado, o **orquestrador** commita os testes, faz o push, abre o PR com um único comentário de pareceres e faz o merge com squash.
 
-Ao repassar trabalho, o orquestrador sempre informa ao agente: o caminho da história, o pedido original, a branch atual e quais arquivos ler.
+Ao repassar trabalho, o orquestrador sempre informa ao agente: o caminho da história, o pedido original, a branch atual e quais arquivos ler. Agentes que não mexem nos mesmos arquivos podem rodar em paralelo.
 
-## Portões de qualidade (todos verdes antes de abrir PR)
+## Portões de qualidade (todos verdes antes do merge)
 
 ```
 npm run lint
@@ -65,4 +62,4 @@ npm run build
 - Commits no padrão Conventional Commits, em português (`feat: página da matéria`), terminando com `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 - A `main` é protegida: só recebe merge por PR, com squash.
 - Um hook global (git-guard) bloqueia git e gh de escrita fora dos repositórios autorizados. **Se o git-guard bloquear algo, pare e avise o usuário. Nunca tente contornar.**
-- Só o `versionador` roda git e gh de escrita. Os outros agentes podem usar `git status`, `git diff` e `git log` para ler.
+- Git e gh de escrita: só o orquestrador (histórias) e o `versionador` (matérias da caixa de entrada), sempre rodando de dentro do repositório. Os outros agentes podem usar `git status`, `git diff` e `git log` para ler.
