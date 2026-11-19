@@ -144,3 +144,61 @@ Acrescentar `## Relatório de QA` ao fim deste arquivo com os 5 portões (crité
 - A tabela original e a do reteste têm a linha `npm test` idêntica: conferir no diff que a trocada é a do reteste (perto da linha 299), não a da linha 269.
 - O `next dev` reescreve o bloco do `AGENTS.md`: nenhum diff nesse arquivo deve entrar no PR.
 - Conferir que o `eslint.config.mjs` não ganhou nenhuma mudança na regra, nem de formatação.
+
+## Relatório de QA
+
+História sem código de produção nem teste novo. A prova de cada critério é o diff contra a `main` e os portões, rodados na branch `chore/09-convencao-lint-e-adendo-01` depois de o dev concluir o `eslint.config.mjs` e o `CLAUDE.md`.
+
+### Conferência prévia (critérios 9 e 10)
+- `npm test` real: **6 arquivos, 22 testes**. Igual ao valor das Notas técnicas, sem diferença.
+- `git show 60b0da2 -- tests/e2e/foco-pular.spec.ts`: o laço que exigia fundo só em `topo`, `esquerda` e `direita` virou `faixasPorLado`, com `base: ["vao"]`. O limiar continua `toBeGreaterThanOrEqual(0.95)` (≥ 95% de `--color-bg`) também no vão de baixo. Na borda de baixo, a faixa de fora segue sem exigência de papel. O commit também fixou `deviceScaleFactor: 1`. A nota da correção descreve isso corretamente, sem ajuste no texto.
+
+### Critério → prova → resultado
+
+| # | Prova | Resultado |
+|---|---|---|
+| 1 | `docs/adr/0003-prefixo-underscore-no-lint.md`: título `# ADR 0003: …`, linha de Status/Data/História, seções Contexto, Decisão, Alternativas consideradas e Consequências | passa |
+| 2 | Decisão, item 1: regra, `warn`, `argsIgnorePattern: "^_"`, `varsIgnorePattern: "^_"`, sem filtro de arquivos | passa |
+| 3 | Decisão, item 2: quando é permitido, com o exemplo `SiteHeader(_: SiteHeaderProps)` e `edicao?` para a história 04 | passa |
+| 4 | Decisão, item 3: quando é proibido, e o código deve ser apagado | passa |
+| 5 | Regra de rastreio no ADR. `SiteHeader.tsx` sem diff (a linha 14 já cita a história 4) | passa |
+| 6 | Consequências: conferência do code-reviewer e remoção do `_` pela história citada | passa |
+| 7 | `git diff main -- eslint.config.mjs`: uma linha removida e uma adicionada, as duas de comentário (linha 9), citando o ADR 0003 | passa |
+| 8 | `git diff main -- CLAUDE.md AGENTS.md`: só uma linha adicionada em "Regras do projeto", entre "Regra do repositório" e "Texto do squad é imutável". `AGENTS.md` sem diff | passa |
+| 9 | `git diff main -- docs/backlog/01-identidade-visual.md`: a linha trocada é a da tabela "Portões (reteste)" (hunk em `@@ -296`), agora "verde: 6 arquivos, 22 testes" | passa |
+| 10 | Nota "Correção (história 09, 2026-11-19)" entre "Nenhum bug novo." e "Veredito atualizado" | passa |
+| 11 | A linha `npm test` da seção "Portões" original (linha 269) não muda. O diff tem só a linha da tabela e o parágrafo novo, mais a linha em branco | passa |
+| 12 | A nota declara a ressalva sobre a borda de baixo superada pelo `60b0da2`, e a ressalva original (linha 251) foi mantida | passa |
+| 13 | `git diff main --quiet -- src tests content docs/design AGENTS.md` com saída 0. Build com `/` e `/_not-found` estáticos | passa |
+| 14 | Portões abaixo | passa |
+| 15 | Commits: responsabilidade do versionador (`git log main..HEAD`) | fora do QA |
+
+### `git diff main --stat`
+
+```
+ CLAUDE.md                                     |   1 +
+ docs/adr/0003-prefixo-underscore-no-lint.md   |  37 +++++++
+ docs/backlog/01-identidade-visual.md          |   4 +-
+ docs/backlog/09-convencao-lint-e-adendo-01.md | 146 ++++++++++++++++++++++++++
+ eslint.config.mjs                             |   2 +-
+ 5 files changed, 188 insertions(+), 2 deletions(-)
+```
+(Antes deste relatório ser acrescentado. Nenhum arquivo em `src/`, `tests/`, `content/`, `docs/design/` ou `AGENTS.md`.)
+
+### Portões
+
+| Portão | Resultado |
+|---|---|
+| `npm run lint` | verde: 0 erros e 0 avisos (também conferido com `eslint . --max-warnings=0`, saída 0) |
+| `npm run typecheck` | verde |
+| `npm test` | verde: 6 arquivos, 22 testes |
+| `npm run test:e2e` | verde: 136 passaram, o mesmo número da `main` |
+| `npm run build` | verde (`/` e `/_not-found` estáticos) |
+
+### Testes acrescentados
+Nenhum. A história não tem comportamento novo para testar (veja as Notas técnicas).
+
+### Bugs
+Nenhum.
+
+**Veredito: APROVADO.**
