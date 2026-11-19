@@ -3,5 +3,7 @@ node_modules
 test-results
 playwright-report
 package-lock.json
-content
-docs
+/content
+/docs
+/tests/fixtures
+/supabase
