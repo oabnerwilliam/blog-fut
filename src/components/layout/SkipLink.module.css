@@ -1,0 +1,23 @@
+/* docs/design/tokens.md §5.1 */
+.pular {
+  position: absolute;
+  top: -200px;
+  left: var(--layout-gutter);
+  z-index: 20;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  background: var(--color-amber);
+  color: var(--color-badge-ink);
+  font: 600 0.8125rem / 1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pular:focus {
+  top: 0.75rem;
+}
+
+/* O azul do foco sobre o âmbar não teria contraste: contorno na cor do texto principal. */
+.pular:focus-visible {
+  outline-color: var(--color-ink);
+}

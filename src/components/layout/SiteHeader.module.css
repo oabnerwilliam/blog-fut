@@ -1,0 +1,49 @@
+/* docs/design/tokens.md §5.2 (cabeçalho sobre o papel) */
+.cabecalho {
+  padding-top: 0.9rem;
+}
+
+/* Linha de cima. Sem a data da edição (história 4), só o slogan, à esquerda, em todas as larguras. */
+.linha {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: var(--rule-width) solid var(--color-rule);
+  color: var(--color-ink-muted);
+}
+
+.principal {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.6rem 0.2rem;
+}
+
+.wordmark {
+  padding-bottom: 0.08em;
+  color: var(--color-ink);
+  font: 400 var(--text-wordmark) / 0.82 var(--font-display);
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.wordmark i {
+  font-style: italic;
+  letter-spacing: -0.045em;
+  margin-left: 0.1em;
+}
+
+.slogan {
+  display: none;
+  padding-bottom: 0.55rem;
+  color: var(--color-ink-muted);
+  text-align: right;
+}
+
+@media (min-width: 48rem) {
+  .slogan {
+    display: block;
+  }
+}
