@@ -274,3 +274,33 @@ Ressalvas:
 As specs `tests/e2e/borda-320.spec.ts` e `tests/e2e/foco-pular.spec.ts` foram conferidas: estão em UTF-8, sem mojibake.
 
 **Veredito: DEVOLVER AO DEV** (bug QA-01). Todo o resto está aprovado, incluindo o desvio no contraste do foco do link de pular.
+
+### Adendo: reteste após correção do QA-01
+
+Correção conferida: commit `4821a7c` (`src/components/layout/SiteFooter.tsx` e `SiteFooter.module.css`). A marca fica num wrapper `.colunaMarca` com `container-type: inline-size`, o tamanho passa a ser `min(var(--text-footer-mark), 27cqi)` e os itens da `.grade` ganharam `min-width: 0`.
+
+**QA-01: corrigido.**
+
+Novo teste: `tests/e2e/rodape-fonte-ampliada.spec.ts`, com 81 casos.
+- Matriz de 320, 360, 375 e 400px × fonte raiz padrão (16px), 175% (28px) e 200% (32px) × tema claro e escuro, com 3 testes em cada combinação (72 casos):
+  - "sem rolagem horizontal e nada além da borda direita": `scrollWidth <= innerWidth`, e nenhum elemento visível fica além da borda.
+  - "a marca do rodapé cabe inteira na coluna e na tela": mede a tinta do texto "ZonaMista" por `Range`, e não só a caixa do `<p>`. Confere também que `scrollWidth <= clientWidth` no `<p>`, porque com `min-width: 0` o texto poderia vazar do `<p>` sem gerar rolagem.
+  - "frase e links do rodapé ficam dentro da largura".
+  - Resultado: todos passam. Antes da correção, o `scrollWidth` era 412 (a 200%) e 361 (a 175% em 320px). Agora ele é igual à largura da viewport em todas as combinações.
+- "fonte padrão: a marca do rodapé segue o token aprovado" (9 casos), em 320, 375, 480, 768, 896, 1024, 1280, 1440 e 1920px: o `font-size` computado da marca é igual ao de `var(--text-footer-mark)`. O teto de 27cqi não entra em ação na fonte padrão em nenhuma largura, então o visual aprovado não mudou. O wrapper novo também não altera o layout, porque `p` tem `margin: 0` em `globals.css` e não há margem para colapsar de outro jeito.
+- Os 4 casos que falhavam em `tests/e2e/borda-320.spec.ts` ("320px com fonte raiz a 200%", no claro e no escuro) agora passam. A spec não foi alterada.
+
+#### Portões (reteste)
+
+| Portão | Resultado |
+|---|---|
+| `npm run lint` | verde (0 problemas) |
+| `npm run typecheck` | verde |
+| `npm test` | verde: 5 arquivos, 20 testes |
+| `npm run test:e2e` (rodada 1) | verde: 136 passaram (55 anteriores + 81 novos) |
+| `npm run test:e2e` (rodada 2) | verde: 136 passaram. Sem instabilidade. |
+| `npm run build` | verde (`/` e `/_not-found` estáticos) |
+
+Nenhum bug novo.
+
+**Veredito atualizado: APROVADO.** O critério 21 (portões) passa a "passa". O critério 19 segue com o homologador.
