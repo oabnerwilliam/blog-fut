@@ -24,6 +24,17 @@ npm run test:e2e    # Playwright (sobe build + start na porta 3100)
 npm run build       # build de produção
 ```
 
+## Variáveis de ambiente
+
+Nenhuma é obrigatória. Um valor fora da lista é erro, nunca cai no padrão em silêncio.
+
+| Variável           | Valores aceitos   | Padrão  | O que faz                                                                                                                                                                                  |
+| ------------------ | ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `CONTENT_SOURCE`   | `files`           | `files` | Fonte das matérias. `files` lê `content/materias/*.md` e `content/tags.json`. Qualquer outro valor (inclusive `supabase`, `FILES` ou vazio) lança erro: o Supabase ainda não existe.       |
+| `MOSTRAR_EXEMPLOS` | `true` ou `false` | `true`  | Com `false`, as matérias fictícias (`ficticio: true`) somem de todas as listas, buscas e taxonomias. **Vale no build**: as páginas são estáticas, então mudar o valor exige um build novo. |
+
+Não commite arquivos `.env*` (o repositório é público).
+
 ## Documentação
 
 - Design: [`docs/superpowers/specs/2026-11-19-blog-fut-design.md`](docs/superpowers/specs/2026-11-19-blog-fut-design.md)
