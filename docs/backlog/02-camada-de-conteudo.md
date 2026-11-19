@@ -224,13 +224,13 @@ Como leitor, quero que o texto das matérias chegue sem alterações e sem códi
 Instalar com **npm** (o projeto usa `package-lock.json`), todas em `dependencies` e com versão exata:
 
 ```
-npm install --save-exact zod@4.6.7 yaml@2.8.1 unified@11.0.5 remark-parse@11.0.0 remark-rehype@11.1.2 rehype-raw@7.0.0 rehype-sanitize@6.0.0 rehype-stringify@10.0.1
+npm install --save-exact zod@4.6.7 yaml@2.8.3 unified@11.0.5 remark-parse@11.0.0 remark-rehype@11.1.2 rehype-raw@7.0.0 rehype-sanitize@6.0.0 rehype-stringify@10.0.1
 ```
 
 | Pacote | Versão | Motivo |
 |---|---|---|
 | `zod` | 4.6.7 | Validação do frontmatter (spec 6.1). É a versão que já está no `package-lock.json` como transitiva; agora passa a ser declarada. |
-| `yaml` | 2.8.1 | Parser do frontmatter com esquema YAML 1.2 core: a data continua texto, chave duplicada é erro e o erro traz a linha (ADR 0005). |
+| `yaml` | 2.8.3 | Parser do frontmatter com esquema YAML 1.2 core: a data continua texto, chave duplicada é erro e o erro traz a linha (ADR 0005). A 2.8.3 corrige a GHSA-48c2-rrv3-qjmp da 2.8.1. |
 | `unified` | 11.0.5 | Orquestra o pipeline de markdown (ADR 0004). |
 | `remark-parse` | 11.0.0 | Markdown CommonMark → mdast. Também é usado para achar o h1 sem pegar código. |
 | `remark-rehype` | 11.1.2 | mdast → hast, com `allowDangerousHtml: true`. |
