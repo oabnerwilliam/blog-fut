@@ -1,24 +1,97 @@
-/* Estilos provisórios. Os tokens definitivos chegam na história 1 (identidade visual). */
-:root {
-  --bg: #ffffff;
-  --text: #1b1d21;
-}
+/*
+ * Reset e base do portal. Só usa tokens (var(--…)), definidos em src/styles/tokens.css.
+ * Especificação: docs/design/tokens.md, seções 3 ("Base do body"), 4 (".wrap") e 5.6 (foco e movimento).
+ */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #121417;
-    --text: #eceae4;
-  }
-}
-
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  padding: 16px;
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-text);
+  font-size: 1rem;
+  line-height: 1.5;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 400;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+/* Alvo programático do link de pular: recebe foco, mas não é interativo. */
+#conteudo:focus {
+  outline: none;
+}
+
+.wrap {
+  max-width: var(--layout-max);
+  margin-inline: auto;
+  padding-inline: var(--layout-gutter);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.label {
+  font: 500 var(--text-label) / 1.4 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
 }

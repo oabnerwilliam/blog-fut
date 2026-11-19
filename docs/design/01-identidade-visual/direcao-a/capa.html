@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folha Seca · capa (mockup direção A)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..600&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var t = new URLSearchParams(location.search).get('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    if (new URLSearchParams(location.search).has('shot')) document.documentElement.classList.add('shot');
+  })();
+</script>
+<style>
+  /* ===== Tokens: direção A, "Folha Seca" ===== */
+  :root {
+    --color-bg: #F5EFE3;
+    --color-surface: #FBF8F1;
+    --color-text: #1B1814;
+    --color-text-muted: #5C5347;
+    --color-accent: #A3201A;
+    --color-border: #D8CDB8;
+    --color-border-strong: #1B1814;
+    --color-focus: #1F55C4;
+    --color-badge-bg: #F3DFAE;
+    --color-badge-text: #6B4300;
+    --color-notice-bg: #E3EAF4;
+    --color-notice-text: #1E3A5F;
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem;
+    --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4rem;
+    --radius: 2px;
+    --gutter: clamp(1rem, 4vw, 2.5rem);
+    --page-max: 76rem;
+    --measure: 68ch;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-bg: #15120E; --color-surface: #1F1B16; --color-text: #ECE5D8; --color-text-muted: #B0A593;
+      --color-accent: #F2836F; --color-border: #3A3229; --color-border-strong: #ECE5D8; --color-focus: #8DB2FF;
+      --color-badge-bg: #3A2C0E; --color-badge-text: #F3D28A; --color-notice-bg: #18243A; --color-notice-text: #C9DAF5;
+      color-scheme: dark;
+    }
+  }
+  [data-theme="dark"] {
+    --color-bg: #15120E; --color-surface: #1F1B16; --color-text: #ECE5D8; --color-text-muted: #B0A593;
+    --color-accent: #F2836F; --color-border: #3A3229; --color-border-strong: #ECE5D8; --color-focus: #8DB2FF;
+    --color-badge-bg: #3A2C0E; --color-badge-text: #F3D28A; --color-notice-bg: #18243A; --color-notice-text: #C9DAF5;
+    color-scheme: dark;
+  }
+
+  /* ===== Base ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--color-bg); color: var(--color-text);
+    font-family: var(--font-body); font-size: clamp(1.0625rem, 1rem + .25vw, 1.1875rem); line-height: 1.6;
+    font-optical-sizing: auto; text-rendering: optimizeLegibility;
+  }
+  a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .18em; }
+  a:hover { color: var(--color-accent); }
+  :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; border-radius: var(--radius); }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 650; line-height: 1.1; margin: 0; overflow-wrap: break-word; hyphens: manual; }
+  p { margin: 0; }
+  .wrap { max-width: var(--page-max); margin: 0 auto; padding-inline: var(--gutter); }
+  .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--color-text); color: var(--color-bg); padding: var(--space-2) var(--space-4); z-index: 10; }
+  .skip:focus { top: var(--space-4); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .smallcaps { font-variant-caps: all-small-caps; letter-spacing: .08em; font-weight: 600; }
+
+  /* ===== Cabeçalho ===== */
+  .topline { display: flex; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-3); color: var(--color-text-muted); font-size: .875rem; border-bottom: 1px solid var(--color-border); }
+  .topline span:last-child { text-align: right; }
+  @media (max-width: 30rem) { .topline span:last-child { display: none; } }
+  .masthead { text-align: center; padding-block: var(--space-5) var(--space-4); }
+  .brand { font-family: var(--font-display); font-weight: 800; font-style: italic; font-size: clamp(2.75rem, 9vw + .5rem, 6.5rem); line-height: .95; letter-spacing: -.02em; text-decoration: none; font-variation-settings: "opsz" 144, "SOFT" 50; display: inline-block; }
+  .brand:hover { color: var(--color-text); }
+  .brand .dot { color: var(--color-accent); font-style: normal; }
+  .tagline { margin-top: var(--space-2); color: var(--color-text-muted); font-style: italic; font-size: 1rem; }
+  .nav { border-top: 3px solid var(--color-border-strong); border-bottom: 1px solid var(--color-border-strong); position: relative; }
+  .nav::before { content: ""; position: absolute; inset: 3px 0 auto; border-top: 1px solid var(--color-border-strong); }
+  .nav ul { list-style: none; margin: 0; padding: var(--space-2) 0; display: flex; flex-wrap: wrap; justify-content: center; column-gap: clamp(.25rem, 2vw, 1.75rem); row-gap: 0; }
+  .nav a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: var(--space-2); text-decoration: none; font-size: 1.0625rem; }
+  .nav a:hover { text-decoration: underline; color: var(--color-accent); }
+  .nav a[aria-current] { color: var(--color-accent); }
+
+  /* ===== Destaque ===== */
+  main { padding-block: var(--space-6) var(--space-8); }
+  .kicker { color: var(--color-accent); font-size: .95rem; }
+  .meta { color: var(--color-text-muted); font-size: .9rem; }
+  .lead { display: grid; gap: var(--space-5); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border-strong); }
+  .lead h2 { font-size: clamp(2.1rem, 1.4rem + 3.6vw, 4.25rem); letter-spacing: -.015em; margin-top: var(--space-2); font-variation-settings: "opsz" 120; }
+  .lead h2 a { text-decoration: none; }
+  .lead h2 a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+  .lead .dek { font-size: clamp(1.15rem, 1rem + .6vw, 1.4rem); line-height: 1.45; margin-top: var(--space-4); font-style: italic; }
+  .lead .meta { margin-top: var(--space-4); }
+  .lead .opening { columns: 1; column-gap: var(--space-6); column-rule: 1px solid var(--color-border); }
+  .lead .opening p + p { margin-top: var(--space-3); }
+  .lead .opening p:first-child::first-letter { font-family: var(--font-display); font-weight: 700; float: left; font-size: 3.6em; line-height: .82; padding: .06em .08em 0 0; color: var(--color-accent); }
+  .lead .more { display: inline-block; margin-top: var(--space-4); color: var(--color-accent); font-weight: 600; }
+  @media (min-width: 60rem) {
+    .lead { grid-template-columns: 1.35fr 1fr; column-gap: var(--space-7); align-items: start; }
+    .lead .opening { border-left: 1px solid var(--color-border); padding-left: var(--space-6); }
+  }
+
+  /* ===== Seções ===== */
+  .section-title { display: flex; align-items: baseline; gap: var(--space-3); margin-top: var(--space-7); padding-bottom: var(--space-2); border-bottom: 1px solid var(--color-border-strong); }
+  .section-title h2 { font-size: clamp(1.35rem, 1.2rem + .6vw, 1.75rem); font-style: italic; }
+  .section-title .meta { margin-left: auto; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; }
+  .card { padding-block: var(--space-5); border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: var(--space-2); }
+  .card h3 { font-size: clamp(1.3rem, 1.15rem + .6vw, 1.6rem); font-weight: 600; }
+  .card h3 a { text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; }
+  .card .dek { color: var(--color-text); font-size: 1rem; line-height: 1.5; }
+  .card .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+  @media (min-width: 40rem) {
+    .grid { grid-template-columns: repeat(2, 1fr); column-gap: var(--space-6); }
+  }
+  @media (min-width: 60rem) {
+    .grid { grid-template-columns: repeat(3, 1fr); column-gap: 0; }
+    .grid .card { padding-inline: var(--space-5); border-left: 1px solid var(--color-border); }
+    .grid .card:nth-child(3n+1) { padding-left: 0; border-left: 0; }
+    .grid .card:nth-child(3n) { padding-right: 0; }
+  }
+
+  /* Faixa por editoria: lista numerada */
+  .strip { list-style: none; margin: 0; padding: 0; counter-reset: n; display: grid; gap: 0; }
+  .strip li { counter-increment: n; display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); padding-block: var(--space-4); border-bottom: 1px solid var(--color-border); }
+  .strip li::before { content: counter(n); font-family: var(--font-display); font-size: 2.25rem; line-height: 1; color: var(--color-accent); font-weight: 700; font-style: italic; min-width: 1.2ch; }
+  .strip h3 { font-size: 1.2rem; font-weight: 600; }
+  .strip h3 a { text-decoration: none; }
+  .strip h3 a:hover { text-decoration: underline; }
+  @media (min-width: 60rem) { .strip { grid-template-columns: repeat(3, 1fr); column-gap: var(--space-6); } }
+
+  /* Selo "Exemplo": etiqueta pequena, inline, ao lado da editoria */
+  .badge { display: inline-flex; align-items: center; gap: .3em; padding: .05em .5em .1em; border: 1px dashed currentColor; border-radius: var(--radius); background: var(--color-badge-bg); color: var(--color-badge-text); font-family: var(--font-body); font-size: .8rem; font-variant-caps: all-small-caps; letter-spacing: .1em; font-weight: 700; line-height: 1.5; }
+
+  /* ===== Rodapé ===== */
+  footer { border-top: 3px solid var(--color-border-strong); position: relative; padding-block: var(--space-6) var(--space-7); }
+  footer::before { content: ""; position: absolute; inset: 3px 0 auto; border-top: 1px solid var(--color-border-strong); }
+  footer .inner { display: grid; gap: var(--space-4); }
+  footer .brand { font-size: 2.25rem; }
+  footer p { color: var(--color-text-muted); font-size: .95rem; max-width: 52ch; }
+  footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
+  footer ul a { display: inline-flex; min-height: 44px; align-items: center; color: var(--color-text); }
+  @media (min-width: 60rem) { footer .inner { grid-template-columns: auto 1fr; align-items: end; column-gap: var(--space-7); } footer ul { grid-column: 1 / -1; } }
+
+  /* ===== Controle do mockup (não faz parte do portal) ===== */
+  .mock-toggle { position: fixed; right: 12px; bottom: 12px; z-index: 20; font: 600 .8rem/1 system-ui, sans-serif; padding: .7rem .9rem; border-radius: 999px; border: 1px solid var(--color-border-strong); background: var(--color-surface); color: var(--color-text); cursor: pointer; box-shadow: 0 2px 10px rgb(0 0 0 / .15); }
+  .shot .mock-toggle { display: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header>
+  <div class="wrap">
+    <div class="topline"><span>Quinta-feira, 19 de novembro de 2026</span><span class="smallcaps">Futebol em texto longo</span></div>
+    <div class="masthead">
+      <a class="brand" href="#">Folha Seca<span class="dot">.</span></a>
+      <p class="tagline">O futebol lido com calma</p>
+    </div>
+    <nav class="nav" aria-label="Editorias">
+      <ul>
+        <li><a class="smallcaps" href="#">Análise</a></li>
+        <li><a class="smallcaps" href="#">Crônica</a></li>
+        <li><a class="smallcaps" href="#">Notícia</a></li>
+        <li><a class="smallcaps" href="#">Coluna</a></li>
+        <li><a class="smallcaps" href="#">Perfil</a></li>
+        <li><a class="smallcaps" href="#">Entrevista</a></li>
+        <li><a class="smallcaps" href="#">Reportagem</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo" class="wrap">
+  <h1 class="sr-only">Folha Seca: capa</h1>
+
+  <article class="lead">
+    <div>
+      <p class="kicker smallcaps">Análise · PSG</p>
+      <h2><a href="materia.html">O mercado enxuto do PSG deu certo até aqui. Falta aguentar até maio</a></h2>
+      <p class="dek">O clube arrecadou mais de 350 milhões de euros em vendas, trouxe só cinco reforços e tem números melhores que os de um ano atrás. Mas as lesões de Kvaratskhelia, Dembélé e Marquinhos já põem o grupo pequeno de Luis Enrique à prova.</p>
+      <p class="meta">Por squad-fut · 19 de novembro de 2026 · 9 min de leitura</p>
+    </div>
+    <div class="opening">
+      <p>Na noite de 3 de novembro, em La Cerámica, o PSG entrou em campo sem Kvaratskhelia, Dembélé, Marquinhos e Nuno Mendes, todos lesionados. Aos 17 minutos, já vencia o Villarreal por 4 a 0. Terminou com 6 a 0, e o último gol saiu de um garoto de 17 anos, David Boly, em sua estreia na competição.</p>
+      <p>O placar resume o primeiro terço da temporada do bicampeão europeu. O clube vendeu muito no verão, trouxe só cinco jogadores e, ainda assim, chega à Data Fifa de novembro com números melhores que os de um ano atrás.</p>
+      <a class="more" href="materia.html">Continuar lendo →</a>
+    </div>
+  </article>
+
+  <section aria-labelledby="ultimas">
+    <div class="section-title"><h2 id="ultimas">Últimas</h2><span class="meta">Nesta edição</span></div>
+    <ul class="grid">
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Crônica</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">O dia em que o Ventania parou a cidade de Pedra Branca</a></h3>
+        <p class="dek">A torcida lotou o Estádio do Morro para ver o time voltar à primeira divisão estadual depois de onze anos.</p>
+        <p class="meta">17 de novembro · 5 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Notícia</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">Maré Alta FC anuncia técnico uruguaio até o fim de 2027</a></h3>
+        <p class="dek">Contratado após a queda nas quartas, o treinador chega com a missão de reduzir os gols sofridos em bola parada.</p>
+        <p class="meta">16 de novembro · 3 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Entrevista</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">“Jogo melhor quando ninguém espera nada”, diz o meia Tiquinho Albuquerque</a></h3>
+        <p class="dek">Camisa 10 do Real Cajueiro fala sobre a reserva, a volta por cima e o gol que quase não aconteceu.</p>
+        <p class="meta">15 de novembro · 8 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Perfil</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">Dona Celeste, a roupeira que viu quarenta anos de União Bandeirinha</a></h3>
+        <p class="dek">Das camisas de algodão às de tecido sintético, ela lavou cada uniforme que entrou em campo.</p>
+        <p class="meta">14 de novembro · 7 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Coluna</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">O 4-2-4 voltou, e ninguém avisou a zaga do Arraial</a></h3>
+        <p class="dek">Uma formação antiga, dois pontas abertos e uma defesa que ainda marca como em 2019.</p>
+        <p class="meta">13 de novembro · 4 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="kicker smallcaps">Reportagem</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">Seiscentos quilômetros de estrada: a rota da torcida do Tupã Novo</a></h3>
+        <p class="dek">Três ônibus, duas paradas e uma madrugada inteira para ver um jogo de noventa minutos.</p>
+        <p class="meta">12 de novembro · 12 min</p>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="cronicas">
+    <div class="section-title"><h2 id="cronicas">Crônica</h2><a class="meta" href="#">Ver todas</a></div>
+    <ol class="strip">
+      <li><div><h3><a href="#">Chuva em Pedra Branca e um goleiro de luvas emprestadas</a></h3><p class="meta"><span class="badge">Exemplo</span> · 10 de novembro</p></div></li>
+      <li><div><h3><a href="#">A arquibancada de madeira que resistiu a três reformas</a></h3><p class="meta"><span class="badge">Exemplo</span> · 6 de novembro</p></div></li>
+      <li><div><h3><a href="#">O radinho do seu Abílio ainda narra os jogos do Ventania</a></h3><p class="meta"><span class="badge">Exemplo</span> · 2 de novembro</p></div></li>
+    </ol>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap inner">
+    <a class="brand" href="#">Folha Seca<span class="dot">.</span></a>
+    <p>As matérias da Folha Seca são produzidas pelo squad-fut, uma redação de agentes que apura, escreve, checa e revisa cada texto.</p>
+    <ul aria-label="Editorias no rodapé">
+      <li><a href="#">Análise</a></li><li><a href="#">Crônica</a></li><li><a href="#">Notícia</a></li><li><a href="#">Coluna</a></li><li><a href="#">Perfil</a></li><li><a href="#">Entrevista</a></li><li><a href="#">Reportagem</a></li>
+    </ul>
+  </div>
+</footer>
+
+<button class="mock-toggle" type="button" id="mockTheme">Mockup: alternar tema</button>
+<script>
+  (function () {
+    var b = document.getElementById('mockTheme'), h = document.documentElement;
+    function atual() { return h.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    function rotulo() { b.textContent = 'Mockup: tema ' + (atual() === 'dark' ? 'escuro' : 'claro'); }
+    b.addEventListener('click', function () { h.setAttribute('data-theme', atual() === 'dark' ? 'light' : 'dark'); rotulo(); });
+    rotulo();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zona Mista · capa (mockup direção B)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search), t = q.get('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    if (q.has('shot')) document.documentElement.classList.add('shot');
+  })();
+</script>
+<style>
+  /* ===== Tokens: direção B, "Zona Mista" ===== */
+  :root {
+    --color-bg: #F2F4F1;
+    --color-surface: #FFFFFF;
+    --color-text: #0F1B15;
+    --color-text-muted: #4B5B52;
+    --color-accent: #0A6A3A;
+    --color-accent-soft: #E3F1E8;
+    --color-border: #D3DCD6;
+    --color-band: #0C2B1C;          /* faixa do cabeçalho, do rodapé e do topo da matéria */
+    --color-band-text: #F2F4F1;
+    --color-band-muted: #CFE3D6;
+    --color-band-muted-2: #A9C2B3;
+    --color-band-line: #2A4A38;     /* grafismo decorativo sobre a faixa */
+    --color-highlight: #D4F05A;     /* lima: marcador e selo; nunca texto sobre fundo claro */
+    --color-focus: #D9480F;
+    --color-badge-bg: #D4F05A;
+    --color-badge-text: #0F1B15;
+    --color-notice-bg: #FFF1D6;
+    --color-notice-text: #5A3B00;
+    --color-notice-border: #E0A21B;
+    --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem;
+    --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4rem;
+    --radius-s: 6px; --radius-m: 12px; --radius-pill: 999px;
+    --gutter: clamp(1rem, 4vw, 2.5rem);
+    --page-max: 78rem;
+    --measure: 68ch;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-bg: #0B120E; --color-surface: #141F19; --color-text: #E4ECE6; --color-text-muted: #9DB1A5;
+      --color-accent: #5CD08A; --color-accent-soft: #1B3326; --color-border: #26342C; --color-band: #0E2418;
+      --color-focus: #FF8A4C; --color-notice-bg: #2E2310; --color-notice-text: #F6D58E; --color-notice-border: #B7841A;
+      color-scheme: dark;
+    }
+  }
+  [data-theme="dark"] {
+    --color-bg: #0B120E; --color-surface: #141F19; --color-text: #E4ECE6; --color-text-muted: #9DB1A5;
+    --color-accent: #5CD08A; --color-accent-soft: #1B3326; --color-border: #26342C; --color-band: #0E2418;
+    --color-focus: #FF8A4C; --color-notice-bg: #2E2310; --color-notice-text: #F6D58E; --color-notice-border: #B7841A;
+    color-scheme: dark;
+  }
+
+  /* ===== Base ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-size: clamp(1rem, .96rem + .2vw, 1.0625rem); line-height: 1.6; }
+  a { color: inherit; text-underline-offset: .2em; }
+  :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-s); }
+  h1, h2, h3 { font-family: var(--font-display); line-height: 1.02; margin: 0; overflow-wrap: break-word; }
+  p { margin: 0; }
+  .wrap { max-width: var(--page-max); margin: 0 auto; padding-inline: var(--gutter); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--color-highlight); color: var(--color-badge-text); padding: var(--space-2) var(--space-4); z-index: 10; font-weight: 700; border-radius: var(--radius-s); }
+  .skip:focus { top: var(--space-3); }
+  .label { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: .95rem; }
+
+  /* ===== Cabeçalho: faixa de placar ===== */
+  .site-header { background: var(--color-band); color: var(--color-band-text); }
+  .site-header .top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-4) var(--space-3); }
+  .brand { display: inline-flex; align-items: center; gap: .5rem; text-decoration: none; font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: clamp(1.9rem, 1.4rem + 2.4vw, 2.75rem); line-height: 1; letter-spacing: .01em; }
+  .brand .mark { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; background: var(--color-highlight); color: var(--color-band); border-radius: 4px; font-size: .7em; }
+  .brand em { font-style: normal; color: var(--color-highlight); }
+  .site-header .date { color: var(--color-band-muted); font-size: .85rem; text-align: right; }
+  @media (max-width: 34rem) { .site-header .date { display: none; } }
+
+  /* Navegação: rolagem horizontal só dentro da faixa, com dica de continuação na borda */
+  .nav { position: relative; margin-inline: calc(var(--gutter) * -1); }
+  .nav ul { list-style: none; margin: 0; padding: 0 var(--gutter) var(--space-2); display: flex; gap: var(--space-1); overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: var(--color-band-muted-2) transparent; scroll-padding-inline: var(--gutter) 3rem; }
+  .nav li { scroll-snap-align: start; flex: none; }
+  .nav li:last-child { padding-right: 2.5rem; } /* espaço para a última editoria sair de baixo do degradê */
+  .nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--space-3); color: var(--color-band-muted); text-decoration: none; font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 1.05rem; border-bottom: 3px solid transparent; }
+  .nav a:hover { color: var(--color-band-text); border-bottom-color: var(--color-band-muted-2); }
+  .nav a[aria-current="page"] { color: var(--color-band-text); border-bottom-color: var(--color-highlight); }
+  .nav a:focus-visible { outline-offset: -3px; }
+  .nav::after { content: ""; position: absolute; top: 0; right: 0; bottom: var(--space-2); width: 2.5rem; pointer-events: none; background: linear-gradient(to right, transparent, var(--color-band)); }
+  @media (min-width: 48rem) { .nav::after { display: none; } .nav ul { overflow: visible; } }
+  .site-header .pitch { height: 6px; background: linear-gradient(90deg, var(--color-highlight) 0 64px, transparent 64px); }
+
+  /* ===== Destaque ===== */
+  main { padding-block: var(--space-6) var(--space-8); }
+  .meta { color: var(--color-text-muted); font-size: .875rem; }
+  .pill { display: inline-flex; align-items: center; padding: .15rem .6rem; border-radius: var(--radius-pill); background: var(--color-accent-soft); color: var(--color-accent); font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; line-height: 1.5; text-decoration: none; }
+  .badge { display: inline-flex; align-items: center; gap: .35em; padding: .15rem .55rem; border-radius: var(--radius-s); background: var(--color-badge-bg); color: var(--color-badge-text); font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; line-height: 1.5; }
+  .badge::before { content: ""; width: .5em; height: .5em; border: 2px solid currentColor; border-radius: 50%; }
+
+  .lead { position: relative; overflow: hidden; display: grid; gap: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-m); padding: var(--space-5); }
+  /* grafismo: círculo central e linha do meio-campo, em CSS */
+  .lead::before { content: ""; position: absolute; right: -90px; top: -90px; width: 260px; height: 260px; border: 2px solid var(--color-border); border-radius: 50%; pointer-events: none; }
+  .lead::after { content: ""; position: absolute; right: 39px; top: 0; bottom: 0; border-left: 2px solid var(--color-border); pointer-events: none; }
+  .lead > * { position: relative; z-index: 1; }
+  .lead h2 { font-size: clamp(2.25rem, 1.5rem + 3.6vw, 4.5rem); font-weight: 700; letter-spacing: -.005em; margin-top: var(--space-3); max-width: 18ch; }
+  .lead h2 a { text-decoration: none; }
+  .lead h2 a:hover { text-decoration: underline; text-decoration-thickness: 3px; text-decoration-color: var(--color-accent); }
+  .lead .dek { font-size: clamp(1.05rem, 1rem + .3vw, 1.2rem); margin-top: var(--space-4); max-width: 60ch; }
+  .lead .meta { margin-top: var(--space-4); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--color-border); border-radius: var(--radius-s); overflow: hidden; align-self: end; border: 1px solid var(--color-border); }
+  .stats div { background: var(--color-surface); padding: var(--space-3); display: grid; gap: .1rem; }
+  .stats strong { font-family: var(--font-display); font-weight: 800; font-size: clamp(2rem, 1.5rem + 2vw, 3rem); line-height: 1; color: var(--color-accent); font-variant-numeric: tabular-nums; }
+  .stats span { font-size: .8rem; color: var(--color-text-muted); line-height: 1.3; }
+  .stats .cap { grid-column: 1 / -1; background: var(--color-band); color: var(--color-band-muted); padding: var(--space-2) var(--space-3); font-size: .8rem; }
+  @media (min-width: 60rem) {
+    .lead { grid-template-columns: 1.6fr 1fr; padding: var(--space-7); column-gap: var(--space-7); }
+    .lead::before { right: 6%; top: 50%; transform: translateY(-50%); width: 340px; height: 340px; right: -60px; }
+    .lead::after { right: 110px; }
+  }
+
+  /* ===== Seções e cards ===== */
+  .section-title { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-7); margin-bottom: var(--space-4); }
+  .section-title h2 { font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem); font-weight: 800; text-transform: uppercase; letter-spacing: .02em; display: flex; align-items: center; gap: var(--space-3); }
+  .section-title h2::before { content: ""; width: 10px; height: 1.1em; background: var(--color-highlight); border-radius: 2px; box-shadow: 0 0 0 1px var(--color-accent); }
+  .section-title .more { margin-left: auto; color: var(--color-accent); font-weight: 600; font-size: .95rem; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-m); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); position: relative; }
+  .card:hover { border-color: var(--color-accent); }
+  .card h3 { font-size: clamp(1.45rem, 1.3rem + .5vw, 1.7rem); font-weight: 700; }
+  .card h3 a { text-decoration: none; }
+  .card h3 a::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius-m); }
+  .card h3 a:focus-visible { outline: none; }
+  .card:has(h3 a:focus-visible) { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+  .card .dek { color: var(--color-text-muted); font-size: .95rem; line-height: 1.5; }
+  .card .row { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+  .card .meta { margin-top: auto; }
+  @media (min-width: 40rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-5); } }
+
+  /* Faixa por editoria: placar de linhas */
+  .rows { list-style: none; margin: 0; padding: 0; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-m); }
+  .rows li { display: grid; grid-template-columns: 3.25rem 1fr; gap: var(--space-3); align-items: center; padding: var(--space-4) var(--space-5) var(--space-4) var(--space-4); border-top: 1px solid var(--color-border); }
+  .rows li:first-child { border-top: 0; }
+  .rows .date { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; text-align: center; line-height: 1; color: var(--color-accent); }
+  .rows .date b { display: block; font-size: 1.75rem; font-weight: 800; }
+  .rows h3 { font-size: 1.3rem; font-weight: 700; }
+  .rows h3 a { text-decoration: none; }
+  .rows h3 a:hover { text-decoration: underline; }
+  .rows .row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); align-items: center; }
+
+  /* ===== Rodapé ===== */
+  .site-footer { background: var(--color-band); color: var(--color-band-text); padding-block: var(--space-7); }
+  .site-footer .inner { display: grid; gap: var(--space-4); }
+  .site-footer p { color: var(--color-band-muted-2); max-width: 52ch; font-size: .95rem; }
+  .site-footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
+  .site-footer ul a { display: inline-flex; min-height: 44px; align-items: center; color: var(--color-band-muted); font-family: var(--font-display); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  @media (min-width: 60rem) { .site-footer .inner { grid-template-columns: auto 1fr; column-gap: var(--space-7); align-items: center; } .site-footer ul { grid-column: 1 / -1; } }
+
+  .mock-toggle { position: fixed; right: 12px; bottom: 12px; z-index: 20; font: 600 .8rem/1 system-ui, sans-serif; padding: .7rem .9rem; border-radius: 999px; border: 0; background: var(--color-highlight); color: var(--color-badge-text); cursor: pointer; box-shadow: 0 2px 10px rgb(0 0 0 / .25); }
+  .shot .mock-toggle { display: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="#"><span class="mark" aria-hidden="true">Z</span><span>Zona <em>Mista</em></span></a>
+      <p class="date">Quinta, 19 nov 2026</p>
+    </div>
+    <nav class="nav" aria-label="Editorias">
+      <ul>
+        <li><a href="#">Análise</a></li>
+        <li><a href="#">Crônica</a></li>
+        <li><a href="#">Notícia</a></li>
+        <li><a href="#">Coluna</a></li>
+        <li><a href="#">Perfil</a></li>
+        <li><a href="#">Entrevista</a></li>
+        <li><a href="#">Reportagem</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="pitch" aria-hidden="true"></div>
+</header>
+
+<main id="conteudo" class="wrap">
+  <h1 class="sr-only">Zona Mista: capa</h1>
+
+  <article class="lead">
+    <div>
+      <div class="card-row" style="display:flex;gap:.5rem;flex-wrap:wrap"><a class="pill" href="#">Análise</a><span class="meta" style="align-self:center">Destaque</span></div>
+      <h2><a href="materia.html">O mercado enxuto do PSG deu certo até aqui. Falta aguentar até maio</a></h2>
+      <p class="dek">O clube arrecadou mais de 350 milhões de euros em vendas, trouxe só cinco reforços e tem números melhores que os de um ano atrás. Mas as lesões de Kvaratskhelia, Dembélé e Marquinhos já põem o grupo pequeno de Luis Enrique à prova.</p>
+      <p class="meta">squad-fut · 19 nov 2026 · 9 min de leitura</p>
+    </div>
+    <div class="stats" role="group" aria-label="Números citados na matéria">
+      <div><strong>12</strong><span>vitórias em 16 jogos</span></div>
+      <div><strong>44</strong><span>gols a favor</span></div>
+      <div><strong>11</strong><span>vitórias seguidas</span></div>
+      <p class="cap">Números da matéria, até a Data Fifa de novembro</p>
+    </div>
+  </article>
+
+  <section aria-labelledby="ultimas">
+    <div class="section-title"><h2 id="ultimas">Últimas</h2></div>
+    <ul class="grid">
+      <li class="card">
+        <div class="row"><span class="pill">Crônica</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">O dia em que o Ventania parou a cidade de Pedra Branca</a></h3>
+        <p class="dek">A torcida lotou o Estádio do Morro para ver o time voltar à primeira divisão estadual depois de onze anos.</p>
+        <p class="meta">17 nov · 5 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="pill">Notícia</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">Maré Alta FC anuncia técnico uruguaio até o fim de 2027</a></h3>
+        <p class="dek">Contratado após a queda nas quartas, o treinador chega com a missão de reduzir os gols sofridos em bola parada.</p>
+        <p class="meta">16 nov · 3 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="pill">Entrevista</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">“Jogo melhor quando ninguém espera nada”, diz o meia Tiquinho Albuquerque</a></h3>
+        <p class="dek">Camisa 10 do Real Cajueiro fala sobre a reserva, a volta por cima e o gol que quase não aconteceu.</p>
+        <p class="meta">15 nov · 8 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="pill">Perfil</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">Dona Celeste, a roupeira que viu quarenta anos de União Bandeirinha</a></h3>
+        <p class="dek">Das camisas de algodão às de tecido sintético, ela lavou cada uniforme que entrou em campo.</p>
+        <p class="meta">14 nov · 7 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="pill">Coluna</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">O 4-2-4 voltou, e ninguém avisou a zaga do Arraial</a></h3>
+        <p class="dek">Uma formação antiga, dois pontas abertos e uma defesa que ainda marca como em 2019.</p>
+        <p class="meta">13 nov · 4 min</p>
+      </li>
+      <li class="card">
+        <div class="row"><span class="pill">Reportagem</span><span class="badge">Exemplo</span></div>
+        <h3><a href="#">Seiscentos quilômetros de estrada: a rota da torcida do Tupã Novo</a></h3>
+        <p class="dek">Três ônibus, duas paradas e uma madrugada inteira para ver um jogo de noventa minutos.</p>
+        <p class="meta">12 nov · 12 min</p>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="cronicas">
+    <div class="section-title"><h2 id="cronicas">Crônica</h2><a class="more" href="#">Ver todas</a></div>
+    <ol class="rows">
+      <li><p class="date"><b>10</b>nov</p><div><h3><a href="#">Chuva em Pedra Branca e um goleiro de luvas emprestadas</a></h3><div class="row"><span class="badge">Exemplo</span><span class="meta">4 min</span></div></div></li>
+      <li><p class="date"><b>06</b>nov</p><div><h3><a href="#">A arquibancada de madeira que resistiu a três reformas</a></h3><div class="row"><span class="badge">Exemplo</span><span class="meta">6 min</span></div></div></li>
+      <li><p class="date"><b>02</b>nov</p><div><h3><a href="#">O radinho do seu Abílio ainda narra os jogos do Ventania</a></h3><div class="row"><span class="badge">Exemplo</span><span class="meta">5 min</span></div></div></li>
+    </ol>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap inner">
+    <a class="brand" href="#"><span class="mark" aria-hidden="true">Z</span><span>Zona <em>Mista</em></span></a>
+    <p>As matérias da Zona Mista são produzidas pelo squad-fut, uma redação de agentes que apura, escreve, checa e revisa cada texto.</p>
+    <ul aria-label="Editorias no rodapé">
+      <li><a href="#">Análise</a></li><li><a href="#">Crônica</a></li><li><a href="#">Notícia</a></li><li><a href="#">Coluna</a></li><li><a href="#">Perfil</a></li><li><a href="#">Entrevista</a></li><li><a href="#">Reportagem</a></li>
+    </ul>
+  </div>
+</footer>
+
+<button class="mock-toggle" type="button" id="mockTheme">Mockup: alternar tema</button>
+<script>
+  (function () {
+    var b = document.getElementById('mockTheme'), h = document.documentElement;
+    function atual() { return h.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    function rotulo() { b.textContent = 'Mockup: tema ' + (atual() === 'dark' ? 'escuro' : 'claro'); }
+    b.addEventListener('click', function () { h.setAttribute('data-theme', atual() === 'dark' ? 'light' : 'dark'); rotulo(); });
+    rotulo();
+  })();
+</script>
+</body>
+</html>

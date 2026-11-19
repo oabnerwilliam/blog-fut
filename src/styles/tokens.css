@@ -1,0 +1,114 @@
+/*
+ * Tokens do portal Zona Mista.
+ * Cópia executável de docs/design/tokens.md (fonte oficial). ÚNICO arquivo do app com cor literal.
+ * Direção aprovada: Zona Mista v2, variação 2 "Súmula" (docs/design/01-identidade-visual/decisao.md).
+ */
+
+:root {
+  /* Cores: tema claro */
+  --color-bg: #efeee9;
+  --color-surface: #efeee9;
+  --color-ink: #16181d;
+  --color-ink-muted: #585b63;
+  --color-rule: #c9c7bf;
+  --color-rule-strong: #16181d;
+  --color-accent: #2638c9;
+  --color-amber: #ffb000;
+  --color-night: #0e1120;
+  --color-night-ink: #ecebe5;
+  --color-night-ink-muted: #a3a7b6;
+  --color-night-rule: #2c3148;
+  --color-badge-bg: #ffb000;
+  --color-badge-ink: #16181d;
+  --color-notice-bg: #ffe9b0;
+  --color-notice-ink: #16181d;
+  --color-focus: #2638c9;
+  --color-focus-night: #ffb000;
+  color-scheme: light;
+
+  /* Fontes: as variáveis --font-instrument-* e --font-geist-mono vêm do next/font (src/app/fonts.ts) */
+  --font-display:
+    var(--font-instrument-serif), "Times New Roman", Georgia, serif;
+  --font-text:
+    var(--font-instrument-sans), system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  --font-mono:
+    var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas,
+    monospace;
+
+  /* Escala tipográfica */
+  --text-label: 0.6875rem;
+  --text-nav-index: 0.625rem;
+  --text-nav: 0.9375rem;
+  --text-body: clamp(1.0625rem, 1rem + 0.25vw, 1.15rem);
+  --text-lead: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-dek: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem);
+  --text-row-title: clamp(1.45rem, 1.25rem + 0.7vw, 1.9rem);
+  --text-section: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+  --text-h2: clamp(1.85rem, 1.5rem + 1.3vw, 2.6rem);
+  --text-feature: clamp(2.1rem, 1.2rem + 3.2vw, 4rem);
+  --text-wordmark: clamp(2.6rem, 1.6rem + 4.4vw, 5.5rem);
+  --text-h1: clamp(2.6rem, 1rem + 6.2vw, 7.25rem);
+  --text-display: clamp(2.75rem, 1rem + 7vw, 8rem);
+  --text-footer-mark: clamp(3.5rem, 2rem + 7vw, 9rem);
+
+  /* Espaçamento, larguras e UI */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-section: clamp(2.5rem, 6vw, 4.5rem);
+  --layout-gutter: clamp(1rem, 4vw, 3rem);
+  --layout-max: 84rem;
+  --layout-measure: 66ch;
+  --radius: 0;
+  --rule-width: 1px;
+  --rule-width-strong: 2px;
+  --focus-width: 3px;
+  --focus-offset: 3px;
+  --tap-min: 40px;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --text-nav: 1rem;
+  }
+}
+
+/* Valores escuros: os dois blocos abaixo são idênticos (protegido por tests/unit/tokens.test.ts). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0e1120;
+    --color-surface: #0e1120;
+    --color-ink: #ecebe5;
+    --color-ink-muted: #a3a7b6;
+    --color-rule: #272b3f;
+    --color-rule-strong: #ecebe5;
+    --color-accent: #9daaff;
+    --color-night: #1a2142;
+    --color-night-rule: #343c63;
+    --color-notice-bg: #2b2410;
+    --color-notice-ink: #ffe2a0;
+    --color-focus: #9daaff;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #0e1120;
+  --color-surface: #0e1120;
+  --color-ink: #ecebe5;
+  --color-ink-muted: #a3a7b6;
+  --color-rule: #272b3f;
+  --color-rule-strong: #ecebe5;
+  --color-accent: #9daaff;
+  --color-night: #1a2142;
+  --color-night-rule: #343c63;
+  --color-notice-bg: #2b2410;
+  --color-notice-ink: #ffe2a0;
+  --color-focus: #9daaff;
+  color-scheme: dark;
+}
