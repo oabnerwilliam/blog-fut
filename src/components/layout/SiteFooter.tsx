@@ -7,9 +7,11 @@ export function SiteFooter() {
     <footer className={styles.rodape}>
       <div className="wrap">
         <div className={styles.grade}>
-          <p className={styles.marca} aria-hidden="true">
-            Zona<i>Mista</i>
-          </p>
+          <div className={styles.colunaMarca}>
+            <p className={styles.marca} aria-hidden="true">
+              Zona<i>Mista</i>
+            </p>
+          </div>
           <div>
             <p className={styles.frase}>
               As matérias da {NOME_DO_PORTAL} são produzidas pelo squad-fut, uma

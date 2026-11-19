@@ -16,6 +16,11 @@
   gap: 2rem;
 }
 
+/* Sem isto, o min-width: auto deixa um item alargar a coluna e vazar a tela (QA-01). */
+.grade > * {
+  min-width: 0;
+}
+
 @media (min-width: 56rem) {
   .grade {
     grid-template-columns: 7fr 5fr;
@@ -23,8 +28,18 @@
   }
 }
 
+/* A coluna da marca é um contêiner: a marca mede a coluna, não a viewport. */
+.colunaMarca {
+  container-type: inline-size;
+}
+
+/*
+ * "ZonaMista" ocupa cerca de 3,4em. O teto de 27cqi (27% da coluna) só entra em ação
+ * quando a fonte do leitor é ampliada numa tela estreita; na fonte padrão o token
+ * --text-footer-mark fica sempre abaixo dele (QA-01).
+ */
 .marca {
-  font: 400 var(--text-footer-mark) / 0.85 var(--font-display);
+  font: 400 min(var(--text-footer-mark), 27cqi) / 0.85 var(--font-display);
   letter-spacing: -0.04em;
 }
 
