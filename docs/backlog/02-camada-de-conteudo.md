@@ -647,3 +647,43 @@ Usar 4 ou 5 tags recorrentes (clubes e competição inventados, cada uma em ≥ 
 14. **content:** as 8 matérias, o `tags.json` e o `conteudo-real.test.ts` (critérios 34 e 39 a 43).
 15. **Migração:** `supabase/migrations/0001_articles.sql` e `migracao-sql.test.ts` (critérios 44 a 46).
 16. **docs:** a seção de variáveis de ambiente no `README.md` (critério 50).
+
+## Relatório de QA (2026-11-19)
+
+### Portões (branch `feat/02-camada-de-conteudo`)
+| Portão | Resultado |
+|---|---|
+| `npm run lint` | verde (0 erros, 0 avisos) |
+| `npm run typecheck` | verde |
+| `npm test` | verde: 23 arquivos, **330 testes** (240 do dev + 90 do QA) |
+| `npm run test:e2e` | verde: **136 testes**, igual à `main` (critério 47) |
+| `npm run build` | verde: só `/` e `/_not-found`, estáticas (critério 47) |
+
+Nenhum teste instável: o e2e rodou uma vez e passou inteiro.
+
+### Critérios → testes
+A tabela da seção 6 das Notas técnicas foi conferida contra os arquivos de teste: todos os critérios de 1 a 46 têm teste com o nome indicado, e os 9 testes ★ do critério 48 existem com o nome literal e passam. Os critérios 47 e 49 foram conferidos pelos portões acima. O 50 foi conferido por `git status` (nenhum `.env*`) e pela seção do `README.md`.
+
+**Critério 40 (conferência humana):** os 8 arquivos de `content/materias/` foram lidos inteiros. Clubes (Atlético Ventania, EC São Ciríaco, União Porto Ametista, Marujos FC), competições (Taça das Serras, Liga do Planalto Azul, Copa Maresia), estádios (Mirante Velho, Mirante Novo, Barão de Vila Serena), cidades (Vila Serena, Porto Ametista) e pessoas (Odálio Brandão, Marcelina Arruda, Cauã Pedreira, Hermógenes Lustosa, Aldemar Quintela, Galdino Rebouças, Ivanildo Serrano, Romualdo Freixo, Seu Teodoro, Dona Leontina) são todos inventados. Não encontrei nenhum nome real.
+
+### Testes acrescentados (só lacunas de borda; nenhum duplica teste do dev)
+- `tests/unit/content/qa-bordas.test.ts` (64 testes):
+  - **Sanitização:** `<svg onload>`, `<svg><script>`, `ONERROR` em maiúsculas, `ontoggle`/`onfocus`/`onload` em outras tags; `javascript:` em maiúsculas, com entidades decimais e hexadecimais, com tab, com espaço ou com quebra de linha, em link, imagem e autolink markdown; `vbscript:`; `data:` em `href`, `src` e imagem markdown; `<form action>`; `<iframe srcdoc>`, `<style>@import`, `<object>`, `<embed>`, `<meta refresh>`, `<base>`, `<link>` e `<template>`; o atributo `style`; código com HTML perigoso sai escapado; links http, https e mailto continuam funcionando.
+  - **h1 em código:** cerca `~~~`, cerca com linguagem, `<h1>` dentro de bloco e de código em linha, `\#`, `#semespaço`, hashtag no meio da linha e cerca de 4 crases. O h1 depois de um bloco de código mantém a linha certa, o h1 dentro de lista é acusado, e um arquivo CRLF cita a linha certa do arquivo.
+  - **Corpo imutável:** um `---` no meio do corpo não é consumido; CRLF + BOM com o `CORPO_TIPOGRAFICO`; quebras mistas LF/CRLF; espaços no fim, tab e corpo sem quebra final; corpo vazio.
+  - **Datas:** timestamp ISO, data com hora, sem zero à esquerda, ano com 2 dígitos, mês 00, dia 00 e 2025-02-29 dão erro; 2028-02-29 é aceito; a data sem aspas, com aspas simples ou duplas vira o mesmo texto.
+- `tests/integration/content/qa-bordas.test.ts` (26 testes):
+  - **`MOSTRAR_EXEMPLOS=false` de ponta a ponta por `getRepository()`** (cópia temporária da fixture `basico` como `<cwd>/content`): `list` com paginação, filtros por editoria e tag, `getBySlug` das fictícias, `search` por título, tag e rótulo exclusivos das fictícias, soma dos totais de `listEditorias` e `listTags`; com `true`, as fictícias voltam.
+  - **CRLF lido do disco:** o `.gitattributes` normaliza as fixtures para LF, então o arquivo CRLF é gravado na pasta temporária. O `corpo_md` sai idêntico, com os `\r\n`.
+  - **`TZ=America/Sao_Paulo`** pelo repositório: as datas das fixtures não mudam de dia, e a ordem se mantém.
+  - **`getBySlug` hostil:** `.md` no fim, barra no fim, caixa alta, espaços, `\n`, `\0`, hífen Unicode, letra de largura total, `%2e%2e%2f`, caminhos absolutos Unix e Windows, `materias/…`, `../entrada/…`, slug da caixa de entrada, `__proto__`, `constructor`, `toString` e valores que não são texto em tempo de execução → `null`. `page` igual a `Infinity` ou `"2"` → `RangeError`.
+
+### Bugs
+Nenhum bug de produção.
+
+**Observação de baixa severidade (não bloqueia):** o ADR 0004 põe `noscript` no `strip` (removido junto com o conteúdo), mas `<noscript><p>alert(1)</p></noscript>` vira `<p></p><p>alert(1)</p><p></p>`. A tag some, e o conteúdo sobra como texto inerte, sem nada executável. O critério 36 não cita `noscript`, então não é falha de critério. A causa provável é o parse5 (via `rehype-raw`) ler o conteúdo de `noscript` como HTML. Fica registrado em `qa-bordas.test.ts`, no teste "noscript some como tag". Se o time quiser que o conteúdo também suma, o ajuste vai em `src/lib/content/markdown.ts:18-26`.
+
+**Nota:** o esquema do GitHub mantém `<input type="checkbox" disabled>` (listas de tarefas). Assim, `<input autofocus onfocus=…>` vira um checkbox desabilitado, sem os atributos perigosos. É inofensivo.
+
+### Veredito
+**APROVADO.**
