@@ -10,6 +10,11 @@
 ## Decisão
 **Tailwind v4 via `@tailwindcss/postcss`, com os tokens expostos por `@theme inline reference`.**
 
+### Onde o Tailwind procura classes
+- `@import "tailwindcss" source("../");` em `src/app/globals.css`. O caminho é relativo ao arquivo, então só `src/` é varrido.
+- Sem isso, a detecção automática varre o projeto inteiro. Os exemplos de `tests/` e `docs/` viravam CSS de produção: os casos positivos do teste de cores (`.bg-[#fff]` etc.) saíam no build.
+- `tests/e2e/css-do-build.spec.ts` lê o CSS que a página baixa e falha se algum utilitário arbitrário tiver cor literal, se as paletas ou as fontes padrão chegarem ao build ou se houver referência circular de token.
+
 ### Como os tokens são expostos (`src/app/globals.css`)
 - `src/styles/tokens.css` continua sendo a fonte executável e o **único** arquivo com cor literal. Ele não mudou.
 - Um `@theme` desliga o padrão do Tailwind: `--color-*: initial`, `--font-*: initial`, `--text-*: initial`. Assim `bg-red-500`, `font-sans` ou `text-xl` não geram CSS. O mesmo bloco troca os breakpoints pelos de `tokens.md` §4: `sm` 40rem, `md` 48rem, `grade` 56rem, `lg` 64rem.
@@ -26,11 +31,19 @@ CSS que não cabe bem em classe utilitária. Fica em `globals.css`, só com `var
 - `.nav-numerada`: o contador `01–07` da nav do cabeçalho (`counter-reset`, `counter-increment`, `::before` com `counter()`);
 - `.prosa`: o corpo da matéria, que vem do Markdown sem classes, por isso é estilizado por seletor de elemento (`p`, `h2`, `blockquote`, listas, `::first-line`, `::after`).
 
-Os seletores de tema continuam em `tokens.css`, que não está em camada. No `@layer base` ficam a base do `body`, títulos, links, `:focus-visible` e `prefers-reduced-motion`, sobre o preflight do Tailwind. O preflight tira os marcadores de lista; a `.prosa` os devolve.
+Os seletores de tema continuam em `tokens.css`, que não está em camada. No `@layer base` ficam a base do `body`, títulos, links, `:focus-visible` e `prefers-reduced-motion`, sobre o preflight do Tailwind. O preflight muda alguns elementos que o sanitizador aceita (ADR 0004), e a `.prosa` trata cada um:
+- **devolvidos ao comportamento anterior:**
+  - marcadores das listas (`disc`/`decimal`, e `circle`/`square` nas aninhadas);
+  - `hr`: margem `0.5em`, fio de `--rule-width` na cor `--color-rule` (antes era o cinza do navegador; agora a cor vem do token);
+  - `code`, `kbd`, `samp` e `pre`: menores que o texto (`0.875em`, como o monospace do navegador) e na fonte `--font-mono`, e não no monospace genérico, para não ter fonte fora dos tokens. O `pre` volta a ter margem embaixo e ganha `overflow-x: auto` para não criar rolagem horizontal no 320px;
+  - `h5` e `h6`: `0.83em` e `0.67em`, como no navegador. O `h4` já tinha o tamanho do texto, e a margem zero e o peso 400 dos títulos já vinham da base antiga.
+- **aceito como melhoria:** `img` com `display: block` e `max-width: 100%` do preflight (uma imagem larga não vaza a coluna). Outros ajustes do preflight sem efeito na leitura (`table` com `border-collapse`, `sub`/`sup`) também ficam.
+- `tests/e2e/prosa-elementos.spec.ts` injeta esses elementos no corpo de uma matéria e confere o estilo computado.
 
 ### Regra de cor arbitrária
 - É proibido usar cor fora dos tokens nas classes: hex em valor arbitrário (`bg-[#fff]`, `shadow-[0_0_0_2px_#000]`), função de cor (`rgb(`, `hsl(`, `oklch(`…) ou nome de cor CSS dentro de `[...]` (`[color:white]`), e as paletas padrão (`bg-red-500`, `text-slate-900`, `text-white`). `text-amber` é permitido porque `amber` é token do portal; `text-amber-500` não.
 - Cor de token entra pelo nome do tema (`bg-night`) ou por variável (`bg-(--color-night)`, `shadow-[0_0_0_var(--focus-offset)_var(--color-bg)]`).
+- O fallback literal de variável também é proibido: `bg-(--x,#fff)`.
 - Verificação: `tests/unit/cores-literais.test.ts` varre todo `.ts`/`.tsx` de `src/` com `encontrarCoresArbitrariasEmClasses` (`tests/unit/helpers/css.ts`) e continua garantindo que nenhum CSS fora de `tokens.css` tem cor literal. Como as paletas estão desligadas, uma classe de paleta que escapasse do teste também não geraria CSS.
 
 ## Alternativas consideradas
@@ -41,5 +54,5 @@ Os seletores de tema continuam em `tokens.css`, que não está em camada. No `@l
 ## Consequências
 - Dependências novas, todas com versão exata: `tailwindcss` e `@tailwindcss/postcss` 4.3.5, `prettier-plugin-tailwindcss` 0.8.1 (ordena as classes no `pnpm format`). Config em `postcss.config.mjs`.
 - Nenhum `*.module.css` em `src/`; o único CSS além de `tokens.css` é `src/app/globals.css`.
-- `hover:` do Tailwind v4 só vale em dispositivos com hover (`@media (hover: hover)`). Nos links com utilitário, o hover deixa de “grudar” no toque. O visual com mouse e as capturas são idênticos.
+- `hover:` do Tailwind v4 só vale em dispositivos com hover (`@media (hover: hover)`). Nos links com utilitário, o hover deixa de “grudar” no toque. O visual com mouse e as capturas são idênticos. Por coerência, o hover dos links da `.prosa` também fica dentro de `@media (hover: hover)`.
 - A regressão visual (`tests/e2e/visual.spec.ts`) fica como rede de segurança para as próximas mudanças de estilo. As referências têm sufixo `-win32`; quando houver CI em Linux, será preciso gerar as do Linux.
