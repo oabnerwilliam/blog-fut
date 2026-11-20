@@ -60,14 +60,32 @@ async function ResultadoDaQuery({
 }
 
 /**
+ * Fallback do resultado. Com JavaScript, não mostra nada, e assim nenhum estado provisório
+ * pisca. Sem JavaScript, o resultado chega por streaming num `<div hidden>` que ninguém
+ * revela, e o fallback fica para sempre: então o leitor vê este aviso (revisão da história 06).
+ */
+function AvisoSemJavaScript() {
+  return (
+    <noscript>
+      <div className="wrap">
+        <p className="mt-5 max-w-(--layout-measure) font-text text-body leading-[1.5] text-ink-muted">
+          Ative o JavaScript para ver os resultados da busca.
+        </p>
+      </div>
+    </noscript>
+  );
+}
+
+/**
  * Busca (`/busca?q=`). O topo, o h1 e o formulário só dependem da rota e entram no shell
  * estático. Ler `searchParams` é dado de requisição: com Cache Components, o que depende
  * dele fica em `<Suspense>` e chega por streaming na mesma resposta (guia "Caching",
  * "Working with runtime APIs"), como em `PaginaDeListagem`.
  *
  * - O valor do campo: o fallback é o mesmo campo, vazio. Nada pisca além do texto do termo.
- * - O resultado: o fallback é vazio. Um estado provisório ("nenhuma matéria", sugestão)
- *   seria um estado errado na tela até o resultado chegar.
+ * - O resultado: com JavaScript, o fallback não mostra nada (só tem o aviso de
+ *   `<noscript>`). Um estado provisório ("nenhuma matéria", sugestão) seria um estado
+ *   errado na tela até o resultado chegar.
  */
 export default function PaginaDaBusca({ searchParams }: PageProps<"/busca">) {
   return (
@@ -97,7 +115,7 @@ export default function PaginaDaBusca({ searchParams }: PageProps<"/busca">) {
           </div>
         </form>
       </div>
-      <Suspense fallback={null}>
+      <Suspense fallback={<AvisoSemJavaScript />}>
         <ResultadoDaQuery searchParams={searchParams} />
       </Suspense>
     </main>
