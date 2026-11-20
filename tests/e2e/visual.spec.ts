@@ -12,6 +12,9 @@ import { expect, test, type Page } from "@playwright/test";
  * - História 05 (editorias e tags): só ganhou as referências NOVAS de `/editorias/cronica`
  *   (`editoria-cronica-*.png`, em 375px e 1280px). A capa continua idêntica: as referências
  *   dela não foram regeneradas.
+ * - História 06 (busca): o campo de busca entrou no cabeçalho de TODAS as páginas, então
+ *   todas as referências (capa, matéria, 404, editoria e foco) foram regeneradas. Ganhou as
+ *   referências novas de `/busca?q=são ciríaco` (`busca-sao-ciriaco-*.png`, 375px e 1280px).
  */
 
 /** Tolerância pequena e explícita (critério 1: no máximo 0,01). */
@@ -62,9 +65,11 @@ for (const tema of TEMAS) {
   }
 }
 
-/** Páginas da história 05, nas larguras pedidas por ela (375px e 1280px). */
+/** Páginas das histórias 05 e 06, nas larguras pedidas por elas (375px e 1280px). */
 const LISTAGENS = [
   { nome: "editoria-cronica", url: "/editorias/cronica" },
+  // História 06, nas mesmas larguras.
+  { nome: "busca-sao-ciriaco", url: "/busca?q=s%C3%A3o+cir%C3%ADaco" },
 ] as const;
 const LARGURAS_DAS_LISTAGENS = [375, 1280] as const;
 

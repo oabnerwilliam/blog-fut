@@ -1,4 +1,8 @@
-import type { ArticleRepository, ArticleSummary } from "@/lib/content";
+import type {
+  ArticleRepository,
+  ArticleSummary,
+  Taxonomy,
+} from "@/lib/content";
 import { isEditoria, type Editoria } from "@/lib/editorias";
 
 /** Faixas mostram no máximo este número de matérias (mockup: trio de Crônica). */
@@ -36,6 +40,22 @@ export function escolherDestaque(
   return itens.find((item) => !item.ficticio) ?? itens[0] ?? null;
 }
 
+/**
+ * Editorias com pelo menos uma matéria, na ordem da lista fechada. Usada na capa e nas
+ * sugestões da busca (história 06).
+ */
+export function editoriasComMateria(
+  taxonomia: readonly Taxonomy[],
+): EditoriaDaCapa[] {
+  return taxonomia
+    .filter((t) => t.total > 0)
+    .flatMap((t) =>
+      isEditoria(t.slug)
+        ? [{ slug: t.slug, rotulo: t.rotulo, total: t.total }]
+        : [],
+    );
+}
+
 /** Dados da capa, buscados só pelo contrato do repositório. */
 export async function montarCapa(
   repositorio: ArticleRepository,
@@ -50,13 +70,7 @@ export async function montarCapa(
     (item) => item.slug !== destaque?.slug,
   );
 
-  const editorias: EditoriaDaCapa[] = taxonomia
-    .filter((t) => t.total > 0)
-    .flatMap((t) =>
-      isEditoria(t.slug)
-        ? [{ slug: t.slug, rotulo: t.rotulo, total: t.total }]
-        : [],
-    );
+  const editorias = editoriasComMateria(taxonomia);
 
   const faixas = await Promise.all(
     editorias

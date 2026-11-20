@@ -61,9 +61,10 @@ for (const c of CENARIOS) {
             ),
           ).length,
       );
-      // cabeçalho + rodapé + na capa: destaque (2), Últimas (2 por matéria, 7 matérias),
-      // Editorias (7) e a faixa de Crônica (Ver todas + 2 títulos).
-      expect(todos).toBeGreaterThanOrEqual(9 + 7 + 2 + 14 + 7 + 3);
+      // cabeçalho (pular, nome, campo e botão de busca, 7 editorias) + rodapé + na capa:
+      // destaque (2), Últimas (2 por matéria, 7 matérias), Editorias (7) e a faixa de
+      // Crônica (Ver todas + 2 títulos).
+      expect(todos).toBeGreaterThanOrEqual(11 + 7 + 2 + 14 + 7 + 3);
 
       const visitados: string[] = [];
       for (let i = 0; i < todos; i++) {
@@ -104,9 +105,11 @@ for (const c of CENARIOS) {
         );
       }
 
-      expect(visitados.slice(0, 9)).toEqual([
+      expect(visitados.slice(0, 11)).toEqual([
         "#conteudo",
         "/",
+        "INPUT",
+        "BUTTON",
         ...EDITORIAS.map((e) => hrefDaEditoria(e.slug)),
       ]);
     });

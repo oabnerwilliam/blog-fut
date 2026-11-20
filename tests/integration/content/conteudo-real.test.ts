@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { montarBusca } from "@/lib/busca";
 import { getRepository, type Article } from "@/lib/content";
 import { contarPalavras } from "@/lib/content/reading-time";
 
@@ -92,6 +93,24 @@ describe("conteúdo real (content/)", () => {
     expect(
       artigos.some((a) => /São /.test(a.titulo) || /São /.test(a.corpo_md)),
     ).toBe(true);
+  });
+
+  it("busca (história 06): as três grafias de São Ciríaco dão as mesmas 3 matérias", async () => {
+    const listas = await Promise.all(
+      ["sao ciriaco", "SÃO CIRÍACO", "São Ciríaco"].map(async (termo) => {
+        const busca = await montarBusca(getRepository(), termo);
+        return busca.estado === "com-resultado"
+          ? busca.itens.map((item) => item.slug)
+          : [];
+      }),
+    );
+    expect(listas[0]).toEqual([
+      "ec-sao-ciriaco-anuncia-reforma-do-estadio",
+      "a-ultima-tarde-do-mirante-velho",
+      "o-silencio-de-sao-ciriaco-depois-do-rebaixamento",
+    ]);
+    expect(listas[1]).toEqual(listas[0]);
+    expect(listas[2]).toEqual(listas[0]);
   });
 
   it("os corpos não começam com o título nem com a linha fina", async () => {
