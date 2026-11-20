@@ -1,13 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
 import { EDITORIAS, hrefDaEditoria } from "../../src/lib/editorias";
-import { corDoToken } from "./helpers";
+import { corDoToken, esperarHidratacao } from "./helpers";
 
 /**
- * Pular, nome, campo de busca e botão Buscar (história 06), 7 editorias. Links pelo href;
- * o campo pelo id; o botão pelo texto.
+ * Pular, botão de tema (história 07), nome, campo de busca e botão Buscar (história 06),
+ * 7 editorias. Links pelo href; o campo pelo id; o botão de tema pelo aria-label (o texto dele
+ * tem os três rótulos empilhados); o Buscar pelo texto.
  */
 const ORDEM = [
   "#conteudo",
+  "Tema: sistema. Mudar para claro",
   "/",
   "#q-cabecalho",
   "Buscar",
@@ -20,7 +22,7 @@ const hrefAtivo = (page: Page) =>
     if (!el) return null;
     if (el.hasAttribute("href")) return el.getAttribute("href");
     if (el.tagName === "INPUT") return `#${el.id}`;
-    return el.textContent;
+    return el.getAttribute("aria-label") ?? el.textContent;
   });
 
 const contornoAtivo = (page: Page) =>
@@ -57,10 +59,11 @@ for (const esquema of ["light", "dark"] as const) {
   test.describe(`foco (${esquema})`, () => {
     test.use({ colorScheme: esquema });
 
-    test("ordem de Tab: pular, nome, campo de busca, botão, 7 editorias", async ({
+    test("ordem de Tab: pular, tema, nome, campo de busca, botão, 7 editorias", async ({
       page,
     }) => {
       await page.goto("/");
+      await esperarHidratacao(page);
       const visitados: (string | null)[] = [];
       for (let i = 0; i < ORDEM.length; i++) {
         await page.keyboard.press("Tab");

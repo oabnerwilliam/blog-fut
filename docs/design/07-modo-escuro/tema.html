@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, follow">
+<title>Crônica · Zona Mista (mockup história 07, botão de tema)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script>
+  /*
+   * 1) O que vai para o app (SCRIPT_DO_TEMA, história 07): lê localStorage["tema"] dentro de
+   *    try/catch, aplica data-theme só para "light" ou "dark" e marca data-js.
+   * 2) Só do mockup: ?theme=sistema|light|dark força o estado inicial (e não grava);
+   *    ?sistema=dark simula um sistema escuro (o mockup não consegue mudar o prefers-color-scheme);
+   *    ?nojs simula a página sem JavaScript (não marca data-js); ?shot esconde a barra do mockup.
+   */
+  (function () {
+    var h = document.documentElement, q = new URLSearchParams(location.search);
+    if (q.get('sistema') === 'dark') h.setAttribute('data-sistema', 'dark');
+    if (q.has('shot')) h.classList.add('shot');
+    if (q.has('nojs')) return;
+    var t = q.get('theme');
+    if (t !== 'sistema' && t !== 'light' && t !== 'dark') {
+      try { t = localStorage.getItem('tema'); } catch (e) { t = null; }
+    }
+    if (t === 'light' || t === 'dark') h.setAttribute('data-theme', t);
+    h.setAttribute('data-js', '');
+  })();
+</script>
+
+<style>
+  /* ===== Tokens (cópia de docs/design/tokens.md §1, §3, §4; nomes definitivos). Nenhum token novo. ===== */
+  :root {
+    --color-bg: #EFEEE9; --color-ink: #16181D; --color-ink-muted: #585B63; --color-rule: #C9C7BF;
+    --color-rule-strong: #16181D; --color-accent: #2638C9; --color-amber: #FFB000;
+    --color-night: #0E1120; --color-night-ink: #ECEBE5; --color-night-ink-muted: #A3A7B6; --color-night-rule: #2C3148;
+    --color-badge-bg: #FFB000; --color-badge-ink: #16181D; --color-focus: #2638C9; --color-focus-night: #FFB000;
+    --font-display: "Instrument Serif", "Times New Roman", Georgia, serif;
+    --font-text: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --text-label: .6875rem;
+    --text-nav: .9375rem;
+    --text-body: clamp(1.0625rem, 1rem + .25vw, 1.15rem);
+    --text-dek: clamp(1.0625rem, 1rem + .4vw, 1.3125rem);
+    --text-row-title: clamp(1.45rem, 1.25rem + .7vw, 1.9rem);
+    --text-wordmark: clamp(2.6rem, 1.6rem + 4.4vw, 5.5rem);
+    --text-h1: clamp(2.6rem, 1rem + 6.2vw, 7.25rem);
+    --text-footer-mark: clamp(3.5rem, 2rem + 7vw, 9rem);
+    --space-section: clamp(2.5rem, 6vw, 4.5rem);
+    --layout-gutter: clamp(1rem, 4vw, 3rem);
+    --layout-max: 84rem;
+    --layout-measure: 66ch;
+    --rule-width: 1px; --rule-width-strong: 2px;
+    --focus-width: 3px; --focus-offset: 3px;
+    --tap-min: 40px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-bg: #0E1120; --color-ink: #ECEBE5; --color-ink-muted: #A3A7B6; --color-rule: #272B3F;
+      --color-rule-strong: #ECEBE5; --color-accent: #9DAAFF; --color-night: #1A2142; --color-night-rule: #343C63;
+      --color-focus: #9DAAFF; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"],
+  :root[data-sistema="dark"]:not([data-theme="light"]) /* só do mockup: simula sistema escuro */ {
+    --color-bg: #0E1120; --color-ink: #ECEBE5; --color-ink-muted: #A3A7B6; --color-rule: #272B3F;
+    --color-rule-strong: #ECEBE5; --color-accent: #9DAAFF; --color-night: #1A2142; --color-night-rule: #343C63;
+    --color-focus: #9DAAFF; color-scheme: dark;
+  }
+  @media (min-width: 64rem) { :root { --text-nav: 1rem; } }
+
+  /* ===== Base do portal (globals.css) ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--color-bg); color: var(--color-ink); font-family: var(--font-text); font-size: 1rem; line-height: 1.5; overflow-wrap: break-word; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, p { margin: 0; }
+  :focus-visible { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--focus-offset); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .skip { position: absolute; left: var(--layout-gutter); top: -200px; z-index: 20; background: var(--color-amber); color: var(--color-badge-ink);
+          font: 600 .8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; padding: .85rem 1rem; }
+  .skip:focus { top: .75rem; outline-color: var(--color-ink); box-shadow: 0 0 0 var(--focus-offset) var(--color-bg); }
+  .wrap { max-width: var(--layout-max); margin-inline: auto; padding-inline: var(--layout-gutter); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero; }
+  .label { font: 500 var(--text-label)/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; font-variant-numeric: tabular-nums slashed-zero; }
+
+  /* ===== Cabeçalho (tokens.md §5.2 + história 06) ===== */
+  .mast { padding-top: .9rem; }
+  /*
+   * MUDA (história 07): a linha de cima passa de <p> para <div> (um <button> não cabe num <p> com
+   * semântica limpa) e ganha align-items: center. Slogan à esquerda, botão de tema à direita.
+   */
+  .mast__line { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; color: var(--color-ink-muted); padding-bottom: .65rem; border-bottom: var(--rule-width) solid var(--color-rule); }
+  /*
+   * O slogan encolhe até 9rem e quebra em 2 linhas (é o que acontece em 320px). Com a fonte
+   * ampliada, 9rem não cabe ao lado do botão e o botão desce para uma linha própria, à direita (o row-gap de .5rem compensa a margem negativa).
+   */
+  .mast__line > span { flex: 1 1 9rem; min-width: 0; }
+  .mast__main { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: .75rem 1rem; padding-block: .6rem .2rem; }
+  .wordmark { font: 400 var(--text-wordmark)/.82 var(--font-display); letter-spacing: -.035em; padding-bottom: .08em; white-space: nowrap; }
+  .wordmark i { letter-spacing: -.045em; margin-left: .1em; }
+  .mast__side { flex: 1 1 100%; display: grid; gap: .6rem; padding-bottom: .55rem; }
+  .mast__tag { display: none; color: var(--color-ink-muted); text-align: right; }
+  @media (min-width: 48rem) {
+    .mast__side { flex: 0 1 22rem; justify-items: end; }
+    .mast__tag { display: block; }
+  }
+
+  /*
+   * NOVO (história 07): botão de tema. Estilo .label, sem borda e sem fundo (é um controle da
+   * linha utilitária, não compete com o campo de busca logo abaixo).
+   * - Área de toque: min-height var(--tap-min) = 40px. A margem negativa de .5rem em cima e
+   *   embaixo faz a linha crescer só ~9px (de 15,4px para 24px), sem invadir o filete.
+   * - padding-inline .5rem + margin-inline-end -.5rem: o texto fica alinhado à margem direita
+   *   da coluna, e a área de toque avança 8px no gutter (que tem no mínimo 16px).
+   * - Foco: o global, com outline-offset 0 (como na nav), para o contorno não sair pelo topo da página.
+   */
+  .tema { flex: none; position: relative; display: inline-flex; align-items: center; gap: .5em;
+          min-height: var(--tap-min); min-width: var(--tap-min); margin: -.5rem -.5rem -.5rem auto; padding: 0 .5rem;
+          border: 0; border-radius: 0; background: transparent; color: var(--color-ink-muted);
+          font: 500 var(--text-label)/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .08em;
+          white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .tema:focus-visible { outline-offset: 0; }
+  .tema__valor { color: var(--color-ink); font-weight: 600; }
+  .tema:hover, .tema:hover .tema__valor { color: var(--color-accent); }
+  .tema:hover .tema__valor { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+
+  /* Losango do placar (eco do ◇/◆ do selo e do rodapé), decorativo: ◇ claro, ◆ escuro, meio cheio = sistema. */
+  .tema__losango { flex: none; width: .62em; height: .62em; margin-inline: .12em; transform: rotate(45deg);
+                   border: var(--rule-width) solid currentColor; background: transparent; }
+  .tema__losango { color: var(--color-ink); }
+  .tema:hover .tema__losango { color: var(--color-accent); }
+
+  /*
+   * O texto do valor e o losango saem do atributo do <html>, e não do estado do React.
+   * Assim o primeiro paint já mostra o tema certo (o servidor não sabe qual é), sem trocar
+   * "sistema" por "escuro" na hidratação. O aria-label continua vindo do React.
+   */
+  /* Os três rótulos ficam empilhados na mesma célula: o botão tem sempre a largura do maior
+     ("sistema") e não empurra o slogan a cada clique. */
+  .tema__valor { display: inline-grid; justify-items: start; }
+  .tema [data-rotulo] { grid-area: 1 / 1; visibility: hidden; }
+  html:not([data-theme]) .tema [data-rotulo="sistema"],
+  html[data-theme="light"] .tema [data-rotulo="light"],
+  html[data-theme="dark"] .tema [data-rotulo="dark"] { visibility: visible; }
+  html:not([data-theme]) .tema__losango { background: linear-gradient(to top right, currentColor 50%, transparent 50%); }
+  html[data-theme="dark"] .tema__losango { background: currentColor; }
+
+  /* Sem JavaScript: o botão não aparece e a linha fica como hoje (só o slogan). */
+  html:not([data-js]) .tema { display: none; }
+
+  /* Nav numerada (globals.css .nav-numerada + EditoriasNav) */
+  .nav { border-top: var(--rule-width) solid var(--color-rule-strong); border-bottom: var(--rule-width) solid var(--color-rule); }
+  .nav ul { list-style: none; margin: 0 auto; max-width: var(--layout-max); padding: .2rem var(--layout-gutter); display: flex; flex-wrap: wrap; gap: 0 1.15rem; counter-reset: ed; }
+  .nav li { counter-increment: ed; }
+  .nav a { display: inline-flex; align-items: baseline; gap: .3rem; min-height: var(--tap-min); padding-block: .7rem .55rem; font: 500 var(--text-nav)/1 var(--font-text); font-stretch: 92%; }
+  .nav a::before { content: counter(ed, decimal-leading-zero); font: 500 .625rem/1 var(--font-mono); color: var(--color-ink-muted); }
+  .nav a:hover { color: var(--color-accent); }
+  .nav a[aria-current="page"] { color: var(--color-accent); }
+  .nav a:focus-visible { outline-offset: 0; }
+  @media (min-width: 64rem) { .nav ul { justify-content: space-between; } }
+
+  /* Campo de busca (história 06, sem mudança) */
+  .campo { display: flex; width: 100%; min-width: 0; }
+  .campo input { flex: 1 1 auto; min-width: 0; min-height: var(--tap-min); margin: 0; padding: 0 .75rem;
+                 border: var(--rule-width) solid var(--color-rule-strong); border-radius: 0; background: transparent; color: var(--color-ink);
+                 font: 400 1rem/1.2 var(--font-text); -webkit-appearance: none; appearance: none; }
+  .campo input::placeholder { color: var(--color-ink-muted); opacity: 1; }
+  .campo button { flex: 0 0 auto; min-height: var(--tap-min); margin: 0 0 0 calc(-1 * var(--rule-width)); padding: 0 .9rem;
+                  border: var(--rule-width) solid var(--color-rule-strong); border-radius: 0; background: transparent; color: var(--color-ink);
+                  font: 600 var(--text-label)/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; cursor: pointer; }
+  .campo button:hover { color: var(--color-accent); }
+  .campo input:focus-visible, .campo button:focus-visible { position: relative; z-index: 1; }
+
+  /* ===== Conteúdo de exemplo (página de editoria; só para ver os dois temas) ===== */
+  .topo { padding-top: var(--space-section); }
+  .topo .chapeu { color: var(--color-accent); }
+  .fio { margin: 1.1rem 0 1.5rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem .9rem; }
+  .fio::after { content: ""; order: 1; flex: 1; min-width: 2rem; height: var(--rule-width); align-self: center; background: var(--color-rule-strong); }
+  .fio h1 { max-width: 18ch; font: 400 var(--text-h1)/.93 var(--font-display); letter-spacing: -.03em; }
+  .fio .label { order: 2; color: var(--color-ink-muted); }
+  .kicker { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .8rem; }
+  .kicker .ed { color: var(--color-accent); }
+  .badge { display: inline-flex; align-items: center; gap: .35em; background: var(--color-badge-bg); color: var(--color-badge-ink);
+           font: 600 var(--text-label)/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; padding: .34em .5em .3em; }
+  .badge::before { content: "◇"; font-size: .95em; line-height: 1; }
+  .rows { container-type: inline-size; list-style: none; margin: 0; padding: 0; border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .row { position: relative; display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: .35rem 1rem; padding-block: 1rem 1.1rem; border-top: var(--rule-width) solid var(--color-rule); }
+  .row:first-child { border-top-color: var(--color-rule-strong); }
+  .row__date { grid-row: span 2; color: var(--color-ink-muted); padding-top: .35rem; }
+  .row .kicker { grid-column: 2; }
+  .row__title { font: 400 var(--text-row-title)/1.06 var(--font-display); letter-spacing: -.012em; text-wrap: balance; }
+  .row__title a::after { content: ""; position: absolute; inset: 0; }
+  .row:hover .row__title a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .12em; }
+  .row__dek { display: none; }
+  .row__min { color: var(--color-ink-muted); grid-column: 2; }
+  @container (max-width: 10rem) {
+    .row { grid-template-columns: minmax(0, 1fr); }
+    .row__date { grid-row: auto; padding-top: 0; }
+    .row .kicker, .row__min { grid-column: 1; }
+  }
+  @media (min-width: 56rem) {
+    .row { grid-template-columns: 5.5rem 10rem minmax(0, 1fr) minmax(0, 22rem) 4rem; align-items: baseline; gap: 1.25rem; padding-block: 1.1rem; }
+    .row__date { grid-row: auto; padding-top: 0; }
+    .row .kicker { grid-column: 2; grid-row: 1; flex-direction: column; align-items: flex-start; gap: .5rem; }
+    .row__title { grid-column: 3; grid-row: 1; }
+    .row__dek { display: block; font: 400 .9375rem/1.45 var(--font-text); color: var(--color-ink-muted); grid-column: 4; grid-row: 1; }
+    .row__min { grid-column: 5; grid-row: 1; text-align: right; }
+  }
+
+  /* ===== Rodapé (tokens.md §5.3; a faixa noturna não muda com o tema) ===== */
+  .foot { margin-top: clamp(3rem, 7vw, 6rem); padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem; background: var(--color-night); color: var(--color-night-ink); }
+  .foot :focus-visible { outline-color: var(--color-focus-night); }
+  .foot__grid { display: grid; gap: 2rem; }
+  .foot__grid > * { min-width: 0; }
+  .foot__box { container-type: inline-size; }
+  .foot__mark { font: 400 min(var(--text-footer-mark), 27cqi)/.85 var(--font-display); letter-spacing: -.04em; }
+  .foot__mark i { letter-spacing: -.05em; margin-left: .1em; }
+  .foot p { max-width: 46ch; line-height: 1.55; }
+  .foot .foot__colophon { max-width: none; }
+  .foot__colophon { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 2rem; border-top: var(--rule-width) solid var(--color-night-rule); padding-top: 1rem; margin-top: 2.5rem; }
+  .foot .muted { color: var(--color-night-ink-muted); }
+  .foot .led { color: var(--color-amber); }
+  @media (min-width: 56rem) { .foot__grid { grid-template-columns: 7fr 5fr; align-items: end; } }
+
+  /* ===== Ferramentas do mockup (não vão para o app) ===== */
+  .mock { position: fixed; right: .5rem; bottom: .5rem; z-index: 30; display: flex; flex-wrap: wrap; gap: .25rem; max-width: calc(100vw - 1rem); justify-content: flex-end; }
+  .mock a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 .6rem; border: 1px solid var(--color-ink); background: var(--color-bg); color: var(--color-ink);
+            font: 500 .6875rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .05em; }
+  .mock a[aria-current="true"] { background: var(--color-ink); color: var(--color-bg); }
+  .shot .mock { display: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="mast">
+  <div class="wrap">
+    <!-- MUDA: <p> vira <div>. Ordem no DOM = ordem visual: slogan, botão de tema, wordmark. -->
+    <div class="mast__line label">
+      <span>Futebol depois do apito</span>
+      <!--
+        BotaoDeTema ("use client"). O aria-label vem do estado do React; o texto visível e o
+        losango vêm do CSS (data-theme no <html>). Todos os três rótulos ficam no DOM; só um aparece.
+        O aria-label contém o texto visível no começo ("Tema: sistema"), como pede o WCAG 2.5.3.
+      -->
+      <button class="tema" type="button" id="tema" aria-label="Tema: sistema. Mudar para claro">
+        <span class="tema__losango" aria-hidden="true"></span>
+        <span>Tema:&nbsp;<span class="tema__valor"><span data-rotulo="sistema">sistema</span><span data-rotulo="light">claro</span><span data-rotulo="dark">escuro</span></span></span>
+      </button>
+    </div>
+    <div class="mast__main">
+      <a class="wordmark" href="#" aria-label="Zona Mista, página inicial">Zona<i>Mista</i></a>
+      <div class="mast__side">
+        <p class="mast__tag label">Análise, crônica e reportagem<br>apuradas pelo squad-fut</p>
+        <form class="campo" role="search" action="#" method="get" aria-label="Buscar no portal">
+          <label class="sr-only" for="q-cabecalho">Buscar matérias</label>
+          <input id="q-cabecalho" type="search" name="q" placeholder="Clube, jogador, tema" maxlength="100" autocomplete="off" enterkeyhint="search">
+          <button type="submit">Buscar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <nav class="nav" aria-label="Editorias">
+    <ul>
+      <li><a href="#">Análise</a></li>
+      <li><a href="#" aria-current="page">Crônica</a></li>
+      <li><a href="#">Notícia</a></li>
+      <li><a href="#">Coluna</a></li>
+      <li><a href="#">Perfil</a></li>
+      <li><a href="#">Entrevista</a></li>
+      <li><a href="#">Reportagem</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="conteudo">
+  <div class="wrap">
+    <header class="topo">
+      <p class="label chapeu">Editoria</p>
+      <div class="fio"><h1>Crônica</h1><span class="label"><span class="mono">2</span> matérias</span></div>
+    </header>
+    <ol class="rows">
+      <li class="row">
+        <time class="row__date label mono" datetime="2026-10-18">18.10</time>
+        <p class="kicker label"><a class="ed" href="#">Crônica</a><span class="badge">Exemplo</span></p>
+        <h2 class="row__title"><a href="#">A última tarde do Mirante Velho</a></h2>
+        <p class="row__dek">O estádio que viu nascer o futebol da serra recebeu seu último jogo, e quem estava lá saiu levando um pedaço da arquibancada</p>
+        <span class="row__min label mono">3 min</span>
+      </li>
+      <li class="row">
+        <time class="row__date label mono" datetime="2026-09-27">27.09</time>
+        <p class="kicker label"><a class="ed" href="#">Crônica</a><span class="badge">Exemplo</span></p>
+        <h2 class="row__title"><a href="#">O radinho de pilha do seu Dorival não erra um pênalti desde 1987</a></h2>
+        <p class="row__dek">Na arquibancada do Atlético Vila Serena, a narração chega dois segundos antes do lance, e ninguém reclama</p>
+        <span class="row__min label mono">4 min</span>
+      </li>
+    </ol>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <div class="foot__box"><p class="foot__mark" aria-hidden="true">Zona<i>Mista</i></p></div>
+      <p>As matérias da Zona Mista são produzidas pelo squad-fut, uma redação de agentes que apura, escreve, checa e revisa cada texto.</p>
+    </div>
+    <p class="foot__colophon label"><span>© <span class="mono">2026</span> Zona Mista</span><span class="muted">Depois do apito <span class="led">◆</span></span></p>
+  </div>
+</footer>
+
+<div class="mock" role="group" aria-label="Ferramentas do mockup">
+  <a href="?" data-mock="">Sistema claro</a>
+  <a href="?sistema=dark" data-mock="sistema=dark">Sistema escuro</a>
+  <a href="?nojs" data-mock="nojs">Sem JS</a>
+</div>
+<script>
+  /* Comportamento do BotaoDeTema (o que o React faz no clique), em JS puro para o mockup. */
+  (function () {
+    var h = document.documentElement, b = document.getElementById('tema');
+    var ROTULO = { sistema: 'sistema', light: 'claro', dark: 'escuro' };
+    var PROXIMO = { sistema: 'light', light: 'dark', dark: 'sistema' };
+    function atual() { var t = h.getAttribute('data-theme'); return t === 'light' || t === 'dark' ? t : 'sistema'; }
+    function rotular() {
+      var t = atual();
+      b.setAttribute('aria-label', 'Tema: ' + ROTULO[t] + '. Mudar para ' + ROTULO[PROXIMO[t]]);
+    }
+    b.addEventListener('click', function () {
+      var t = PROXIMO[atual()];
+      if (t === 'sistema') h.removeAttribute('data-theme'); else h.setAttribute('data-theme', t);
+      try { if (t === 'sistema') localStorage.removeItem('tema'); else localStorage.setItem('tema', t); } catch (e) { /* sem storage: vale só nesta página */ }
+      rotular();
+    });
+    rotular();
+    var q = location.search.replace(/^\?/, '').replace(/&?shot/, '');
+    document.querySelectorAll('.mock a').forEach(function (a) { if (a.dataset.mock === q) a.setAttribute('aria-current', 'true'); });
+  })();
+</script>
+</body>
+</html>

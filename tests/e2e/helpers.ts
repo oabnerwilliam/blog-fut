@@ -15,7 +15,10 @@ export async function corDoToken(page: Page, nome: string): Promise<string> {
   }, nome);
 }
 
-/** Força o tema pelo atributo `data-theme` no `<html>` (a história 7 fará isso com um botão). */
+/**
+ * Força o tema pelo atributo `data-theme` no `<html>`, sem passar pelo botão nem pelo storage
+ * (o botão da história 07 é testado em tema.spec.ts).
+ */
 export async function definirTema(
   page: Page,
   tema: "light" | "dark",
@@ -24,4 +27,17 @@ export async function definirTema(
     (t) => document.documentElement.setAttribute("data-theme", t),
     tema,
   );
+}
+
+/**
+ * Espera o React hidratar o botão de tema (história 07). Antes disso, Enter e clique não fazem
+ * nada. O React marca o elemento hidratado com uma propriedade `__reactProps…`.
+ */
+export async function esperarHidratacao(page: Page): Promise<void> {
+  await page.waitForFunction(() => {
+    const botao = document.querySelector("[data-botao-de-tema]");
+    return (
+      !!botao && Object.keys(botao).some((k) => k.startsWith("__reactProps"))
+    );
+  });
 }

@@ -170,12 +170,14 @@ for (const largura of [1280, 320]) {
 
         // Vão: o fundo da página nos quatro lados. Embaixo o link sobrepõe o cabeçalho, mas o
         // halo na cor de --color-bg cobre os glifos do wordmark/slogan entre o âmbar e o contorno.
-        // Lado de fora: em cima, à esquerda e à direita só há papel; embaixo, fora do contorno,
-        // ficam os glifos do cabeçalho, que não fazem parte do indicador.
+        // Lado de fora: em cima e à esquerda só há papel; embaixo, fora do contorno, ficam os
+        // glifos do cabeçalho, que não fazem parte do indicador. À direita, em 320px, o link
+        // cobre o começo do botão de tema (história 07, "TEMA: …"), e fora do contorno ficam os
+        // glifos dele; nas larguras maiores, à direita também só há papel.
         const faixasPorLado = {
           topo: ["vao", "fora"],
           esquerda: ["vao", "fora"],
-          direita: ["vao", "fora"],
+          direita: largura === 320 ? ["vao"] : ["vao", "fora"],
           base: ["vao"],
         } as const;
         for (const [lado, faixasDoLado] of Object.entries(faixasPorLado)) {
