@@ -1,7 +1,10 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { encontrarCoresLiterais } from "./helpers/css";
+import {
+  encontrarCoresArbitrariasEmClasses,
+  encontrarCoresLiterais,
+} from "./helpers/css";
 
 const RAIZ = path.resolve(__dirname, "../..");
 const SRC = path.join(RAIZ, "src");
@@ -124,6 +127,87 @@ describe("cores literais", () => {
         "ts",
       ),
     ).toEqual([]);
+  });
+
+  it("o detector de classes Tailwind acha cor arbitrária e paleta padrão (ADR 0007)", () => {
+    const achar = (codigo: string) =>
+      encontrarCoresArbitrariasEmClasses(codigo);
+
+    // Positivos: hex em valor arbitrário
+    for (const classe of [
+      "bg-[#fff]",
+      "text-[#2638C9]",
+      "border-[#000]",
+      "border-t-[#c9c7bf]",
+      "hover:bg-[#ffb000]",
+      "decoration-[#123456]/50",
+      "shadow-[0_0_0_3px_#fff]",
+    ]) {
+      expect(achar(`<p className="flex ${classe}">x</p>`), classe).toHaveLength(
+        1,
+      );
+    }
+    // Positivos: função de cor ou nome de cor CSS dentro de [...]
+    for (const classe of [
+      "bg-[rgb(0,0,0)]",
+      "text-[hsl(0_0%_0%)]",
+      "fill-[oklch(70%_0.1_200)]",
+      "bg-[color:var(--x,red)]",
+      "[color:white]",
+      "shadow-[0_0_0_2px_white]",
+      "outline-[black]",
+    ]) {
+      expect(achar(`const c = "p-2 ${classe}";`), classe).toHaveLength(1);
+    }
+    // Positivos: paleta padrão do Tailwind
+    for (const classe of [
+      "bg-red-500",
+      "text-slate-900",
+      "md:border-zinc-200/40",
+      "text-amber-500",
+      "bg-slate",
+      "text-white",
+      "bg-black/50",
+      "ring-gray-300",
+    ]) {
+      expect(
+        achar(`<a className={\`underline ${classe}\`}>x</a>`),
+        classe,
+      ).toHaveLength(1);
+    }
+    expect(achar('<p\n  className="bg-red-500"\n>x</p>')).toEqual([
+      '2: className="bg-red-500"',
+    ]);
+
+    // Negativos: tokens do portal e valores arbitrários sem cor
+    for (const codigo of [
+      '<p className="bg-bg text-ink border-rule-strong">x</p>',
+      '<p className="text-amber hover:text-amber bg-badge-bg">x</p>',
+      '<p className="bg-(--color-night) text-(--color-ink)">x</p>',
+      '<p className="text-[length:min(var(--text-footer-mark),27cqi)]">x</p>',
+      '<p className="shadow-[0_0_0_var(--focus-offset)_var(--color-bg)]">x</p>',
+      '<p className="grid-cols-[7fr_5fr] max-w-[46ch] mt-[1.1rem]">x</p>',
+      "<p className=\"before:content-['◇'] aria-[current=page]:underline\">x</p>",
+      '<p className="[&_:focus-visible]:outline-focus-night">x</p>',
+      '<a href="#conteudo">Pular</a>',
+      "const lista = EDITORIAS[indice];",
+      "<p>Cartão red e camisa white no texto</p>",
+      '<p className="whitespace-nowrap text-ink-muted">x</p>',
+    ]) {
+      expect(achar(codigo), codigo).toEqual([]);
+    }
+  });
+
+  it("nenhuma classe com cor arbitrária ou paleta padrão em .ts/.tsx de src/", () => {
+    const achados = listarArquivos(SRC)
+      .filter((arquivo) => /\.tsx?$/.test(arquivo))
+      .flatMap((arquivo) => {
+        const relativo = path.relative(RAIZ, arquivo).replace(/\\/g, "/");
+        return encontrarCoresArbitrariasEmClasses(
+          readFileSync(arquivo, "utf8"),
+        ).map((achado) => `${relativo}:${achado}`);
+      });
+    expect(achados).toEqual([]);
   });
 
   it("nenhuma cor literal em src/ fora de src/styles/tokens.css", () => {

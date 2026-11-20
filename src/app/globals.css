@@ -1,97 +1,260 @@
 /*
- * Reset e base do portal. Só usa tokens (var(--…)), definidos em src/styles/tokens.css.
- * Especificação: docs/design/tokens.md, seções 3 ("Base do body"), 4 (".wrap") e 5.6 (foco e movimento).
+ * Tailwind CSS v4 + base do portal (ADR 0007). Só usa tokens (var(--…)), definidos em
+ * src/styles/tokens.css, o único arquivo com cor literal.
+ * Especificação: docs/design/tokens.md, seções 3 ("Base do body"), 4 (".wrap") e 5 (componentes).
  */
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@import "tailwindcss";
+
+/*
+ * Tema: só os tokens do portal viram utilitário. As paletas, as fontes e a escala de texto
+ * padrão do Tailwind são desligadas (`initial`), então `bg-red-500`, `font-sans` ou `text-xl`
+ * não geram CSS.
+ */
+@theme {
+  --color-*: initial;
+  --font-*: initial;
+  --text-*: initial;
+
+  /* Breakpoints de tokens.md §4 (CSS não aceita var() em media query). */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-grade: 56rem;
+  --breakpoint-lg: 64rem;
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
+/*
+ * Os valores ficam em tokens.css, que troca as cores por tema (prefers-color-scheme e
+ * [data-theme]). Por isso o tema do Tailwind só APONTA para eles:
+ * - `inline`: o utilitário usa o valor direto (`bg-bg` vira `background-color: var(--color-bg)`),
+ *   e a troca de tema continua valendo, porque a variável é resolvida no navegador;
+ * - `reference`: o Tailwind não reemite essas variáveis no `:root`. Sem isso, sairia
+ *   `--color-bg: var(--color-bg)`, uma referência circular.
+ */
+@theme inline reference {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-rule: var(--color-rule);
+  --color-rule-strong: var(--color-rule-strong);
+  --color-accent: var(--color-accent);
+  --color-amber: var(--color-amber);
+  --color-night: var(--color-night);
+  --color-night-ink: var(--color-night-ink);
+  --color-night-ink-muted: var(--color-night-ink-muted);
+  --color-night-rule: var(--color-night-rule);
+  --color-badge-bg: var(--color-badge-bg);
+  --color-badge-ink: var(--color-badge-ink);
+  --color-notice-bg: var(--color-notice-bg);
+  --color-notice-ink: var(--color-notice-ink);
+  --color-focus: var(--color-focus);
+  --color-focus-night: var(--color-focus-night);
+
+  --font-display: var(--font-display);
+  --font-text: var(--font-text);
+  --font-mono: var(--font-mono);
+
+  --text-label: var(--text-label);
+  --text-nav-index: var(--text-nav-index);
+  --text-nav: var(--text-nav);
+  --text-body: var(--text-body);
+  --text-lead: var(--text-lead);
+  --text-dek: var(--text-dek);
+  --text-row-title: var(--text-row-title);
+  --text-section: var(--text-section);
+  --text-h2: var(--text-h2);
+  --text-feature: var(--text-feature);
+  --text-wordmark: var(--text-wordmark);
+  --text-h1: var(--text-h1);
+  --text-display: var(--text-display);
+  --text-footer-mark: var(--text-footer-mark);
 }
 
-body {
-  margin: 0;
-  background: var(--color-bg);
-  color: var(--color-ink);
-  font-family: var(--font-text);
-  font-size: 1rem;
-  line-height: 1.5;
-  font-kerning: normal;
-  text-rendering: optimizeLegibility;
-  overflow-wrap: break-word;
+@layer base {
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-text);
+    font-size: 1rem;
+    line-height: 1.5;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    overflow-wrap: break-word;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
+
+  /* Alvo programático do link de pular: recebe foco, mas não é interativo. */
+  #conteudo:focus {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition: none !important;
+      animation: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0;
-  font-weight: 400;
-  text-wrap: balance;
-}
+/*
+ * Camada mínima de componentes: o que não cabe bem em classe utilitária.
+ * Utilitários vencem esta camada, então o JSX pode ajustar estas classes.
+ */
+@layer components {
+  .wrap {
+    max-width: var(--layout-max);
+    margin-inline: auto;
+    padding-inline: var(--layout-gutter);
+  }
 
-p {
-  margin: 0;
-}
+  .label {
+    font: 500 var(--text-label) / 1.4 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums slashed-zero;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums slashed-zero;
+  }
 
-:focus-visible {
-  outline: var(--focus-width) solid var(--color-focus);
-  outline-offset: var(--focus-offset);
-}
+  /* Numeração 01–07 da nav do cabeçalho (tokens.md §5.2): contador CSS no ::before. */
+  .nav-numerada {
+    counter-reset: ed;
+  }
 
-/* Alvo programático do link de pular: recebe foco, mas não é interativo. */
-#conteudo:focus {
-  outline: none;
-}
+  .nav-numerada > li {
+    counter-increment: ed;
+  }
 
-.wrap {
-  max-width: var(--layout-max);
-  margin-inline: auto;
-  padding-inline: var(--layout-gutter);
-}
+  .nav-numerada a::before {
+    content: counter(ed, decimal-leading-zero);
+    font: 500 var(--text-nav-index) / 1 var(--font-mono);
+    color: var(--color-ink-muted);
+  }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
+  /*
+   * Prosa: corpo da matéria (mockup variacao-2/materia.html: .prose). O HTML vem do
+   * Markdown, sem classes, por isso os estilos ficam aqui, por seletor de elemento.
+   */
+  .prosa {
+    margin-top: clamp(2.25rem, 5vw, 4rem);
+    font: 400 var(--text-body) / 1.68 var(--font-text);
+    font-variant-numeric: proportional-nums;
+  }
 
-.label {
-  font: 500 var(--text-label) / 1.4 var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums slashed-zero;
-}
+  .prosa p {
+    margin: 0 0 1.15em;
+    text-wrap: pretty;
+  }
 
-.mono {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums slashed-zero;
-}
+  /* Abertura: primeiro parágrafo maior, primeira linha em versalete espaçado. */
+  .prosa > p:first-of-type {
+    font: 400 var(--text-lead) / 1.5 var(--font-text);
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition: none !important;
-    animation: none !important;
-    scroll-behavior: auto !important;
+  .prosa > p:first-of-type::first-line {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .prosa h2 {
+    margin: 2.3em 0 0.65em;
+    padding-top: 0.7em;
+    border-top: var(--rule-width) solid var(--color-rule-strong);
+    font: italic 400 var(--text-h2) / 1.02 var(--font-display);
+    letter-spacing: -0.015em;
+    scroll-margin-top: 1rem;
+  }
+
+  .prosa h3 {
+    margin: 1.8em 0 0.5em;
+    font: 400 var(--text-row-title) / 1.06 var(--font-display);
+    letter-spacing: -0.012em;
+  }
+
+  .prosa blockquote {
+    margin: 1.6em 0;
+    padding-left: 1.25rem;
+    border-left: var(--rule-width-strong) solid var(--color-accent);
+  }
+
+  .prosa blockquote p {
+    font: italic 400 var(--text-row-title) / 1.2 var(--font-display);
+  }
+
+  /* O preflight do Tailwind tira os marcadores das listas; na prosa eles voltam. */
+  .prosa ul,
+  .prosa ol {
+    margin: 0 0 1.15em;
+    padding-left: 1.25em;
+  }
+
+  .prosa ul {
+    list-style-type: disc;
+  }
+
+  .prosa ol {
+    list-style-type: decimal;
+  }
+
+  /* Listas aninhadas, como no estilo padrão do navegador. */
+  .prosa :is(ul, ol) ul {
+    list-style-type: circle;
+  }
+
+  .prosa :is(ul, ol) :is(ul, ol) ul {
+    list-style-type: square;
+  }
+
+  .prosa li {
+    margin-bottom: 0.4em;
+  }
+
+  .prosa li::marker {
+    color: var(--color-ink-muted);
+  }
+
+  .prosa a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: var(--rule-width);
+    text-underline-offset: 0.2em;
+  }
+
+  .prosa a:hover {
+    text-decoration-thickness: var(--rule-width-strong);
+  }
+
+  .prosa > p:last-child::after {
+    content: " ◆";
+    color: var(--color-accent);
+    font-size: 0.8em;
   }
 }

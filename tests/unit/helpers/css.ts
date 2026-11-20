@@ -319,3 +319,102 @@ export function razaoDeContraste(hexA: string, hexB: string): number {
   const [a, b] = [luminancia(hexA), luminancia(hexB)].sort((x, y) => y - x);
   return (a + 0.05) / (b + 0.05);
 }
+
+/* ---------- Classes Tailwind (história 11, ADR 0007) ---------- */
+
+/** Utilitários do Tailwind que recebem cor. */
+const PREFIXOS_DE_COR =
+  "bg|text|border(?:-[xytrblse])?|outline|ring(?:-offset)?|inset-ring|fill|stroke|decoration|from|via|to|shadow|inset-shadow|drop-shadow|text-shadow|accent|caret|divide|placeholder";
+
+/** Paletas padrão do Tailwind v4. `amber` sozinho é token do portal; `amber-500` não. */
+const PALETAS = [
+  "red",
+  "orange",
+  "amber",
+  "yellow",
+  "lime",
+  "green",
+  "emerald",
+  "teal",
+  "cyan",
+  "sky",
+  "blue",
+  "indigo",
+  "violet",
+  "purple",
+  "fuchsia",
+  "pink",
+  "rose",
+  "slate",
+  "gray",
+  "zinc",
+  "neutral",
+  "stone",
+  "taupe",
+  "mauve",
+  "mist",
+  "olive",
+];
+
+/** `-red-500`, `-slate-50`: paleta com tom, em qualquer utilitário. */
+const RE_PALETA_COM_TOM = new RegExp(
+  `-(?:${PALETAS.join("|")})-(?:50|[1-9]00|950)(?![\\w-])`,
+  "g",
+);
+
+/** `bg-slate`, `text-white`, `bg-black/50`: paleta sem tom (exceto o token `amber`), preto e branco. */
+const RE_PALETA_SEM_TOM = new RegExp(
+  `(?<![\\w-])(?:${PREFIXOS_DE_COR})-(?:${[
+    ...PALETAS.filter((p) => p !== "amber"),
+    "black",
+    "white",
+  ].join("|")})(?![\\w-])`,
+  "g",
+);
+
+/**
+ * Valor arbitrário: `bg-[…]` (colchete logo depois de `-`) ou propriedade/variante
+ * arbitrária `[prop:valor]` (colchete no início da classe, com `:` dentro).
+ */
+const RE_VALOR_ARBITRARIO = /(-\[|(?<=^|[\s"'`{:!])\[)([^[\]\s]+)\]/g;
+const RE_HEX_ARBITRARIO = /#[0-9a-fA-F]{3,8}(?![0-9a-zA-Z])/;
+const RE_NOME_DE_COR_ARBITRARIO = new RegExp(
+  `(?<![a-zA-Z0-9-])(?:${NOMES_DE_COR.join("|")})(?![a-zA-Z0-9-])`,
+  "i",
+);
+
+function valorArbitrarioTemCor(valor: string): boolean {
+  const limpo = valor
+    .replace(/(["'])(?:\\.|(?!\1)[^\\])*\1/g, " ")
+    .replace(/--[\w-]+/g, " ");
+  return (
+    RE_HEX_ARBITRARIO.test(limpo) ||
+    new RegExp(RE_FUNCAO_DE_COR.source, "i").test(limpo) ||
+    RE_NOME_DE_COR_ARBITRARIO.test(limpo)
+  );
+}
+
+/**
+ * Procura, em código TS/TSX, classes do Tailwind com cor fora dos tokens: valor arbitrário
+ * com hex, função de cor ou nome de cor (`bg-[#fff]`, `[color:white]`) e paletas padrão
+ * (`bg-red-500`, `text-slate-900`, `text-white`). Devolve "linha: trecho" de cada achado.
+ * Cor de token entra só pelo nome do tema (`bg-bg`) ou por variável (`bg-(--color-bg)`).
+ */
+export function encontrarCoresArbitrariasEmClasses(codigo: string): string[] {
+  const limpo = removerComentarios(codigo, "ts");
+  const linhas = new Set<number>();
+  const anotar = (indice: number) => linhas.add(linhaDe(limpo, indice));
+
+  for (const re of [RE_PALETA_COM_TOM, RE_PALETA_SEM_TOM]) {
+    for (const m of limpo.matchAll(re)) anotar(m.index);
+  }
+  for (const m of limpo.matchAll(RE_VALOR_ARBITRARIO)) {
+    const ehPropriedade = m[1] === "[";
+    if (ehPropriedade && !m[2].includes(":")) continue;
+    if (valorArbitrarioTemCor(m[2])) anotar(m.index);
+  }
+
+  return [...linhas]
+    .sort((a, b) => a - b)
+    .map((l) => `${l}: ${trechoDaLinha(codigo, l)}`);
+}
