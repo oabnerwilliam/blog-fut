@@ -37,11 +37,11 @@ Ao repassar trabalho, o orquestrador sempre informa ao agente: o caminho da hist
 ## Portões de qualidade (todos verdes antes do merge)
 
 ```
-npm run lint
-npm run typecheck
-npm test
-npm run test:e2e
-npm run build
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:e2e
+pnpm build
 ```
 
 ## Regras do projeto
