@@ -1,6 +1,6 @@
 # ADR 0001: Estratégia de estilo (CSS Modules + CSS global de tokens)
 
-**Status:** aceito · **Data:** 2026-11-19 · **História:** `docs/backlog/01-identidade-visual.md` (critério 5)
+**Status:** substituído pelo ADR 0007 (`docs/adr/0007-tailwind-v4.md`) · **Data:** 2026-11-19 · **História:** `docs/backlog/01-identidade-visual.md` (critério 5)
 
 ## Contexto
 - A spec (seção 6.1) deixa ao arquiteto a escolha entre Tailwind CSS e CSS Modules. O que importa é que os tokens sejam a **fonte única** de cor e tipografia.
