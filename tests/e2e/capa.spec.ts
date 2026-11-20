@@ -111,13 +111,17 @@ for (const largura of [320, 1280]) {
       await expect(
         editorias.getByRole("link", { name: /^Crônica/ }),
       ).toHaveAttribute("href", "/editorias/cronica");
+      // A contagem por extenso fica num sr-only; o <sup> ("02") é só visual (história 05).
       await expect(
-        editorias.locator('sup[aria-label="2 matérias"]'),
+        editorias.locator(".sr-only", { hasText: /^ 2 matérias$/ }),
       ).toHaveCount(1);
       await expect(
-        editorias.locator('sup[aria-label="1 matéria"]'),
+        editorias.locator(".sr-only", { hasText: /^ 1 matéria$/ }),
       ).toHaveCount(6);
-      await expect(editorias.locator('[aria-hidden="true"]')).toHaveCount(6);
+      await expect(editorias.locator('sup[aria-hidden="true"]')).toHaveCount(7);
+      await expect(editorias.locator("sup[aria-label]")).toHaveCount(0);
+      // 6 barras entre as editorias + 7 contagens em <sup>.
+      await expect(editorias.locator('[aria-hidden="true"]')).toHaveCount(13);
     });
 
     test("a faixa de Crônica existe e é a única faixa", async ({ page }) => {
@@ -134,7 +138,8 @@ for (const largura of [320, 1280]) {
         "datetime",
         "2026-10-25",
       );
-      await expect(itens.first().locator("time")).toHaveText("25out");
+      // Espaço sr-only entre dia e mês: o texto é lido "25 out" (história 05).
+      await expect(itens.first().locator("time")).toHaveText("25 out");
       await expect(
         itens.first().getByText("Exemplo", { exact: true }),
       ).toBeVisible();
