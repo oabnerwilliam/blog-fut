@@ -1,0 +1,31 @@
+/* docs/design/tokens.md §5.5 */
+.aviso {
+  display: grid;
+  gap: 0.35rem 1.25rem;
+  margin: 1.25rem 0 1rem;
+  padding: 0.85rem 1rem;
+  max-width: var(--layout-measure);
+  border-block: var(--rule-width-strong) solid var(--color-notice-ink);
+  border-radius: var(--radius);
+  background: var(--color-notice-bg);
+  color: var(--color-notice-ink);
+}
+
+.rotulo {
+  font-weight: 600;
+}
+
+.frase {
+  font: 400 1rem / 1.45 var(--font-text);
+}
+
+.frase strong {
+  font-weight: 700;
+}
+
+@media (min-width: 40rem) {
+  .aviso {
+    grid-template-columns: 7rem 1fr;
+    align-items: baseline;
+  }
+}
