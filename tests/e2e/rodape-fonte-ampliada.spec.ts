@@ -32,7 +32,9 @@ async function aplicarFonte(page: Page, css: string | null, px: number) {
 /** Caixa da tinta do texto da marca (Range), que pode vazar do <p> mesmo com o <p> contido. */
 const caixasDaMarca = (page: Page) =>
   page.evaluate(() => {
-    const p = document.querySelector<HTMLElement>("footer p[aria-hidden='true']")!;
+    const p = document.querySelector<HTMLElement>(
+      "footer p[aria-hidden='true']",
+    )!;
     const range = document.createRange();
     range.selectNodeContents(p);
     const texto = range.getBoundingClientRect();
@@ -93,9 +95,10 @@ for (const largura of LARGURAS) {
           await page.getByRole("contentinfo").scrollIntoViewIfNeeded();
           const m = await caixasDaMarca(page);
           expect(m.fonte).toBeGreaterThan(0);
-          expect(m.scroll, "texto da marca transborda o <p>").toBeLessThanOrEqual(
-            m.client,
-          );
+          expect(
+            m.scroll,
+            "texto da marca transborda o <p>",
+          ).toBeLessThanOrEqual(m.client);
           expect(m.texto.left).toBeGreaterThanOrEqual(m.coluna.left - 0.5);
           expect(m.texto.right).toBeLessThanOrEqual(m.coluna.right + 0.5);
           expect(m.texto.right).toBeLessThanOrEqual(m.innerWidth);

@@ -15,9 +15,12 @@ for (const esquema of ["light", "dark"] as const) {
     test("margem lateral >= 16px", async ({ page }) => {
       await page.goto("/");
       const main = page.getByRole("main");
+      // O h1 da capa é sr-only; a margem é medida no conteúdo visível de cada seção.
       for (const alvo of [
-        main.getByRole("heading", { level: 1 }),
-        main.locator("p").nth(1),
+        ...(await main.getByRole("heading", { level: 2 }).all()),
+        main.locator("[data-secao='destaque'] p:not(.label)"),
+        main.getByRole("region", { name: "Últimas" }).locator("article"),
+        ...(await main.locator("ol > li").all()),
       ]) {
         const caixa = await alvo.boundingBox();
         expect(caixa).not.toBeNull();

@@ -4,6 +4,11 @@ import { expect, test, type Page } from "@playwright/test";
  * Regressão visual (história 11). As referências foram geradas com o estilo ainda em
  * CSS Modules, ANTES da migração para Tailwind. Diferença acima da tolerância se corrige
  * no código, nunca regenerando a referência.
+ *
+ * Exceção: mudança visual intencional, aprovada numa história. Aí só as referências da
+ * página que mudou são regeneradas (`--update-snapshots` filtrado pelo nome do teste).
+ * - História 04 (capa): `capa-*.png` regeneradas com a capa nova (destaque, Últimas,
+ *   Editorias e faixas). As referências da matéria, do 404 e do foco não mudaram.
  */
 
 /** Tolerância pequena e explícita (critério 1: no máximo 0,01). */

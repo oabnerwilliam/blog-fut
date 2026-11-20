@@ -28,7 +28,7 @@ test("carrega fontes de /_next/static/media", async ({ page }) => {
   expect(fontes.every((f) => f.startsWith("/_next/static/media/"))).toBe(true);
 });
 
-test("h1 em Instrument Serif, parágrafo em Instrument Sans, rótulo em Geist Mono", async ({
+test("títulos em Instrument Serif, parágrafo em Instrument Sans, rótulo em Geist Mono", async ({
   page,
 }) => {
   await page.goto("/");
@@ -38,7 +38,10 @@ test("h1 em Instrument Serif, parágrafo em Instrument Sans, rótulo em Geist Mo
       .first()
       .evaluate((el) => getComputedStyle(el).fontFamily);
 
-  expect(await familia("main h1")).toMatch(/Instrument[ _]Serif/);
+  // O h1 da capa é sr-only; o título visível maior é o h2 do destaque.
+  for (const titulo of ["main h2#destaque", "main h2#ultimas", "main h3"]) {
+    expect(await familia(titulo), titulo).toMatch(/Instrument[ _]Serif/);
+  }
   const paragrafo = await familia("main p:not(.label)");
   expect(paragrafo).toMatch(/Instrument[ _]Sans/);
   expect(paragrafo).not.toMatch(/Serif/);
