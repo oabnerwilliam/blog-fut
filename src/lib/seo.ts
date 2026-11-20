@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import type { Article } from "@/lib/content";
 import type { Editoria } from "@/lib/editorias";
+import {
+  caminhoDaListagem,
+  rotuloDaContagem,
+  type Listagem,
+} from "@/lib/listagens";
 import { NOME_DO_PORTAL } from "@/lib/site";
 
 /** Editorias de opinião e texto autoral: no JSON-LD viram `Article`, não `NewsArticle`. */
@@ -35,6 +40,34 @@ export function metadadosDaMateria(artigo: Article): Metadata {
     },
     twitter: { card: "summary", title: titulo, description: descricao },
     ...(artigo.ficticio ? { robots: { index: false, follow: false } } : {}),
+  };
+}
+
+/**
+ * Metadados de uma página de editoria ou de tag. A página 1 tem o canonical sem query; as
+ * outras apontam para si mesmas (`?pagina=N`). Lista só de fictícias leva noindex.
+ */
+export function metadadosDaListagem(listagem: Listagem): Metadata {
+  const { tipo, slug, rotulo, total, pagina, soFicticias } = listagem;
+  const nome = tipo === "editoria" ? rotulo : `Tag: ${rotulo}`;
+  const titulo = pagina > 1 ? `${nome} · página ${pagina}` : nome;
+  const onde =
+    tipo === "editoria" ? `da editoria ${rotulo}` : `com a tag ${rotulo}`;
+  const descricao = `${rotuloDaContagem(total)} ${onde} na ${NOME_DO_PORTAL}, da mais nova para a mais antiga.`;
+  const url = caminhoDaListagem(tipo, slug, pagina);
+  return {
+    title: titulo,
+    description: descricao,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      title: titulo,
+      description: descricao,
+      url,
+      siteName: NOME_DO_PORTAL,
+      locale: "pt_BR",
+    },
+    ...(soFicticias ? { robots: { index: false, follow: false } } : {}),
   };
 }
 
