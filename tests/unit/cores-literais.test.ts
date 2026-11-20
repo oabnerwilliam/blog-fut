@@ -159,6 +159,17 @@ describe("cores literais", () => {
     ]) {
       expect(achar(`const c = "p-2 ${classe}";`), classe).toHaveLength(1);
     }
+    // Positivos: variável com fallback de cor literal, na sintaxe curta do v4
+    for (const classe of [
+      "bg-(--x,#fff)",
+      "text-(--cor,rgb(0,0,0))",
+      "border-(color:--x,white)",
+      "hover:bg-(--color-bg,#efeee9)",
+    ]) {
+      expect(achar(`<p className="m-0 ${classe}">x</p>`), classe).toHaveLength(
+        1,
+      );
+    }
     // Positivos: paleta padrão do Tailwind
     for (const classe of [
       "bg-red-500",

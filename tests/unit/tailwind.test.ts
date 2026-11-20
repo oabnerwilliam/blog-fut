@@ -53,7 +53,8 @@ describe("Tailwind v4", () => {
   });
 
   it("o globals.css importa o Tailwind e desliga paletas, fontes e textos padrão", () => {
-    expect(globais).toMatch(/@import\s+"tailwindcss";/);
+    // source("../"): só src/ é varrido (tests/ e docs/ têm exemplos de classes proibidas).
+    expect(globais).toMatch(/@import\s+"tailwindcss"\s+source\("\.\.\/"\);/);
     const tema = extrairBloco(globais, "@theme");
     expect(tema).toMatch(/--color-\*:\s*initial;/);
     expect(tema).toMatch(/--font-\*:\s*initial;/);
@@ -83,7 +84,7 @@ describe("Tailwind v4", () => {
   });
 
   it("todo CSS próprio do globals.css fica em @layer base ou @layer components", () => {
-    let resto = globais.replace(/@import\s+"tailwindcss";/, "");
+    let resto = globais.replace(/@import\s+"tailwindcss"[^;]*;/, "");
     for (const prefixo of ["@theme", "@layer base", "@layer components"]) {
       resto = semBlocos(resto, prefixo);
     }

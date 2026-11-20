@@ -4,7 +4,12 @@
  * Especificação: docs/design/tokens.md, seções 3 ("Base do body"), 4 (".wrap") e 5 (componentes).
  */
 
-@import "tailwindcss";
+/*
+ * source("../"): o Tailwind só procura classes em src/ (caminho relativo a src/app). Sem isso,
+ * ele varre o projeto todo, e os exemplos de tests/ e docs/ (como `bg-[#fff]` no teste de
+ * cores) viram CSS de produção.
+ */
+@import "tailwindcss" source("../");
 
 /*
  * Tema: só os tokens do portal viram utilitário. As paletas, as fontes e a escala de texto
@@ -248,8 +253,44 @@
     text-underline-offset: 0.2em;
   }
 
-  .prosa a:hover {
-    text-decoration-thickness: var(--rule-width-strong);
+  /* Como o hover: do Tailwind v4, só em dispositivos com hover (não gruda no toque). */
+  @media (hover: hover) {
+    .prosa a:hover {
+      text-decoration-thickness: var(--rule-width-strong);
+    }
+  }
+
+  /*
+   * Elementos que o sanitizador aceita (ADR 0004) e que o preflight do Tailwind muda.
+   * Aqui eles voltam ao comportamento de antes, com cor e fonte dos tokens (ADR 0007).
+   */
+  .prosa hr {
+    margin: 0.5em 0;
+    border: 0;
+    border-top: var(--rule-width) solid var(--color-rule);
+  }
+
+  .prosa :is(code, kbd, samp, pre) {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+  }
+
+  /* `pre code` não encolhe duas vezes. */
+  .prosa pre :is(code, kbd, samp) {
+    font-size: 1em;
+  }
+
+  .prosa pre {
+    margin: 0 0 1.15em;
+    overflow-x: auto;
+  }
+
+  .prosa h5 {
+    font-size: 0.83em;
+  }
+
+  .prosa h6 {
+    font-size: 0.67em;
   }
 
   .prosa > p:last-child::after {

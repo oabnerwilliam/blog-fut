@@ -377,6 +377,11 @@ const RE_PALETA_SEM_TOM = new RegExp(
  * arbitrária `[prop:valor]` (colchete no início da classe, com `:` dentro).
  */
 const RE_VALOR_ARBITRARIO = /(-\[|(?<=^|[\s"'`{:!])\[)([^[\]\s]+)\]/g;
+/**
+ * Sintaxe curta do v4 com fallback: `bg-(--x,#fff)`, `border-(color:--x,white)`. A variável é
+ * permitida; o fallback (grupo 1) não pode ser cor literal.
+ */
+const RE_VARIAVEL_COM_FALLBACK = /-\((?:[a-z-]+:)?--[\w-]+,([^\s"'`]+)\)/g;
 const RE_HEX_ARBITRARIO = /#[0-9a-fA-F]{3,8}(?![0-9a-zA-Z])/;
 const RE_NOME_DE_COR_ARBITRARIO = new RegExp(
   `(?<![a-zA-Z0-9-])(?:${NOMES_DE_COR.join("|")})(?![a-zA-Z0-9-])`,
@@ -396,7 +401,8 @@ function valorArbitrarioTemCor(valor: string): boolean {
 
 /**
  * Procura, em código TS/TSX, classes do Tailwind com cor fora dos tokens: valor arbitrário
- * com hex, função de cor ou nome de cor (`bg-[#fff]`, `[color:white]`) e paletas padrão
+ * com hex, função de cor ou nome de cor (`bg-[#fff]`, `[color:white]`), fallback literal de
+ * variável (`bg-(--x,#fff)`) e paletas padrão
  * (`bg-red-500`, `text-slate-900`, `text-white`). Devolve "linha: trecho" de cada achado.
  * Cor de token entra só pelo nome do tema (`bg-bg`) ou por variável (`bg-(--color-bg)`).
  */
@@ -412,6 +418,9 @@ export function encontrarCoresArbitrariasEmClasses(codigo: string): string[] {
     const ehPropriedade = m[1] === "[";
     if (ehPropriedade && !m[2].includes(":")) continue;
     if (valorArbitrarioTemCor(m[2])) anotar(m.index);
+  }
+  for (const m of limpo.matchAll(RE_VARIAVEL_COM_FALLBACK)) {
+    if (valorArbitrarioTemCor(m[1])) anotar(m.index);
   }
 
   return [...linhas]
