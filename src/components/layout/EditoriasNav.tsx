@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { EDITORIAS, hrefDaEditoria } from "@/lib/editorias";
+import { LinksDeEditorias } from "./LinksDeEditorias";
 
 type Props = {
   /** Rótulo acessível da <nav>. */
@@ -25,23 +24,19 @@ const ESTILOS = {
   },
 } as const;
 
-/** Os 7 links de editoria, na ordem da lista fechada. A numeração 01–07 do cabeçalho é só CSS. */
+/**
+ * Os 7 links de editoria, na ordem da lista fechada. A numeração 01–07 do cabeçalho é só CSS.
+ * No cabeçalho, a editoria aberta ganha `aria-current="page"` (estilo em ESTILOS.cabecalho).
+ */
 export function EditoriasNav({ rotulo, variante }: Props) {
   const estilo = ESTILOS[variante];
   return (
     <nav aria-label={rotulo} className={estilo.nav}>
-      <ul className={`flex flex-wrap ${estilo.lista}`}>
-        {EDITORIAS.map(({ slug, rotulo: nome }) => (
-          <li key={slug}>
-            <Link
-              className={`inline-flex min-h-(--tap-min) ${estilo.link}`}
-              href={hrefDaEditoria(slug)}
-            >
-              {nome}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <LinksDeEditorias
+        classeDaLista={`flex flex-wrap ${estilo.lista}`}
+        classeDoLink={`inline-flex min-h-(--tap-min) ${estilo.link}`}
+        marcarAtual={variante === "cabecalho"}
+      />
     </nav>
   );
 }

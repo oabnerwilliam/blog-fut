@@ -44,6 +44,8 @@ export function FaixaDaEditoria({ faixa }: Props) {
                 <p className="font-display text-[3.25rem] leading-[0.9] tracking-[-0.02em] lining-nums tabular-nums">
                   <time dateTime={materia.publicado_em}>
                     {dia}
+                    {/* Espaço só para o leitor de tela ("25 out"); o vão visual é a margem do <small>. */}
+                    <span className="sr-only"> </span>
                     <small className="ml-[0.35rem] align-[0.9em] font-mono text-label leading-none font-medium tracking-[0.08em] text-ink-muted uppercase">
                       {mes}
                     </small>

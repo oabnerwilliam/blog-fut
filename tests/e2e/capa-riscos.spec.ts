@@ -3,7 +3,8 @@ import { expect, test, type Page } from "@playwright/test";
 /**
  * Riscos da capa (história 04) que o capa.spec.ts não cobre:
  * - o link esticado (::after) abre a matéria ao clicar fora do título (feature, linha e faixa);
- * - o nome acessível dos links de Editorias usa a contagem por extenso do <sup aria-label>;
+ * - o nome acessível dos links de Editorias usa a contagem por extenso (sr-only), com espaço;
+ * - a área vazia do chapéu de uma linha abre a matéria; o link da editoria abre a editoria;
  * - no tema escuro, 320px continua sem rolagem horizontal.
  */
 
@@ -75,14 +76,60 @@ test("os links de Editorias têm a contagem por extenso no nome acessível", asy
 }) => {
   await page.goto("/");
   const editorias = page.getByRole("region", { name: "Editorias" });
-  // Hoje o nome sai colado ("Crônica2 matérias"), como no mockup; o espaço é opcional aqui.
+  // Com espaço entre o rótulo e a contagem (história 05, critério 12).
   await expect(
-    editorias.getByRole("link", { name: /^Crônica\s?2 matérias$/ }),
+    editorias.getByRole("link", { name: /^Crônica 2 matérias$/ }),
   ).toHaveAttribute("href", "/editorias/cronica");
   await expect(
-    editorias.getByRole("link", { name: /^Análise\s?1 matéria$/ }),
+    editorias.getByRole("link", { name: /^Análise 1 matéria$/ }),
   ).toHaveAttribute("href", "/editorias/analise");
 });
+
+for (const largura of [320, 1280]) {
+  test.describe(`chapéu de uma linha de Últimas em ${largura}px`, () => {
+    test.use({ viewport: { width: largura, height: 800 } });
+
+    const LINHA = "section[aria-labelledby='ultimas'] ol > li";
+
+    test("a área vazia do chapéu abre a matéria; a editoria abre a editoria", async ({
+      page,
+    }) => {
+      await page.goto("/");
+      const linha = page.locator(LINHA).first();
+      const materia = (await linha.locator("h3 a").getAttribute("href"))!;
+      const chapeu = linha.locator("p.label").first();
+      const editoria = chapeu.locator("a");
+      const hrefDaEditoria = (await editoria.getAttribute("href"))!;
+      await chapeu.scrollIntoViewIfNeeded();
+
+      // Ponto vazio: à direita do último item do chapéu, na altura do link da editoria.
+      const caixaDoChapeu = (await chapeu.boundingBox())!;
+      const caixaDaEditoria = (await editoria.boundingBox())!;
+      const ultimo = (await chapeu.locator(":scope > *").last().boundingBox())!;
+      const vazio = {
+        x:
+          (ultimo.x + ultimo.width + caixaDoChapeu.x + caixaDoChapeu.width) / 2,
+        y: caixaDaEditoria.y + caixaDaEditoria.height / 2,
+      };
+      expect(vazio.x).toBeGreaterThan(ultimo.x + ultimo.width);
+      const noVazio = await page.evaluate(
+        ({ x, y }) =>
+          document.elementFromPoint(x, y)?.closest("a")?.getAttribute("href") ??
+          null,
+        vazio,
+      );
+      expect(noVazio).toBe(materia);
+
+      await page.mouse.click(vazio.x, vazio.y);
+      await expect(page).toHaveURL(materia);
+
+      await page.goBack();
+      await page.locator(LINHA).first().locator("p.label a").first().click();
+      await expect(page).toHaveURL(hrefDaEditoria);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    });
+  });
+}
 
 test.describe("capa no escuro em 320px", () => {
   test.use({ viewport: { width: 320, height: 800 }, colorScheme: "dark" });

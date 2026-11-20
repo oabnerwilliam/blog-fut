@@ -9,6 +9,9 @@ import { expect, test, type Page } from "@playwright/test";
  * página que mudou são regeneradas (`--update-snapshots` filtrado pelo nome do teste).
  * - História 04 (capa): `capa-*.png` regeneradas com a capa nova (destaque, Últimas,
  *   Editorias e faixas). As referências da matéria, do 404 e do foco não mudaram.
+ * - História 05 (editorias e tags): só ganhou as referências NOVAS de `/editorias/cronica`
+ *   (`editoria-cronica-*.png`, em 375px e 1280px). A capa continua idêntica: as referências
+ *   dela não foram regeneradas.
  */
 
 /** Tolerância pequena e explícita (critério 1: no máximo 0,01). */
@@ -47,6 +50,33 @@ for (const tema of TEMAS) {
       });
 
       for (const { nome, url } of PAGINAS) {
+        test(nome, async ({ page }) => {
+          await abrir(page, url);
+          await expect(page).toHaveScreenshot(
+            `${nome}-${tema}-${largura}.png`,
+            OPCOES,
+          );
+        });
+      }
+    });
+  }
+}
+
+/** Páginas da história 05, nas larguras pedidas por ela (375px e 1280px). */
+const LISTAGENS = [
+  { nome: "editoria-cronica", url: "/editorias/cronica" },
+] as const;
+const LARGURAS_DAS_LISTAGENS = [375, 1280] as const;
+
+for (const tema of TEMAS) {
+  for (const largura of LARGURAS_DAS_LISTAGENS) {
+    test.describe(`visual listagem ${tema} ${largura}px`, () => {
+      test.use({
+        colorScheme: tema,
+        viewport: { width: largura, height: 800 },
+      });
+
+      for (const { nome, url } of LISTAGENS) {
         test(nome, async ({ page }) => {
           await abrir(page, url);
           await expect(page).toHaveScreenshot(

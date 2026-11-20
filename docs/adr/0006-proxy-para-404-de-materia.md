@@ -29,3 +29,10 @@ A ressalva da doc sobre módulos compartilhados é aceita conscientemente:
 - Cada requisição a `/materias/<slug>` faz uma busca num `Map` em memória antes da renderização. O custo é desprezível.
 - Se o Supabase substituir os arquivos, o Proxy passa a fazer I/O de rede a cada requisição. Será preciso rever esta decisão, com cache ou com a alternativa 3.
 - Novas rotas dinâmicas (`/editorias/[slug]`, `/tags/[slug]` na história 5) terão o mesmo problema. Elas devem estender este Proxy (matcher e checagem) para responder 404 real.
+
+## Extensão (história 05)
+`docs/backlog/05-editorias-tags.md`, critério 5. Fontes extras: `01-app/01-getting-started/08-caching.md` ("Working with runtime APIs" e "Maximizing the static shell") e `01-app/03-api-reference/03-file-conventions/page.md` (`searchParams`).
+
+- O `matcher` passou a cobrir `/editorias/:editoria` e `/tags/:tag`, além de `/materias/:slug`.
+- A regra de 404 saiu do Proxy e foi para `rotaExiste` (`src/lib/rotas.ts`), uma função pura que recebe o repositório e é testada com um repositório em memória. As listagens usam a mesma `montarListagem` + `lerPagina` (`src/lib/listagens.ts`) das páginas, então o Proxy e a página concordam: editoria fora da lista fechada, editoria ou tag sem matéria visível e `?pagina=` inválido ou além da última página dão 404.
+- A página lê `searchParams`, que é dado de requisição. Os itens ficam num `<Suspense>` cujo fallback é a página 1 (estática). Assim, o shell pré-renderizado já sai completo, e o status continua vindo do Proxy, antes do streaming.

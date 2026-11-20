@@ -1,28 +1,23 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getRepository } from "@/lib/content";
+import { rotaExiste } from "@/lib/rotas";
 
 /** Caminho sem rota no app (pastas com `_` são privadas): o Next responde 404 com `not-found.tsx`. */
 const SEM_ROTA = "/_nao-encontrada";
-const PREFIXO = "/materias/";
 
 /**
  * Com Cache Components, o shell estático sai com status 200 antes de o `notFound()` da
- * página rodar para um slug fora do build. Para responder 404 de verdade, o slug é
- * conferido aqui, antes da renderização (guia `loading.md`, "Status codes").
+ * página rodar para um slug fora do build. Para responder 404 de verdade, a rota é
+ * conferida aqui, antes da renderização (guia `loading.md`, "Status codes"; ADR 0006).
+ * A regra fica em `rotaExiste`, que usa as mesmas consultas das páginas.
  */
 export async function proxy(request: NextRequest) {
-  const bruto = request.nextUrl.pathname.slice(PREFIXO.length);
-  let slug: string | null;
-  try {
-    slug = decodeURIComponent(bruto);
-  } catch {
-    slug = null;
+  if (await rotaExiste(getRepository(), request.nextUrl)) {
+    return NextResponse.next();
   }
-  const artigo = slug === null ? null : await getRepository().getBySlug(slug);
-  if (artigo) return NextResponse.next();
   return NextResponse.rewrite(new URL(SEM_ROTA, request.url));
 }
 
 export const config = {
-  matcher: "/materias/:slug",
+  matcher: ["/materias/:slug", "/editorias/:editoria", "/tags/:tag"],
 };
