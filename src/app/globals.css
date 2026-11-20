@@ -102,6 +102,12 @@
   a {
     color: inherit;
     text-decoration: none;
+    /*
+     * Ao navegar por Tab, o navegador rola o link focado para dentro da tela com esta folga.
+     * Sem ela, a rolagem em pixels inteiros pode deixar o fim do link (e o contorno de foco)
+     * uma fração de pixel fora da janela, quando a página tem alturas fracionadas (capa).
+     */
+    scroll-margin-block: var(--space-2);
   }
 
   :focus-visible {

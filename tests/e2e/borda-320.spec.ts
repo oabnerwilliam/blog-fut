@@ -61,7 +61,9 @@ for (const c of CENARIOS) {
             ),
           ).length,
       );
-      expect(todos).toBeGreaterThanOrEqual(9 + 7 + 1); // cabeçalho + rodapé + link da capa
+      // cabeçalho + rodapé + na capa: destaque (2), Últimas (2 por matéria, 7 matérias),
+      // Editorias (7) e a faixa de Crônica (Ver todas + 2 títulos).
+      expect(todos).toBeGreaterThanOrEqual(9 + 7 + 2 + 14 + 7 + 3);
 
       const visitados: string[] = [];
       for (let i = 0; i < todos; i++) {
@@ -72,7 +74,8 @@ for (const c of CENARIOS) {
           const s = getComputedStyle(el);
           return {
             href: el.getAttribute("href") ?? el.tagName,
-            noRodape: !!el.closest("footer"),
+            // Faixas noturnas: rodapé e destaque da capa usam o foco âmbar.
+            noturno: !!el.closest("footer, [data-secao='destaque']"),
             esquerda: r.left,
             direita: r.right,
             topo: r.top,
@@ -91,7 +94,7 @@ for (const c of CENARIOS) {
         // O navegador rola até o foco: ele precisa estar dentro da viewport.
         expect(info.topo, rotulo).toBeGreaterThanOrEqual(0);
         expect(info.base, rotulo).toBeLessThanOrEqual(VIEWPORT.height);
-        const esperado = i === 0 ? tinta : info.noRodape ? focoNoturno : foco;
+        const esperado = i === 0 ? tinta : info.noturno ? focoNoturno : foco;
         expect(
           { estilo: info.estilo, largura: info.largura, cor: info.cor },
           rotulo,
@@ -132,9 +135,10 @@ for (const esquema of ["light", "dark"] as const) {
       );
     });
 
-    test("nome do portal, editorias, h1, apresentação, link e rodapé continuam visíveis e dentro da largura", async ({
+    test("nome do portal, editorias, títulos das seções, linha fina do destaque, todos os links da capa e rodapé continuam visíveis e dentro da largura", async ({
       page,
     }) => {
+      const main = page.getByRole("main");
       const alvos = [
         page.getByRole("link", { name: "Zona Mista, página inicial" }),
         ...EDITORIAS.map((e) =>
@@ -142,11 +146,14 @@ for (const esquema of ["light", "dark"] as const) {
             .getByRole("navigation", { name: "Editorias", exact: true })
             .getByRole("link", { name: e.rotulo, exact: true }),
         ),
-        page.getByRole("main").getByRole("heading", { level: 1 }),
-        page.getByRole("main").locator("p").nth(1),
-        page.getByRole("main").getByRole("link"),
+        ...(await main.getByRole("heading", { level: 2 }).all()),
+        main.locator("[data-secao='destaque'] p:not(.label)"),
+        ...(await main.getByRole("link").all()),
         page.getByRole("contentinfo"),
       ];
+      // O h1 da capa é visualmente oculto (sr-only), mas existe.
+      await expect(main.getByRole("heading", { level: 1 })).toHaveCount(1);
+      expect(alvos.length).toBeGreaterThan(1 + 7 + 4 + 1 + 26);
       for (const alvo of alvos) {
         await alvo.scrollIntoViewIfNeeded();
         await expect(alvo).toBeVisible();
@@ -194,7 +201,7 @@ for (const largura of [640, 1280]) {
         colorScheme: esquema,
       });
 
-      test("sem rolagem horizontal e com o h1 e as editorias dentro da largura", async ({
+      test("sem rolagem horizontal e com os títulos das seções e as editorias dentro da largura", async ({
         page,
       }) => {
         await page.goto("/");
@@ -203,7 +210,10 @@ for (const largura of [640, 1280]) {
         });
         expect(await larguraDoDocumento(page)).toBeLessThanOrEqual(largura);
         const alvos = [
-          page.getByRole("main").getByRole("heading", { level: 1 }),
+          ...(await page
+            .getByRole("main")
+            .getByRole("heading", { level: 2 })
+            .all()),
           ...EDITORIAS.map((e) =>
             page
               .getByRole("navigation", { name: "Editorias", exact: true })
