@@ -2,14 +2,26 @@ import { expect, test, type Page } from "@playwright/test";
 import { EDITORIAS, hrefDaEditoria } from "../../src/lib/editorias";
 import { corDoToken } from "./helpers";
 
+/**
+ * Pular, nome, campo de busca e botão Buscar (história 06), 7 editorias. Links pelo href;
+ * o campo pelo id; o botão pelo texto.
+ */
 const ORDEM = [
   "#conteudo",
   "/",
+  "#q-cabecalho",
+  "Buscar",
   ...EDITORIAS.map((e) => hrefDaEditoria(e.slug)),
 ];
 
 const hrefAtivo = (page: Page) =>
-  page.evaluate(() => document.activeElement?.getAttribute("href") ?? null);
+  page.evaluate(() => {
+    const el = document.activeElement;
+    if (!el) return null;
+    if (el.hasAttribute("href")) return el.getAttribute("href");
+    if (el.tagName === "INPUT") return `#${el.id}`;
+    return el.textContent;
+  });
 
 const contornoAtivo = (page: Page) =>
   page.evaluate(() => {
@@ -45,7 +57,9 @@ for (const esquema of ["light", "dark"] as const) {
   test.describe(`foco (${esquema})`, () => {
     test.use({ colorScheme: esquema });
 
-    test("ordem de Tab: pular, nome, 7 editorias", async ({ page }) => {
+    test("ordem de Tab: pular, nome, campo de busca, botão, 7 editorias", async ({
+      page,
+    }) => {
       await page.goto("/");
       const visitados: (string | null)[] = [];
       for (let i = 0; i < ORDEM.length; i++) {
