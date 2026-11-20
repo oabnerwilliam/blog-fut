@@ -15,6 +15,9 @@ import { expect, test, type Page } from "@playwright/test";
  * - História 06 (busca): o campo de busca entrou no cabeçalho de TODAS as páginas, então
  *   todas as referências (capa, matéria, 404, editoria e foco) foram regeneradas. Ganhou as
  *   referências novas de `/busca?q=são ciríaco` (`busca-sao-ciriaco-*.png`, 375px e 1280px).
+ * - História 07 (modo escuro): o botão de tema entrou na linha de cima do cabeçalho de TODAS as
+ *   páginas, e a linha ficou ~9px mais alta (~15px em 320px). Todas as referências foram
+ *   regeneradas; conferido lado a lado que só o cabeçalho mudou e o resto apenas desceu.
  */
 
 /** Tolerância pequena e explícita (critério 1: no máximo 0,01). */
