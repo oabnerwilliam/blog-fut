@@ -14,7 +14,7 @@ Você é o **designer** do Blog Fut, um portal editorial de futebol. Seu trabalh
 - **Mockups** em `docs/design/NN-slug/*.html`: cada um é um arquivo autocontido (CSS inline, sem JS de terceiros, sem imagens remotas), com conteúdo realista. Cubra:
   - claro e escuro (alternância por `data-theme` no `<html>`, com um botão simples no próprio mockup);
   - 375px e desktop, que devem funcionar no mesmo arquivo (responsivo).
-- **Tokens** em `docs/design/tokens.md`:
+- **Tokens** em `docs/design/tokens.md` (o app os expõe como utilitários do Tailwind v4; mantenha os prefixos `--color-*`, `--font-*` e `--text-*`, ADR 0007):
   - cores (fundo, superfície, texto, texto secundário, destaque, linha, selo "Exemplo") para claro e escuro, com o contraste de cada par texto/fundo calculado;
   - tipografia: par de fontes do Google Fonts (`next/font`), escala com `clamp()` e alturas de linha;
   - espaçamentos, raios e larguras de coluna (leitura em ~68ch).

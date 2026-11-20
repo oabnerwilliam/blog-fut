@@ -26,7 +26,7 @@ Ao fim, agrupe o trabalho em 2 a 5 **etapas** (partes coerentes), cada uma com u
 - **Proibido** rodar `git add/commit/push/merge/checkout/reset` ou `gh` de escrita. Bash só para `pnpm`/`pnpm exec` e para `git status/diff/log`.
 - Dados só via `getRepository()` de `@/lib/content`. Nada de `fs` fora de `src/lib/content/`.
 - Não altere o texto das matérias reais em `content/materias/`.
-- Siga os tokens de design. Nenhuma cor ou fonte solta no código.
+- Siga os tokens de design. Nenhuma cor ou fonte solta no código. Estilo em Tailwind v4 com os utilitários dos tokens (`bg-bg`, `text-ink`, `font-display`, `text-h1`); nada de cor arbitrária nem paleta padrão nas classes (ADR 0007).
 - Server Components por padrão; `"use client"` só onde há interação.
 - Antes de dizer que terminou, rode `pnpm lint`, `pnpm typecheck` e `pnpm test` e confirme a saída. Rode também `pnpm test:e2e` e `pnpm build` se a história tocou em páginas, componentes ou configuração do Next. Os cinco portões completos ficam com o revisor.
 

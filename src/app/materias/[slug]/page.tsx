@@ -12,7 +12,6 @@ import {
   serializarJsonLd,
 } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
-import styles from "./page.module.css";
 
 /**
  * Todas as matérias visíveis são geradas no build. Com Cache Components, `dynamicParams`
@@ -50,7 +49,7 @@ export default async function PaginaDaMateria({
       <article>
         <CabecalhoDaMateria artigo={artigo} />
         <div className="wrap">
-          <div className={styles.coluna}>
+          <div className="mx-auto max-w-(--layout-measure) lg:ml-[25%]">
             {artigo.ficticio && <AvisoFicticio />}
             <CorpoDaMateria corpoMd={artigo.corpo_md} />
             <TagsDaMateria tags={artigo.tags} />
