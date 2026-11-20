@@ -1,0 +1,35 @@
+.pagina {
+  padding-top: var(--space-section);
+}
+
+.chapeu {
+  color: var(--color-ink-muted);
+}
+
+.titulo {
+  margin-top: 1.1rem;
+  max-width: 18ch;
+  font: 400 var(--text-h1) / 0.93 var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+.texto {
+  margin-top: var(--space-6);
+  max-width: var(--layout-measure);
+  font: 400 var(--text-dek) / 1.5 var(--font-text);
+}
+
+.chamada {
+  margin-top: var(--space-5);
+}
+
+.link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: var(--rule-width);
+  text-underline-offset: 0.2em;
+}
+
+.link:hover {
+  text-decoration-thickness: var(--rule-width-strong);
+}

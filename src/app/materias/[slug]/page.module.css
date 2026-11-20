@@ -1,0 +1,11 @@
+/* Coluna de leitura: aviso, corpo e tags. No desktop, deslocada para 25% (tokens.md §4). */
+.coluna {
+  max-width: var(--layout-measure);
+  margin-inline: auto;
+}
+
+@media (min-width: 64rem) {
+  .coluna {
+    margin-left: 25%;
+  }
+}
