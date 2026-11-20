@@ -15,7 +15,8 @@ type Props = {
 
 /**
  * Chapéu das matérias da capa (mockup: .kicker): editoria com link e o selo "Exemplo" das
- * fictícias. Fica acima do link esticado do título (`relative z-1`), para continuar clicável.
+ * fictícias. Só o link e o selo ficam acima do link esticado do título (`relative z-1`): a
+ * área vazia do chapéu continua abrindo a matéria.
  */
 export function ChapeuDaCapa({
   materia,
@@ -25,15 +26,15 @@ export function ChapeuDaCapa({
 }: Props) {
   return (
     <p
-      className={`label relative z-1 flex flex-wrap items-center gap-x-[0.8rem] gap-y-[0.35rem] ${className}`}
+      className={`label flex flex-wrap items-center gap-x-[0.8rem] gap-y-[0.35rem] ${className}`}
     >
       <Link
-        className={`${corDaEditoria} hover:underline hover:underline-offset-[0.2em]`}
+        className={`relative z-1 ${corDaEditoria} hover:underline hover:underline-offset-[0.2em]`}
         href={hrefDaEditoria(materia.editoria.slug)}
       >
         {materia.editoria.rotulo}
       </Link>
-      {materia.ficticio && <SeloExemplo />}
+      {materia.ficticio && <SeloExemplo className="relative z-1" />}
       {children}
     </p>
   );

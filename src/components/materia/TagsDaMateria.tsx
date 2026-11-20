@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { TagRef } from "@/lib/content";
+import { caminhoDaListagem } from "@/lib/listagens";
 
 type Props = { tags: readonly TagRef[] };
 
-/** Tags no fim do texto. As páginas `/tags/<slug>` são da história 5. */
+/** Tags no fim do texto, cada uma com link para a página dela (`/tags/<slug>`). */
 export function TagsDaMateria({ tags }: Props) {
   if (tags.length === 0) return null;
   return (
@@ -17,7 +18,7 @@ export function TagsDaMateria({ tags }: Props) {
           <li key={tag.slug}>
             <Link
               className="inline-flex min-h-(--tap-min) items-center font-text text-[1rem] leading-[1.3] font-medium text-accent underline decoration-(length:--rule-width) underline-offset-[0.2em] hover:decoration-(length:--rule-width-strong)"
-              href={`/tags/${tag.slug}`}
+              href={caminhoDaListagem("tag", tag.slug)}
             >
               {tag.rotulo}
             </Link>
