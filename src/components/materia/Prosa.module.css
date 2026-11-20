@@ -1,0 +1,78 @@
+/* Corpo da matéria (mockup variacao-2/materia.html: .prose). O HTML vem do Markdown. */
+.prosa {
+  margin-top: clamp(2.25rem, 5vw, 4rem);
+  font: 400 var(--text-body) / 1.68 var(--font-text);
+  font-variant-numeric: proportional-nums;
+}
+
+.prosa p {
+  margin: 0 0 1.15em;
+  text-wrap: pretty;
+}
+
+/* Abertura: primeiro parágrafo maior, primeira linha em versalete espaçado. */
+.prosa > p:first-of-type {
+  font: 400 var(--text-lead) / 1.5 var(--font-text);
+}
+
+.prosa > p:first-of-type::first-line {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.prosa h2 {
+  margin: 2.3em 0 0.65em;
+  padding-top: 0.7em;
+  border-top: var(--rule-width) solid var(--color-rule-strong);
+  font: italic 400 var(--text-h2) / 1.02 var(--font-display);
+  letter-spacing: -0.015em;
+  scroll-margin-top: 1rem;
+}
+
+.prosa h3 {
+  margin: 1.8em 0 0.5em;
+  font: 400 var(--text-row-title) / 1.06 var(--font-display);
+  letter-spacing: -0.012em;
+}
+
+.prosa blockquote {
+  margin: 1.6em 0;
+  padding-left: 1.25rem;
+  border-left: var(--rule-width-strong) solid var(--color-accent);
+}
+
+.prosa blockquote p {
+  font: italic 400 var(--text-row-title) / 1.2 var(--font-display);
+}
+
+.prosa ul,
+.prosa ol {
+  margin: 0 0 1.15em;
+  padding-left: 1.25em;
+}
+
+.prosa li {
+  margin-bottom: 0.4em;
+}
+
+.prosa li::marker {
+  color: var(--color-ink-muted);
+}
+
+.prosa a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: var(--rule-width);
+  text-underline-offset: 0.2em;
+}
+
+.prosa a:hover {
+  text-decoration-thickness: var(--rule-width-strong);
+}
+
+.prosa > p:last-child::after {
+  content: " ◆";
+  color: var(--color-accent);
+  font-size: 0.8em;
+}

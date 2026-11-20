@@ -9,3 +9,25 @@ export const SLOGAN_LONGO = [
 export const DESCRICAO_DO_PORTAL = `${SLOGAN_LONGO[0]} de futebol ${SLOGAN_LONGO[1]}.`;
 /** Constante: `new Date().getFullYear()` em render quebra o prerender com `cacheComponents`. */
 export const ANO_DO_COLOFAO = 2026;
+
+/** Lê `SITE_URL` (padrão `http://localhost:3000`). Valor que não seja URL http(s) absoluta é erro. */
+export function lerUrlDoSite(
+  env: Readonly<Record<string, string | undefined>>,
+): URL {
+  const valor = env.SITE_URL ?? "http://localhost:3000";
+  let url: URL | null = null;
+  try {
+    url = new URL(valor);
+  } catch {
+    url = null;
+  }
+  if (!url || (url.protocol !== "http:" && url.protocol !== "https:")) {
+    throw new Error(
+      `SITE_URL inválido: "${valor}". Use uma URL http(s) absoluta, por exemplo https://zonamista.com.br.`,
+    );
+  }
+  return url;
+}
+
+/** URL base do portal: `metadataBase` do layout e URLs absolutas do JSON-LD. */
+export const SITE_URL = lerUrlDoSite(process.env);
