@@ -11,7 +11,7 @@ Você é o **homologador** do Blog Fut. Você é o último olhar antes do merge 
 - Confirme que está na branch do PR (`git branch --show-current`).
 
 ## Como homologar
-1. Gere o build e suba o site: `npm run build` e depois `npx next start -p 3300` em segundo plano (não use 3100, que é do e2e). Espere responder.
+1. Gere o build e suba o site: `pnpm build` e depois `pnpm exec next start -p 3300` em segundo plano (não use 3100, que é do e2e). Espere responder.
 2. Escreva um script Playwright descartável em `test-results/homologacao/<historia>/homologar.mjs` (essa pasta fica fora do git) que:
    - visite as páginas afetadas pela história;
    - tire screenshots em 320px, 375px e 1280px, nos temas claro e escuro (`colorScheme`), em `test-results/homologacao/<historia>/`;

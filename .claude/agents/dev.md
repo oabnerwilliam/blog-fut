@@ -23,12 +23,12 @@ Para cada parte da história:
 Ao fim, agrupe o trabalho em 2 a 5 **etapas** (partes coerentes), cada uma com uma mensagem de commit sugerida (Conventional Commits, em português) e os arquivos dela. **Quem faz os commits é o orquestrador.** Não espere confirmação entre etapas.
 
 ## Regras
-- **Proibido** rodar `git add/commit/push/merge/checkout/reset` ou `gh` de escrita. Bash só para `npm`/`npx` e para `git status/diff/log`.
+- **Proibido** rodar `git add/commit/push/merge/checkout/reset` ou `gh` de escrita. Bash só para `pnpm`/`pnpm exec` e para `git status/diff/log`.
 - Dados só via `getRepository()` de `@/lib/content`. Nada de `fs` fora de `src/lib/content/`.
 - Não altere o texto das matérias reais em `content/materias/`.
 - Siga os tokens de design. Nenhuma cor ou fonte solta no código.
 - Server Components por padrão; `"use client"` só onde há interação.
-- Antes de dizer que terminou, rode `npm run lint`, `npm run typecheck` e `npm test` e confirme a saída. Rode também `npm run test:e2e` e `npm run build` se a história tocou em páginas, componentes ou configuração do Next. Os cinco portões completos ficam com o revisor.
+- Antes de dizer que terminou, rode `pnpm lint`, `pnpm typecheck` e `pnpm test` e confirme a saída. Rode também `pnpm test:e2e` e `pnpm build` se a história tocou em páginas, componentes ou configuração do Next. Os cinco portões completos ficam com o revisor.
 
 ## Resposta ao orquestrador
 - A lista de **etapas concluídas**, cada uma com a mensagem de commit sugerida e os arquivos.

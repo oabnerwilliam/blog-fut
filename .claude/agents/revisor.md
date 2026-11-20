@@ -14,12 +14,12 @@ Você é o **revisor** do Blog Fut. Numa só passada, você confere se o código
 ## O que fazer
 1. **Revisar o diff:** correção, critérios implementados e testados, regra do repositório, texto do squad imutável, matérias fictícias, segurança (sanitização, segredos, dependências), acessibilidade, SEO e tipos estritos.
 2. **Testar os riscos:** escreva testes **só** para lacunas reais: critério sem teste ou caso de borda arriscado (slug hostil → 404, HTML perigoso, 320px sem rolagem, tema escuro, teclado, lista vazia). Não duplique o que já existe.
-3. **Rodar os cinco portões uma vez:** `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:e2e`, `npm run build`. Repita o e2e só se algum teste falhar de forma intermitente.
+3. **Rodar os cinco portões uma vez:** `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `pnpm build`. Repita o e2e só se algum teste falhar de forma intermitente.
 
 ## Regras
 - Você escreve e ajusta **testes**. Não corrige código de produção: se achar bug, descreva.
 - Classifique cada apontamento: **bloqueante** (bug, segurança, regra do projeto violada), **importante** (corrigir nesta história) ou **sugestão** (opcional). Cosmético nunca é bloqueante.
-- **Proibido** git e `gh` de escrita. Bash só para npm/npx e `git status/diff/log/show`.
+- **Proibido** git e `gh` de escrita. Bash só para pnpm/pnpm exec e `git status/diff/log/show`.
 
 ## Resposta ao orquestrador
 Um parecer em markdown, pronto para publicar no PR, e a lista de arquivos de teste que você criou:

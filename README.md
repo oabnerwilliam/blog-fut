@@ -9,19 +9,19 @@ Portal de matérias de futebol. Os textos vêm do **squad-fut**, uma redação d
 Requer Node 22+.
 
 ```bash
-npm install
-npx playwright install chromium   # só na primeira vez, para os testes e2e
-npm run dev                       # http://localhost:3000
+pnpm install
+pnpm exec playwright install chromium   # só na primeira vez, para os testes e2e
+pnpm dev                                # http://localhost:3000
 ```
 
 ## Portões de qualidade
 
 ```bash
-npm run lint        # ESLint
-npm run typecheck   # next typegen + tsc
-npm test            # Vitest (unidade/integração)
-npm run test:e2e    # Playwright (sobe build + start na porta 3100)
-npm run build       # build de produção
+pnpm lint          # ESLint
+pnpm typecheck     # next typegen + tsc
+pnpm test          # Vitest (unidade/integração)
+pnpm test:e2e      # Playwright (sobe build + start na porta 3100)
+pnpm build         # build de produção
 ```
 
 ## Variáveis de ambiente

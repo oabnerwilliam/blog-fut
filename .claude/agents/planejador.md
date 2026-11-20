@@ -31,7 +31,7 @@ Você é o **planejador** do Blog Fut (Next.js 16 App Router, TypeScript strict)
 ## Notas técnicas
 - Arquivos a criar/alterar, uma linha cada.
 - Assinaturas que outras histórias vão consumir (só as públicas).
-- Dependências novas com versão exata (confira no `package-lock.json` ou com `npm view <pacote> version`).
+- Dependências novas com versão exata (confira no `pnpm-lock.yaml` ou com `pnpm view <pacote> version`).
 - Riscos que o revisor deve olhar.
 ```
 
