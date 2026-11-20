@@ -71,6 +71,18 @@ export function metadadosDaListagem(listagem: Listagem): Metadata {
   };
 }
 
+/**
+ * Metadados de `/busca`. O canonical nunca leva a query, e a página não entra no índice
+ * (cada termo seria uma página rala), mas os buscadores podem seguir os links dela.
+ */
+export function metadadosDaBusca(termo: string): Metadata {
+  return {
+    title: termo === "" ? "Busca" : `Busca: ${termo}`,
+    alternates: { canonical: "/busca" },
+    robots: { index: false, follow: true },
+  };
+}
+
 /** Dados estruturados (schema.org) da matéria. */
 export function jsonLdDaMateria(artigo: Article, base: URL) {
   const organizacao = { "@type": "Organization", name: NOME_DO_PORTAL };
