@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+/** A `not-found` raiz aceita `metadata` (doc do Next 16, "not-found.js > Metadata"). */
+export const metadata: Metadata = {
+  title: "Página não encontrada",
+};
 
 /** 404 do portal: renderizada dentro do layout raiz (cabeçalho e rodapé). */
 export default function NaoEncontrada() {

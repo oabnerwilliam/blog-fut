@@ -180,6 +180,11 @@ test.describe("matéria inexistente", () => {
     });
   }
 
+  test("a 404 tem o <title> próprio", async ({ page }) => {
+    await page.goto("/materias/nao-existe");
+    await expect(page).toHaveTitle("Página não encontrada");
+  });
+
   test("a página de 404 passa no axe", async ({ page }) => {
     await page.goto("/materias/nao-existe");
     expect(await violacoes(page)).toEqual([]);
