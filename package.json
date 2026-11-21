@@ -20,6 +20,8 @@
     "db:reset": "supabase db reset",
     "db:importar": "tsx scripts/importar-conteudo.ts",
     "db:vault": "tsx scripts/configurar-vault.ts",
+    "materia:enviar": "tsx scripts/materia-enviar.ts",
+    "materia:publicar": "tsx scripts/materia-publicar.ts",
     "format": "prettier --write ."
   },
   "dependencies": {

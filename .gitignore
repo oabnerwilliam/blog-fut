@@ -47,9 +47,12 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 
-# caixa de entrada do diagramador (squad-fut) — publicar via PR content/<slug>
+# caixa de entrada do diagramador (squad-fut): `pnpm materia:enviar <slug>` grava no
+# banco como rascunho e move o arquivo para enviadas/ (história 15). Nada daqui vai
+# para o git; o conteúdo do site vive no Supabase.
 /content/entrada/*
 !/content/entrada/.gitkeep
+/content/entrada/enviadas/
 
 # claude code (configurações locais)
 .claude/settings.local.json
