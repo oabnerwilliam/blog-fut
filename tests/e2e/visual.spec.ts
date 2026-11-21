@@ -18,6 +18,11 @@ import { expect, test, type Page } from "@playwright/test";
  * - História 07 (modo escuro): o botão de tema entrou na linha de cima do cabeçalho de TODAS as
  *   páginas, e a linha ficou ~9px mais alta (~15px em 320px). Todas as referências foram
  *   regeneradas; conferido lado a lado que só o cabeçalho mudou e o resto apenas desceu.
+ * - História 08 (primeira matéria real): a matéria do PSG entrou no destaque, as fictícias
+ *   desceram para Últimas e surgiu a faixa de Análise. Só as referências da capa
+ *   (`capa-*.png`) e a do foco na nav (`foco-nav-light-1280.png`, tirada sobre a capa) foram
+ *   regeneradas. Ganhou as referências novas da matéria do PSG (`materia-psg-*.png`, em
+ *   375px e 1280px, nos dois temas). Matéria fictícia, 404, editoria e busca não mudaram.
  */
 
 /** Tolerância pequena e explícita (critério 1: no máximo 0,01). */
@@ -68,11 +73,16 @@ for (const tema of TEMAS) {
   }
 }
 
-/** Páginas das histórias 05 e 06, nas larguras pedidas por elas (375px e 1280px). */
+/** Páginas das histórias 05, 06 e 08, nas larguras pedidas por elas (375px e 1280px). */
 const LISTAGENS = [
   { nome: "editoria-cronica", url: "/editorias/cronica" },
   // História 06, nas mesmas larguras.
   { nome: "busca-sao-ciriaco", url: "/busca?q=s%C3%A3o+cir%C3%ADaco" },
+  // História 08: a primeira matéria real, nas mesmas larguras.
+  {
+    nome: "materia-psg",
+    url: "/materias/psg-balanco-temporada-2026-27-mercado-elenco-curto",
+  },
 ] as const;
 const LARGURAS_DAS_LISTAGENS = [375, 1280] as const;
 
