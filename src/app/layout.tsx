@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "@/styles/tokens.css";
 import "./globals.css";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -33,7 +34,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <SkipLink />
         <SiteHeader />
-        {children}
+        {/*
+         * Com o conteúdo em cache, a página inteira entra no shell estático e este
+         * <Suspense> não muda nada. Ele vale quando o banco está fora do ar no build: a
+         * leitura que falha tem vida zero e fica fora do prerender (leitura-protegida.ts,
+         * U11). A página vira dinâmica e o build passa, com cabeçalho e rodapé estáticos
+         * (ADR 0008, §7). Sem ele, o Next recusa o build ("uncached data outside of
+         * <Suspense>").
+         */}
+        <Suspense>{children}</Suspense>
         <SiteFooter />
       </body>
     </html>

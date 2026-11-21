@@ -34,11 +34,20 @@ async function listagemDaQuery(
   return listagem;
 }
 
-/** Metadados das rotas `/editorias/[editoria]` e `/tags/[tag]` (título e canonical dependem da página). */
+/**
+ * Metadados das rotas `/editorias/[editoria]` e `/tags/[tag]` (título e canonical dependem da página).
+ *
+ * A rota que não existe nem na página 1 dá `notFound()` antes de ler `searchParams`. Sem
+ * isso, o slug de reserva do `generateStaticParams` (sem matéria, ou com o banco fora do
+ * ar no build) teria metadados dinâmicos num corpo estático (o 404), e o Next recusa o
+ * build ("uncached or runtime data in generateMetadata"). A leitura da página 1 é a mesma
+ * do corpo, e sai do cache.
+ */
 export async function metadadosDaRotaDeListagem(
   filtro: FiltroDaListagem,
   searchParams: SearchParams,
 ): Promise<Metadata> {
+  if (!(await montarListagem(getRepository(), filtro, 1))) notFound();
   return metadadosDaListagem(await listagemDaQuery(filtro, searchParams));
 }
 

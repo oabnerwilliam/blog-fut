@@ -8,6 +8,7 @@ import { SLUG_REGEX } from "../schema";
 import { termosDaBusca } from "../search";
 import type { Article, ArticleSummary, Paginated, Taxonomy } from "../types";
 import { criarClienteAnonimo } from "./cliente";
+import { desembrulhar, lerProtegido, type Leitura } from "./leitura-protegida";
 import { SupabaseArticleRepository } from "./repository";
 
 /*
@@ -19,6 +20,10 @@ import { SupabaseArticleRepository } from "./repository";
  *
  * As funções recebem só valores serializáveis (conexão, flag, opções), que viram a chave
  * do cache. O repositório e o cliente são criados dentro delas.
+ *
+ * Banco fora do ar (U11): a leitura que falha não lança dentro do cache. `lerProtegido`
+ * devolve a falha com vida zero (fora do prerender, nunca guardada), e `desembrulhar`
+ * relança fora dele. Ver `leitura-protegida.ts`.
  */
 
 function repositorio(
@@ -35,53 +40,68 @@ async function listarEmCache(
   conexao: ConexaoSupabase,
   mostrarExemplos: boolean,
   opts: ListOptions,
-): Promise<Paginated<ArticleSummary>> {
+): Promise<Leitura<Paginated<ArticleSummary>>> {
   "use cache";
   cacheLife("max");
   cacheTag(TAG_MATERIAS, TAG_TAGS);
-  return repositorio(conexao, mostrarExemplos).list(opts);
+  return lerProtegido(
+    () => repositorio(conexao, mostrarExemplos).list(opts),
+    cacheLife,
+  );
 }
 
 async function obterEmCache(
   conexao: ConexaoSupabase,
   mostrarExemplos: boolean,
   slug: string,
-): Promise<Article | null> {
+): Promise<Leitura<Article | null>> {
   "use cache";
   cacheLife("max");
   cacheTag(tagDaMateria(slug), TAG_TAGS);
-  return repositorio(conexao, mostrarExemplos).getBySlug(slug);
+  return lerProtegido(
+    () => repositorio(conexao, mostrarExemplos).getBySlug(slug),
+    cacheLife,
+  );
 }
 
 async function buscarEmCache(
   conexao: ConexaoSupabase,
   mostrarExemplos: boolean,
   termos: readonly string[],
-): Promise<ArticleSummary[]> {
+): Promise<Leitura<ArticleSummary[]>> {
   "use cache";
   cacheLife("max");
   cacheTag(TAG_MATERIAS, TAG_TAGS);
-  return repositorio(conexao, mostrarExemplos).search(termos.join(" "));
+  return lerProtegido(
+    () => repositorio(conexao, mostrarExemplos).search(termos.join(" ")),
+    cacheLife,
+  );
 }
 
 async function editoriasEmCache(
   conexao: ConexaoSupabase,
   mostrarExemplos: boolean,
-): Promise<Taxonomy[]> {
+): Promise<Leitura<Taxonomy[]>> {
   "use cache";
   cacheLife("max");
   cacheTag(TAG_MATERIAS);
-  return repositorio(conexao, mostrarExemplos).listEditorias();
+  return lerProtegido(
+    () => repositorio(conexao, mostrarExemplos).listEditorias(),
+    cacheLife,
+  );
 }
 
 async function tagsEmCache(
   conexao: ConexaoSupabase,
   mostrarExemplos: boolean,
-): Promise<Taxonomy[]> {
+): Promise<Leitura<Taxonomy[]>> {
   "use cache";
   cacheLife("max");
   cacheTag(TAG_MATERIAS, TAG_TAGS);
-  return repositorio(conexao, mostrarExemplos).listTags();
+  return lerProtegido(
+    () => repositorio(conexao, mostrarExemplos).listTags(),
+    cacheLife,
+  );
 }
 
 /**
@@ -99,30 +119,40 @@ export class SupabaseArticleRepositoryEmCache implements ArticleRepository {
 
   async list(opts: ListOptions = {}): Promise<Paginated<ArticleSummary>> {
     const { pagina, tamanho } = validarPaginacao(opts);
-    return listarEmCache(this.#conexao, this.#mostrarExemplos, {
-      editoria: opts.editoria,
-      tag: opts.tag,
-      page: pagina,
-      pageSize: tamanho,
-    });
+    return desembrulhar(
+      await listarEmCache(this.#conexao, this.#mostrarExemplos, {
+        editoria: opts.editoria,
+        tag: opts.tag,
+        page: pagina,
+        pageSize: tamanho,
+      }),
+    );
   }
 
   async getBySlug(slug: string): Promise<Article | null> {
     if (!SLUG_REGEX.test(slug)) return null;
-    return obterEmCache(this.#conexao, this.#mostrarExemplos, slug);
+    return desembrulhar(
+      await obterEmCache(this.#conexao, this.#mostrarExemplos, slug),
+    );
   }
 
   async search(query: string): Promise<ArticleSummary[]> {
     const termos = termosDaBusca(query);
     if (termos.length === 0) return [];
-    return buscarEmCache(this.#conexao, this.#mostrarExemplos, termos);
+    return desembrulhar(
+      await buscarEmCache(this.#conexao, this.#mostrarExemplos, termos),
+    );
   }
 
   async listEditorias(): Promise<Taxonomy[]> {
-    return editoriasEmCache(this.#conexao, this.#mostrarExemplos);
+    return desembrulhar(
+      await editoriasEmCache(this.#conexao, this.#mostrarExemplos),
+    );
   }
 
   async listTags(): Promise<Taxonomy[]> {
-    return tagsEmCache(this.#conexao, this.#mostrarExemplos);
+    return desembrulhar(
+      await tagsEmCache(this.#conexao, this.#mostrarExemplos),
+    );
   }
 }

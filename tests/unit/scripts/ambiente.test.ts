@@ -67,6 +67,11 @@ describe("carregarAmbiente", () => {
       url: "http://127.0.0.1:54321",
       serviceRoleKey: "service-local-NAO-IMPRIMIR",
       host: "127.0.0.1:54321",
+      variaveis: {
+        NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-local",
+        SUPABASE_SERVICE_ROLE_KEY: "service-local-NAO-IMPRIMIR",
+      },
     });
     expect(deps.lidos).toEqual(["/projeto/.env.local"]);
     expect(deps.perguntar).not.toHaveBeenCalled();

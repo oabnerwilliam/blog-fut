@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mts",
+    ".next-testes/sem-banco/types/**/*.ts",
+    ".next-testes/sem-banco/dev/types/**/*.ts",
+    ".next-testes/db/types/**/*.ts",
+    ".next-testes/db/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

@@ -3,6 +3,7 @@ import { lerConfiguracao } from "./config";
 import { FileArticleRepository } from "./file-repository";
 import type { ArticleRepository } from "./repository";
 import { criarClienteAnonimo } from "./supabase/cliente";
+import { cutucarSupabase } from "./supabase/manter-ativo";
 import { SupabaseArticleRepositoryEmCache } from "./supabase/repositorio-em-cache";
 import { SupabaseArticleRepository } from "./supabase/repository";
 
@@ -18,12 +19,13 @@ export type {
   Taxonomy,
 } from "./types";
 export type { ArticleRepository, ListOptions } from "./repository";
+export { TAMANHO_PADRAO_DA_PAGINA } from "./repository";
 
 export interface OpcoesDoRepositorio {
   /**
    * Só para o Proxy: ele não aplica a diretiva "use cache", e `cacheTag` lança fora de
-   * um escopo de cache (doc `use-cache.md`). Com `files`, não muda nada. A história 14
-   * troca a leitura do Proxy por um índice em memória.
+   * um escopo de cache (doc `use-cache.md`). Com `files`, não muda nada. O Proxy lê por
+   * aqui só quando recarrega o índice de rotas (`src/lib/rotas.ts`, história 14).
    */
   readonly semCache?: boolean;
 }
@@ -64,4 +66,20 @@ export function getRepository({
 
   if (producao) instancias.set(chave, repositorio);
   return repositorio;
+}
+
+/**
+ * Keep-alive (`/api/manter-ativo`, U11): uma leitura leve no banco, para o Supabase do
+ * plano gratuito não pausar. Com `files` não há banco, e a resposta é `true`. Nunca lança.
+ */
+export async function cutucarBanco(): Promise<boolean> {
+  let config;
+  try {
+    config = lerConfiguracao(process.env);
+  } catch (erro) {
+    console.error("[manter-ativo] configuração inválida:", erro);
+    return false;
+  }
+  if (config.source === "files") return true;
+  return cutucarSupabase(config.supabase);
 }

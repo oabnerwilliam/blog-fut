@@ -1,0 +1,60 @@
+# Migrações do Supabase de produção (história 14; spec v2 §7.8 e U10).
+#
+# Roda quando uma migração nova chega na `main` (ou à mão, pelo workflow_dispatch).
+# Falha quebra o job e aparece no GitHub: não há nova tentativa automática. O deploy da
+# Vercel não depende deste job.
+#
+# ATENÇÃO: migração destrutiva exige revisão manual antes do merge (drop, rename, alter
+# type, delete de dados). Este job aplica o que estiver em supabase/migrations/ sem
+# pedir confirmação.
+#
+# Segredos (Settings → Secrets and variables → Actions): SUPABASE_ACCESS_TOKEN,
+# SUPABASE_DB_PASSWORD e SUPABASE_PROJECT_REF. Nenhum valor fica neste arquivo.
+name: Migrações
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Duas aplicações ao mesmo tempo no mesmo banco nunca: a segunda espera a primeira.
+concurrency:
+  group: migracoes-producao
+  cancel-in-progress: false
+
+jobs:
+  migracoes:
+    name: supabase db push (produção)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # A CLI do projeto (devDependency `supabase`, versão fixa), a mesma dos testes.
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Ligar ao projeto de produção
+        run: pnpm exec supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      # Na CLI 3.x, `db push` mira o banco local por padrão: `--remote` aponta para o
+      # projeto ligado. `--skip-vault`: o Vault de produção é do `pnpm db:vault`, e este
+      # job nunca mexe nele. `--yes`: sem terminal, a confirmação vem pela flag.
+      - name: Aplicar as migrações
+        run: pnpm exec supabase db push --remote --password "$SUPABASE_DB_PASSWORD" --skip-vault --yes

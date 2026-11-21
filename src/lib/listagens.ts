@@ -1,6 +1,10 @@
-import type { ArticleRepository, ArticleSummary } from "@/lib/content";
+import type {
+  ArticleRepository,
+  ArticleSummary,
+  Taxonomy,
+} from "@/lib/content";
 import { isEditoria } from "@/lib/editorias";
-import { SLUG_DE_RESERVA } from "@/lib/materias";
+import { slugsOuReserva } from "@/lib/materias";
 
 export type TipoDeListagem = "editoria" | "tag";
 
@@ -93,28 +97,29 @@ export async function montarListagem(
   };
 }
 
+function comMateria(taxonomia: readonly Taxonomy[]): string[] {
+  return taxonomia.filter((t) => t.total > 0).map((t) => t.slug);
+}
+
 /**
  * Params das rotas: só editorias e tags com matéria visível. Com Cache Components, uma
- * lista vazia quebra o build; sem nenhuma, usa o valor de reserva, que cai no 404.
+ * lista vazia quebra o build; sem nenhuma (ou com o repositório fora do ar), usa o
+ * valor de reserva, que cai no 404.
  */
 export async function paramsDasEditorias(
   repositorio: ArticleRepository,
 ): Promise<{ editoria: string }[]> {
-  const slugs = (await repositorio.listEditorias())
-    .filter((t) => t.total > 0)
-    .map((t) => t.slug);
-  return (slugs.length > 0 ? slugs : [SLUG_DE_RESERVA]).map((editoria) => ({
-    editoria,
-  }));
+  const slugs = await slugsOuReserva("/editorias/[editoria]", async () =>
+    comMateria(await repositorio.listEditorias()),
+  );
+  return slugs.map((editoria) => ({ editoria }));
 }
 
 export async function paramsDasTags(
   repositorio: ArticleRepository,
 ): Promise<{ tag: string }[]> {
-  const slugs = (await repositorio.listTags())
-    .filter((t) => t.total > 0)
-    .map((t) => t.slug);
-  return (slugs.length > 0 ? slugs : [SLUG_DE_RESERVA]).map((tag) => ({
-    tag,
-  }));
+  const slugs = await slugsOuReserva("/tags/[tag]", async () =>
+    comMateria(await repositorio.listTags()),
+  );
+  return slugs.map((tag) => ({ tag }));
 }

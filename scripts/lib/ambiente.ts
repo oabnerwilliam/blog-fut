@@ -22,6 +22,11 @@ export interface Ambiente {
   readonly serviceRoleKey: string;
   /** Só o host da URL, para mostrar o destino sem mostrar chave. */
   readonly host: string;
+  /**
+   * Todas as variáveis do arquivo lido, para os comandos que precisam de mais alguma
+   * (`SITE_URL` e `REVALIDATE_SECRET` no `pnpm db:vault`). Nunca imprima este objeto.
+   */
+  readonly variaveis: Readonly<Record<string, string | undefined>>;
 }
 
 /** Tudo que toca o mundo fica injetável, para o teste cobrir os casos sem terminal real. */
@@ -95,6 +100,7 @@ export async function carregarAmbiente(
     url,
     serviceRoleKey: variaveis.SUPABASE_SERVICE_ROLE_KEY!.trim(),
     host: new URL(url).host,
+    variaveis: { ...variaveis },
   };
 
   if (prod) {
