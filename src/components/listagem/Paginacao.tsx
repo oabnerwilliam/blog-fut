@@ -10,6 +10,9 @@ const LINK =
  * Navegação entre as páginas de uma editoria ou tag. Só aparece com mais de uma página.
  * "Página N de M" é texto: a página atual nunca vira link. Na primeira não há
  * "Anteriores"; na última não há "Próximas". Em telas estreitas, os itens quebram de linha.
+ * As setas são decorativas (`aria-hidden`): o nome acessível dos links é só a palavra. O
+ * `<span>` externo mantém seta e palavra num item só do `inline-flex`; sem ele, o espaço entre
+ * os dois cairia na borda de um item flex e sumiria.
  */
 export function Paginacao({ listagem }: Props) {
   const { tipo, slug, pagina, totalPaginas } = listagem;
@@ -21,7 +24,9 @@ export function Paginacao({ listagem }: Props) {
     >
       {pagina > 1 && (
         <Link className={LINK} href={caminhoDaListagem(tipo, slug, pagina - 1)}>
-          ← Anteriores
+          <span>
+            <span aria-hidden="true">←</span> Anteriores
+          </span>
         </Link>
       )}
       <span className="mono text-ink-muted">
@@ -29,7 +34,9 @@ export function Paginacao({ listagem }: Props) {
       </span>
       {pagina < totalPaginas && (
         <Link className={LINK} href={caminhoDaListagem(tipo, slug, pagina + 1)}>
-          Próximas →
+          <span>
+            Próximas <span aria-hidden="true">→</span>
+          </span>
         </Link>
       )}
     </nav>

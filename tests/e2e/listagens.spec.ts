@@ -3,8 +3,8 @@ import { expect, test, type Page } from "@playwright/test";
 
 /**
  * Páginas de editoria e de tag (história 05), com o conteúdo real de content/ (oito
- * fictícias e, desde a história 08, a matéria real do PSG): Crônica tem 2 matérias, a tag Taça das Serras tem 4 e a Liga do Planalto
- * Azul (sem rótulo no tags.json) tem 2.
+ * fictícias e, desde a história 08, a matéria real do PSG): Crônica tem 2 matérias, a tag
+ * Taça das Serras tem 4 e a Liga do Planalto Azul (sem rótulo no tags.json) tem 2.
  */
 
 async function violacoes(page: Page) {
@@ -164,6 +164,11 @@ test.describe("404 real nas listagens", () => {
       );
     });
   }
+
+  test("a 404 de uma listagem tem o <title> próprio", async ({ page }) => {
+    await page.goto("/editorias/inexistente");
+    await expect(page).toHaveTitle("Página não encontrada");
+  });
 
   test("a 404 de uma listagem não marca editoria no cabeçalho", async ({
     page,

@@ -42,7 +42,11 @@ export function nomeDoBotaoDeTema(tema: Tema): string {
   return `Tema: ${rotuloDoTema(tema)}. Mudar para ${rotuloDoTema(proximoTema(tema))}`;
 }
 
-/** Valor guardado ou atributo → tema. Só "light" e "dark" valem; o resto é "sistema". */
+/**
+ * Valor guardado ou atributo → tema. Só "light" e "dark" valem; o resto é "sistema".
+ * Mude junto com o `SCRIPT_DO_TEMA`, que repete esta regra em JavaScript cru (o teste de
+ * unidade "faz o mesmo que lerTemaGuardado" confere que os dois concordam).
+ */
 export function temaDoAtributo(valor: string | null | undefined): Tema {
   return valor === "light" || valor === "dark" ? valor : "sistema";
 }
@@ -79,5 +83,6 @@ export function aplicarTema(raiz: Raiz, tema: Tema): void {
  * Script inline e síncrono do `<head>`: faz o mesmo que `lerTemaGuardado` + `aplicarTema` antes
  * do primeiro paint e marca `data-js` (o CSS só mostra o botão com esse atributo).
  * O acesso ao `localStorage` fica dentro do `try`, porque o próprio getter pode lançar.
+ * Mude junto com o `temaDoAtributo`: o `t==="light"||t==="dark"` daqui é a mesma regra.
  */
 export const SCRIPT_DO_TEMA = `(function(){var h=document.documentElement;try{var t=localStorage.getItem(${JSON.stringify(CHAVE_DO_TEMA)});if(t==="light"||t==="dark")h.setAttribute("data-theme",t)}catch(e){}h.setAttribute("data-js","")})()`;

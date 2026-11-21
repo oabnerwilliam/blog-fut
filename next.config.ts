@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/*": ["./content/materias/**/*", "./content/tags.json"],
   },
+  // Os testes e as fixtures de conteúdo não vão no deploy das rotas. O trace do proxy, que o
+  // Turbopack gera à parte, não passa por este filtro e ainda leva as fixtures.
+  outputFileTracingExcludes: {
+    "/*": ["./tests/**/*"],
+  },
 };
 
 export default nextConfig;
