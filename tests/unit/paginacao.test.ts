@@ -24,10 +24,19 @@ function listagem(pagina: number, totalPaginas = 3): Listagem {
 const renderizar = (l: Listagem) =>
   renderToStaticMarkup(createElement(Paginacao, { listagem: l }));
 
-/** Pares [texto, href] dos links, na ordem do HTML. */
+/**
+ * Pares [nome acessível, href] dos links, na ordem do HTML. O nome acessível é o texto do
+ * link sem o que está em `aria-hidden="true"` (as setas).
+ */
 function links(html: string): [string, string][] {
   return [...html.matchAll(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/g)].map(
-    ([, href, texto]) => [texto, href.replace(/&amp;/g, "&")],
+    ([, href, conteudo]) => [
+      conteudo
+        .replace(/<span aria-hidden="true">[^<]*<\/span>/g, "")
+        .replace(/<[^>]+>/g, "")
+        .trim(),
+      href.replace(/&amp;/g, "&"),
+    ],
   );
 }
 
@@ -44,21 +53,27 @@ describe("Paginacao", () => {
 
   it("no meio: anteriores e próximas; a página 1 não leva ?pagina=1", () => {
     expect(links(renderizar(listagem(2)))).toEqual([
-      ["← Anteriores", "/tags/taca-das-serras"],
-      ["Próximas →", "/tags/taca-das-serras?pagina=3"],
+      ["Anteriores", "/tags/taca-das-serras"],
+      ["Próximas", "/tags/taca-das-serras?pagina=3"],
     ]);
   });
 
-  it("na primeira, só 'Próximas →'", () => {
+  it("na primeira, só 'Próximas'", () => {
     expect(links(renderizar(listagem(1)))).toEqual([
-      ["Próximas →", "/tags/taca-das-serras?pagina=2"],
+      ["Próximas", "/tags/taca-das-serras?pagina=2"],
     ]);
   });
 
-  it("na última, só '← Anteriores'", () => {
+  it("na última, só 'Anteriores'", () => {
     expect(links(renderizar(listagem(3)))).toEqual([
-      ["← Anteriores", "/tags/taca-das-serras?pagina=2"],
+      ["Anteriores", "/tags/taca-das-serras?pagina=2"],
     ]);
+  });
+
+  it("as setas ficam visíveis, mas fora do nome acessível (aria-hidden)", () => {
+    const html = renderizar(listagem(2));
+    expect(html).toContain('<span aria-hidden="true">←</span> Anteriores');
+    expect(html).toContain('Próximas <span aria-hidden="true">→</span>');
   });
 
   it("a página atual não vira link", () => {

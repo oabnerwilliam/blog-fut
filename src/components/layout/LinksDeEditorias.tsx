@@ -13,8 +13,14 @@ type Props = {
 
 /**
  * A lista de links das editorias. É componente cliente só por causa do `usePathname`, que
- * diz qual editoria está aberta; o resto da nav continua no servidor. Todas as rotas têm
- * `generateStaticParams`, então o caminho é conhecido no prerender e não pede `<Suspense>`.
+ * diz qual editoria está aberta; o resto da nav continua no servidor.
+ *
+ * Sem `<Suspense>`: com Cache Components, o `usePathname` só suspende quando um segmento
+ * dinâmico não está no `generateStaticParams` (doc do `usePathname`, "Behavior > Cache
+ * Components"). Aqui todo caminho é conhecido no prerender: as rotas sem params (a capa, a
+ * `/busca` e a `_not-found`) têm o caminho fixo, e as dinâmicas (matéria, editoria e tag)
+ * listam os seus params. Uma rota nova com param fora do `generateStaticParams` quebraria o
+ * build e pediria o `<Suspense>`.
  */
 export function LinksDeEditorias({
   classeDaLista,
