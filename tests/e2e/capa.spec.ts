@@ -111,6 +111,8 @@ for (const largura of [320, 1280]) {
     });
 
     test("nenhuma fictícia ocupa o destaque", async ({ page }) => {
+      // Aqui só o caso do conteúdo de hoje; a regra geral (fictícia nunca no destaque
+      // enquanto houver real) está no teste unitário de capa.ts.
       const destaque = page.locator("section[aria-labelledby='destaque']");
       await expect(destaque).toHaveCount(1);
       // O único link de matéria do destaque aponta para a real.
