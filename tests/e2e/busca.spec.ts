@@ -2,8 +2,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Busca (história 06), com o conteúdo real de content/ (hoje, oito fictícias). Três delas
- * citam São Ciríaco; nenhuma cita São Paulo.
+ * Busca (história 06), com o conteúdo real de content/ (oito fictícias e, desde a
+ * história 08, a matéria real do PSG). Três fictícias citam São Ciríaco; nenhuma matéria
+ * cita São Paulo.
  */
 
 const SAO_CIRIACO = [

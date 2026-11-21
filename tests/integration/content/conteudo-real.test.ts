@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { montarBusca } from "@/lib/busca";
@@ -8,7 +9,29 @@ import { contarPalavras } from "@/lib/content/reading-time";
 /** O único teste que lê o content/ de verdade (critério 34). */
 const TAGS_JSON = path.resolve(__dirname, "../../../content/tags.json");
 
-/** Rede mínima contra nomes reais; a conferência humana continua com o code-reviewer. */
+/** A primeira matéria real (história 08), vinda do squad-fut. */
+const PSG = "psg-balanco-temporada-2026-27-mercado-elenco-curto";
+
+/**
+ * O `final.md` de origem fica no squad-fut, fora deste repositório: sem ele (CI), o teste
+ * de comparação fica `skip`. O hash abaixo protege o corpo publicado mesmo sem o original.
+ */
+const FINAL_MD = path.resolve(
+  __dirname,
+  "../../../../squad-fut/textos/2026-11-19-psg-balanco-temporada/final.md",
+);
+/**
+ * sha256 do corpo do PSG com quebras LF, conferido contra o `final.md` em 2026-11-20 (8024
+ * bytes). Com CRLF, como no `final.md` original, o hash é `7f35277c…ed78c` (8085 bytes).
+ */
+const SHA256_DO_CORPO_DO_PSG =
+  "884c513e37c64308aade5a0b9e77e48d1ae3b90ccc4ca5b09f0de1a47b021f65";
+
+function emLF(texto: string): string {
+  return texto.replace(/\r\n/g, "\n");
+}
+
+/** Rede mínima contra nomes reais nas fictícias; a conferência humana continua com o code-reviewer. */
 const NOMES_REAIS_PROIBIDOS = [
   "PSG",
   "Flamengo",
@@ -43,22 +66,68 @@ afterEach(() => {
 });
 
 describe("conteúdo real (content/)", () => {
-  it("o conteúdo real carrega sem erro e tem as 8 matérias de exemplo", async () => {
+  it("o conteúdo real carrega sem erro: 8 matérias de exemplo e a do PSG", async () => {
     const lista = await getRepository().list({ pageSize: 100 });
-    expect(lista.total).toBe(8);
-    expect(await carregarTodas()).toHaveLength(8);
+    expect(lista.total).toBe(9);
+    const artigos = await carregarTodas();
+    expect(artigos).toHaveLength(9);
+    expect(artigos.filter((a) => a.ficticio)).toHaveLength(8);
+    expect(artigos.filter((a) => !a.ficticio).map((a) => a.slug)).toEqual([
+      PSG,
+    ]);
   });
 
-  it("todas são fictícias, sem origem, do Squad Fut e antes de 2026-11-01, com datas distintas", async () => {
-    const artigos = await carregarTodas();
-    for (const artigo of artigos) {
-      expect(artigo.ficticio, artigo.slug).toBe(true);
+  it("as fictícias não têm origem, são do Squad Fut e de antes de 2026-11-01, com datas distintas", async () => {
+    const ficticias = (await carregarTodas()).filter((a) => a.ficticio);
+    for (const artigo of ficticias) {
       expect(artigo.origem, artigo.slug).toBeNull();
       expect(artigo.autor, artigo.slug).toBe("Squad Fut");
       expect(artigo.publicado_em < "2026-11-01", artigo.slug).toBe(true);
     }
-    expect(new Set(artigos.map((a) => a.publicado_em)).size).toBe(8);
+    expect(new Set(ficticias.map((a) => a.publicado_em)).size).toBe(8);
   });
+
+  it("o PSG (história 08): real, com origem no squad-fut, editoria Análise e as 5 tags com rótulo certo", async () => {
+    const psg = await getRepository().getBySlug(PSG);
+    expect(psg).not.toBeNull();
+    expect(psg!.ficticio).toBe(false);
+    expect(psg!.origem).toBe(
+      "squad-fut/textos/2026-11-19-psg-balanco-temporada",
+    );
+    expect(psg!.autor).toBe("Squad Fut");
+    expect(psg!.publicado_em).toBe("2026-11-19");
+    expect(psg!.editoria).toEqual({ slug: "analise", rotulo: "Análise" });
+    expect(psg!.tags).toEqual([
+      { slug: "psg", rotulo: "PSG" },
+      { slug: "ligue-1", rotulo: "Ligue 1" },
+      { slug: "champions-league", rotulo: "Champions League" },
+      { slug: "luis-enrique", rotulo: "Luis Enrique" },
+      { slug: "kvaratskhelia", rotulo: "Kvaratskhelia" },
+    ]);
+  });
+
+  it("o corpo publicado do PSG tem o hash conferido contra o final.md (critério 2)", async () => {
+    const psg = await getRepository().getBySlug(PSG);
+    const corpo = emLF(psg!.corpo_md);
+    expect(Buffer.byteLength(corpo, "utf8")).toBe(8024);
+    expect(createHash("sha256").update(corpo).digest("hex")).toBe(
+      SHA256_DO_CORPO_DO_PSG,
+    );
+  });
+
+  it.skipIf(!existsSync(FINAL_MD))(
+    "o corpo publicado do PSG é idêntico ao final.md, sem título e sem linha fina (critério 2)",
+    async () => {
+      const psg = await getRepository().getBySlug(PSG);
+      const linhas = emLF(readFileSync(FINAL_MD, "utf8")).split("\n");
+      // O final.md abre com "# título", linha vazia, "**linha fina**" e linha vazia.
+      expect(linhas[0]).toBe(`# ${psg!.titulo}`);
+      expect(linhas[1]).toBe("");
+      expect(linhas[2]).toBe(`**${psg!.linha_fina}**`);
+      expect(linhas[3]).toBe("");
+      expect(emLF(psg!.corpo_md)).toBe(linhas.slice(4).join("\n"));
+    },
+  );
 
   it("variedade", async () => {
     const artigos = await carregarTodas();
@@ -121,9 +190,11 @@ describe("conteúdo real (content/)", () => {
     }
   });
 
-  it("nenhum nome real conhecido", async () => {
+  it("nenhum nome real conhecido nas fictícias", async () => {
     const achados: string[] = [];
-    for (const artigo of await carregarTodas()) {
+    const ficticias = (await carregarTodas()).filter((a) => a.ficticio);
+    expect(ficticias).toHaveLength(8);
+    for (const artigo of ficticias) {
       const texto = [
         artigo.titulo,
         artigo.titulo_seo ?? "",

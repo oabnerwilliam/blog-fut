@@ -2,8 +2,8 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Páginas de editoria e de tag (história 05), com o conteúdo real de content/ (hoje, oito
- * fictícias): Crônica tem 2 matérias, a tag Taça das Serras tem 4 e a Liga do Planalto
+ * Páginas de editoria e de tag (história 05), com o conteúdo real de content/ (oito
+ * fictícias e, desde a história 08, a matéria real do PSG): Crônica tem 2 matérias, a tag Taça das Serras tem 4 e a Liga do Planalto
  * Azul (sem rótulo no tags.json) tem 2.
  */
 
@@ -252,16 +252,19 @@ test.describe("nav de editorias do cabeçalho", () => {
 });
 
 test.describe("sitemap.xml e robots.txt", () => {
-  test("o sitemap só tem a capa (todas as matérias de hoje são fictícias)", async ({
+  // Desde a história 08 há uma matéria real (PSG); o conteúdo do sitemap com ela é
+  // conferido em materia-real.spec.ts.
+  test("o sitemap abre pela capa, com a data da matéria real mais recente", async ({
     request,
   }) => {
     const resposta = await request.get("/sitemap.xml");
     expect(resposta.status()).toBe(200);
     const xml = await resposta.text();
-    const locs = [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
-    expect(locs).toHaveLength(1);
-    expect(new URL(locs[0]).pathname).toBe("/");
-    expect(xml).not.toMatch(/materias|editorias|tags/);
+    const urls = [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((m) => m[1]);
+    expect(urls.length).toBeGreaterThan(1);
+    const loc = /<loc>([^<]*)<\/loc>/.exec(urls[0])![1];
+    expect(new URL(loc).pathname).toBe("/");
+    expect(urls[0]).toMatch(/<lastmod>2026-11-19/);
   });
 
   test("o robots.txt permite tudo e aponta para o sitemap", async ({
