@@ -23,7 +23,7 @@ async function principal(): Promise<void> {
   const client = createClient(ambiente.url, ambiente.serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { materias, tags } = await importarConteudo(client, pasta);
+  const { materias, tags, soNoBanco } = await importarConteudo(client, pasta);
 
   console.log("Tags:");
   console.log(resumo("inseridas", tags.inseridas));
@@ -33,6 +33,10 @@ async function principal(): Promise<void> {
   console.log(resumo("inseridas", materias.inseridas));
   console.log(resumo("atualizadas (revisão nova)", materias.atualizadas));
   console.log(resumo("sem mudança", materias.iguais));
+  if (soNoBanco.length > 0) {
+    // Só o aviso: o importador nunca apaga nem despublica.
+    console.warn(`Aviso: no banco, mas não no disco: ${soNoBanco.join(", ")}`);
+  }
 }
 
 principal().catch((erro: unknown) => {

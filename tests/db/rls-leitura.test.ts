@@ -107,6 +107,22 @@ describe("anon não vê rascunho", () => {
     expect(rpc.data).toEqual([]);
   });
 
+  it("não chama as funções internas da busca; buscar_artigos continua aberta", async () => {
+    for (const [funcao, args] of [
+      ["normalizar_busca", { texto: "São Paulo" }],
+      [
+        "calcular_busca_normalizada",
+        { p_titulo: "a", p_linha_fina: "b", p_tags: ["c"], p_corpo: "d" },
+      ],
+    ] as const) {
+      const { data, error } = await anon.rpc(funcao, args);
+      expect(error, funcao).not.toBeNull();
+      expect(data, funcao).toBeNull();
+    }
+    const aberta = await anon.rpc("buscar_artigos", { termos: ["publico"] });
+    expect(aberta.error).toBeNull();
+  });
+
   it("e não lê article_revisions", async () => {
     const { data, error } = await anon.from("article_revisions").select("*");
     expect(data ?? []).toEqual([]);

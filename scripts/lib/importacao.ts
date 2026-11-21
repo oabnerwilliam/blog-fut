@@ -51,6 +51,8 @@ export interface ResultadoDaImportacao {
     readonly atualizadas: string[];
     readonly iguais: string[];
   };
+  /** Publicadas no banco que não estão na pasta importada. Só avisa: nada é apagado. */
+  readonly soNoBanco: string[];
 }
 
 const CAMPOS_DA_REVISAO = [
@@ -269,5 +271,18 @@ export async function importarConteudo(
     materias.atualizadas.push(linha.slug);
   }
 
-  return { materias, tags };
+  const { data: publicadas, error: erroDasPublicadas } = await client
+    .from("articles")
+    .select("slug")
+    .eq("status", "publicado")
+    .order("slug");
+  if (erroDasPublicadas) {
+    throw erroDoBanco("ler as matérias publicadas", erroDasPublicadas);
+  }
+  const noDisco = new Set(slugs);
+  const soNoBanco = (publicadas as { slug: string }[])
+    .map((m) => m.slug)
+    .filter((slug) => !noDisco.has(slug));
+
+  return { materias, tags, soNoBanco };
 }

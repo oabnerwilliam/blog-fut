@@ -55,6 +55,18 @@ describe("migração das matérias (supabase/migrations/<timestamp>_articles.sql
     expect(CODIGO).not.toMatch(/\bi?like\b/);
   });
 
+  it("as funções internas da busca não ficam abertas a anon e authenticated", () => {
+    expect(CODIGO).toContain(
+      "revoke execute on function public.normalizar_busca(text) from public, anon, authenticated",
+    );
+    expect(CODIGO).toContain(
+      "revoke execute on function public.calcular_busca_normalizada(text, text, text[], text) from public, anon, authenticated",
+    );
+    expect(CODIGO).not.toMatch(
+      /revoke execute on function public\.buscar_artigos/,
+    );
+  });
+
   it("normalizar_busca é immutable", () => {
     expect(CODIGO).toMatch(
       /create function public\.normalizar_busca\(texto text\) returns text language sql immutable/,

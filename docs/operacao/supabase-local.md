@@ -8,8 +8,8 @@ O Supabase local roda no Docker Desktop, pela CLI que vem como dependência do p
 | `pnpm db:start` | Sobe o Supabase local e aplica as migrações de `supabase/migrations/`. Na primeira vez, baixa as imagens (alguns minutos). |
 | `pnpm db:stop` | Para os containers. Os dados ficam guardados para o próximo `db:start`. |
 | `pnpm db:reset` | Recria o banco do zero e reaplica as migrações. Apaga os dados locais. |
-| `pnpm db:importar` | Copia `content/materias/*.md` e `content/tags.json` para o banco local. Pode rodar quantas vezes quiser: o que já está igual não é regravado. Use `--dir <pasta>` para importar outra pasta com o mesmo formato. |
-| `pnpm test:db` | Sobe o banco (se já estiver no ar, não faz nada), roda `supabase db reset` e os testes de `tests/db/`. |
+| `pnpm db:importar` | Copia `content/materias/*.md` e `content/tags.json` para o banco local. Pode rodar quantas vezes quiser: o que já está igual não é regravado. Use `--dir <pasta>` para importar outra pasta com o mesmo formato. Nunca apaga: se houver matéria publicada no banco que não está na pasta, só avisa ("no banco, mas não no disco: ..."). |
+| `pnpm test:db` | Sobe o banco (se já estiver no ar, não faz nada), roda `supabase db reset` e os testes de `tests/db/`. No fim, limpa as tabelas e reimporta o `content/` real (`tests/db/global-teardown.ts`), então o banco local sempre termina igual ao `content/`. Se os testes forem interrompidos no meio, rode `pnpm db:reset` e `pnpm db:importar`. |
 
 Os testes de banco **não** usam o `.env.local`: eles leem a URL e as chaves do `supabase status`.
 

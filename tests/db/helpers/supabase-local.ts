@@ -1,6 +1,8 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { inject } from "vitest";
 
+export { limparBanco } from "./limpar-banco";
+
 export interface SupabaseLocal {
   readonly url: string;
   readonly anonKey: string;
@@ -30,19 +32,4 @@ export function clienteAnonimo(): SupabaseClient {
 export function clienteDeServico(): SupabaseClient {
   const { url, serviceRoleKey } = supabaseLocal();
   return createClient(url, serviceRoleKey, SEM_SESSAO);
-}
-
-/** Apaga tudo das três tabelas (revisões primeiro, por causa do `on delete restrict`). */
-export async function limparBanco(servico: SupabaseClient): Promise<void> {
-  for (const [tabela, coluna] of [
-    ["article_revisions", "id"],
-    ["articles", "id"],
-    ["tags", "slug"],
-  ] as const) {
-    const { error } = await servico
-      .from(tabela)
-      .delete()
-      .not(coluna, "is", null);
-    if (error) throw new Error(`limpar ${tabela}: ${error.message}`);
-  }
 }

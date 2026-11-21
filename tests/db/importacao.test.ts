@@ -137,4 +137,33 @@ describe("pnpm db:importar (importarConteudo) com o content/ real", () => {
         .sort(),
     ).toEqual([1, 2]);
   });
+
+  it("avisa as publicadas que estão no banco mas não no disco, sem apagar", async () => {
+    const semExtra = await importarConteudo(servico, CONTENT, () => {});
+    expect(semExtra.soNoBanco).toEqual([]);
+
+    const { error } = await servico.from("articles").insert({
+      slug: "so-no-banco",
+      titulo: "Só no banco",
+      linha_fina: "Não existe em content/",
+      editoria: "noticia",
+      tags: ["psg"],
+      publicado_em: "2026-01-01",
+      autor: "Squad Fut",
+      ficticio: true,
+      corpo_md: "x",
+      fonte: "importacao",
+      status: "publicado",
+      revisao_publicada: 1,
+    });
+    expect(error).toBeNull();
+
+    const comExtra = await importarConteudo(servico, CONTENT, () => {});
+    expect(comExtra.soNoBanco).toEqual(["so-no-banco"]);
+    const { data } = await servico
+      .from("articles")
+      .select("slug")
+      .eq("slug", "so-no-banco");
+    expect(data).toEqual([{ slug: "so-no-banco" }]);
+  });
 });

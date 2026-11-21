@@ -30,7 +30,11 @@ export default defineConfig({
         test: {
           name: "db",
           include: ["tests/db/**/*.test.ts"],
-          globalSetup: ["tests/db/global-setup.ts"],
+          // O teardown deixa o banco local igual ao content/ real no fim.
+          globalSetup: [
+            "tests/db/global-setup.ts",
+            "tests/db/global-teardown.ts",
+          ],
           // Os arquivos limpam e reimportam as mesmas tabelas: um de cada vez.
           fileParallelism: false,
           testTimeout: 30_000,

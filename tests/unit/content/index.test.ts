@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as conteudo from "@/lib/content";
 import { getRepository, readingTime, renderMarkdown } from "@/lib/content";
 import { FileArticleRepository } from "@/lib/content/file-repository";
+import { fetchSemCacheDoNext } from "@/lib/content/supabase/cliente";
 import { SupabaseArticleRepositoryEmCache } from "@/lib/content/supabase/repositorio-em-cache";
 import { SupabaseArticleRepository } from "@/lib/content/supabase/repository";
 
@@ -101,7 +102,10 @@ describe("@/lib/content", () => {
     expect(createClient).toHaveBeenCalledWith(
       SUPABASE.NEXT_PUBLIC_SUPABASE_URL,
       "chave-anon-so-deste-teste",
-      { auth: expect.objectContaining({ persistSession: false }) },
+      expect.objectContaining({
+        auth: expect.objectContaining({ persistSession: false }),
+        global: { fetch: fetchSemCacheDoNext },
+      }),
     );
   });
 

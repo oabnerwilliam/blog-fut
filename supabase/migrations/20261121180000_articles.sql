@@ -145,9 +145,12 @@ begin
 end;
 $$;
 
+-- security definer: quem grava (admin na história 16) não precisa de execute nas funções
+-- de normalização, que ficam fechadas para anon e authenticated.
 create function public.articles_antes_de_gravar()
 returns trigger
 language plpgsql
+security definer
 set search_path = ''
 as $$
 begin
@@ -243,3 +246,7 @@ grant select on table public.articles, public.tags to anon;
 -- Funções internas dos triggers não ficam expostas como RPC.
 revoke execute on function public.articles_antes_de_gravar() from public, anon, authenticated;
 revoke execute on function public.tags_depois_de_gravar() from public, anon, authenticated;
+-- As funções da normalização só servem aos triggers; quem lê usa buscar_artigos, que
+-- continua executável por todos. O dono (postgres) e a service_role seguem podendo chamar.
+revoke execute on function public.normalizar_busca(text) from public, anon, authenticated;
+revoke execute on function public.calcular_busca_normalizada(text, text, text[], text) from public, anon, authenticated;
