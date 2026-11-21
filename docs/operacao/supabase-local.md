@@ -48,5 +48,32 @@ CONTENT_SOURCE=supabase pnpm start
 ```
 Depois, rode `pnpm build` de novo (sem a variável) antes dos portões.
 
+## Webhook de invalidação no local (`pnpm db:vault`)
+Toda gravação em `articles` e `tags` dispara um trigger que chama `POST <site>/api/revalidar` pelo `pg_net` (história 14, ADR 0008 §7). A URL e o segredo ficam no Vault do banco. Sem eles, o trigger não faz nada, e é assim que o banco local fica depois do `pnpm db:reset` e dos testes.
+
+**O Postgres roda dentro do Docker.** Para ele, `localhost` é o próprio container, e não a sua máquina. Por isso, a base local é `http://host.docker.internal:<porta>`:
+- no Docker Desktop (Windows e macOS), esse nome sempre existe;
+- no Linux (o runner do CI), o Supabase CLI 3.x cria os containers com `host.docker.internal:host-gateway`;
+- se um Linux não resolver o nome, use o IP do gateway da rede do Supabase: `docker network inspect supabase_network_blog-fut -f '{{(index .IPAM.Config 0).Gateway}}'`. Os testes aceitam esse IP pela variável `HOST_DO_SITE_NO_DOCKER`, e o `portoes.yml` já faz essa troca sozinho.
+
+Para ver o webhook funcionando com o site local:
+1. Ponha `REVALIDATE_SECRET=<um texto aleatório de 16+ caracteres>` no `.env.local`. O `next start` lê esse arquivo, e o `pnpm db:vault` também.
+2. Rode `pnpm db:vault --url http://host.docker.internal:3000`. Sem `--url`, a base é o `SITE_URL` do arquivo, e o `.env.local` não deve ter `SITE_URL` (ele mudaria os links do build local).
+3. Rode `CONTENT_SOURCE=supabase pnpm build` e depois `CONTENT_SOURCE=supabase pnpm start`.
+4. Grave algo no Studio (http://127.0.0.1:54323) e recarregue a capa.
+
+O comando nunca imprime o segredo. Para desligar o webhook local, rode `pnpm db:reset` (e depois `pnpm db:importar`).
+
+## Testes que sobem o site
+| Comando | O que faz |
+|---|---|
+| `pnpm test:e2e` | A suíte da v1 (`playwright.config.ts`, build com `files`) e, no fim, `test:e2e:sem-banco`. Não precisa de Docker. |
+| `pnpm test:e2e:sem-banco` | Build e servidor com `CONTENT_SOURCE=supabase` apontando para `http://127.0.0.1:9`, onde não há banco. Confere que o build passa e que a capa mostra a tela de erro, sem stack. |
+| `pnpm test:e2e:db` | Build e servidor contra o Supabase local, com o Vault apontando para `http://host.docker.internal:3102`. Grava, edita e despublica uma matéria direto no banco e confere o site em até 5 s. No fim, o banco volta ao `content/` e o Vault fica vazio. Roda dentro do `pnpm test:db`. |
+
+Os dois e2e alternativos fazem o build em `.next-testes/sem-banco` e `.next-testes/db` (variável `BUILD_DE_TESTE`). O `.next` continua sendo o build com `files` dos portões. O `next-env.d.ts` (fora do git) passa a apontar para a pasta do último build, e o `pnpm typecheck` o refaz.
+
+O `pnpm test:e2e:db` usa `TTL_DO_INDICE_MS_TESTE=1000`, que faz o índice de rotas do Proxy recarregar a cada 1 s, e não a cada 60 s. **Essa variável é só desse teste.** Nunca a configure na Vercel.
+
 ## Produção
 Os comandos só miram a produção com `--prod`, que lê o `.env.prod.local` (veja `contas-v2.md`), mostra "Destino: PRODUÇÃO (<host>)" e pede confirmação `s/N`. Fora de um terminal interativo, como na sessão autônoma, é preciso passar `--sim`. Sem ele, o comando sai com código 1 sem fazer nada.
