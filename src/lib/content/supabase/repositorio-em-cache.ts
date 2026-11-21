@@ -1,0 +1,128 @@
+import "server-only";
+import { cacheLife, cacheTag } from "next/cache";
+import { TAG_MATERIAS, TAG_TAGS, tagDaMateria } from "../cache";
+import { validarPaginacao } from "../catalog";
+import type { ConexaoSupabase } from "../config";
+import type { ArticleRepository, ListOptions } from "../repository";
+import { SLUG_REGEX } from "../schema";
+import { termosDaBusca } from "../search";
+import type { Article, ArticleSummary, Paginated, Taxonomy } from "../types";
+import { criarClienteAnonimo } from "./cliente";
+import { SupabaseArticleRepository } from "./repository";
+
+/*
+ * Cache Components com o banco (história 13, critério 9; ADR 0008).
+ *
+ * No Next 16, o prerender recusa leitura de rede sem cache fora de <Suspense>. Cada
+ * leitura do Supabase roda numa função "use cache", com etiqueta e cacheLife("max"): a
+ * página continua estática e a história 14 invalida pelas etiquetas.
+ *
+ * As funções recebem só valores serializáveis (conexão, flag, opções), que viram a chave
+ * do cache. O repositório e o cliente são criados dentro delas.
+ */
+
+function repositorio(
+  conexao: ConexaoSupabase,
+  mostrarExemplos: boolean,
+): SupabaseArticleRepository {
+  return new SupabaseArticleRepository({
+    client: criarClienteAnonimo(conexao),
+    mostrarExemplos,
+  });
+}
+
+async function listarEmCache(
+  conexao: ConexaoSupabase,
+  mostrarExemplos: boolean,
+  opts: ListOptions,
+): Promise<Paginated<ArticleSummary>> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(TAG_MATERIAS, TAG_TAGS);
+  return repositorio(conexao, mostrarExemplos).list(opts);
+}
+
+async function obterEmCache(
+  conexao: ConexaoSupabase,
+  mostrarExemplos: boolean,
+  slug: string,
+): Promise<Article | null> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(tagDaMateria(slug), TAG_TAGS);
+  return repositorio(conexao, mostrarExemplos).getBySlug(slug);
+}
+
+async function buscarEmCache(
+  conexao: ConexaoSupabase,
+  mostrarExemplos: boolean,
+  termos: readonly string[],
+): Promise<ArticleSummary[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(TAG_MATERIAS, TAG_TAGS);
+  return repositorio(conexao, mostrarExemplos).search(termos.join(" "));
+}
+
+async function editoriasEmCache(
+  conexao: ConexaoSupabase,
+  mostrarExemplos: boolean,
+): Promise<Taxonomy[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(TAG_MATERIAS);
+  return repositorio(conexao, mostrarExemplos).listEditorias();
+}
+
+async function tagsEmCache(
+  conexao: ConexaoSupabase,
+  mostrarExemplos: boolean,
+): Promise<Taxonomy[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(TAG_MATERIAS, TAG_TAGS);
+  return repositorio(conexao, mostrarExemplos).listTags();
+}
+
+/**
+ * O que é decidido sem banco (RangeError, slug malformado, busca vazia) fica fora do
+ * cache, igual ao SupabaseArticleRepository: nem chega a criar entrada.
+ */
+export class SupabaseArticleRepositoryEmCache implements ArticleRepository {
+  readonly #conexao: ConexaoSupabase;
+  readonly #mostrarExemplos: boolean;
+
+  constructor(conexao: ConexaoSupabase, mostrarExemplos: boolean) {
+    this.#conexao = conexao;
+    this.#mostrarExemplos = mostrarExemplos;
+  }
+
+  async list(opts: ListOptions = {}): Promise<Paginated<ArticleSummary>> {
+    const { pagina, tamanho } = validarPaginacao(opts);
+    return listarEmCache(this.#conexao, this.#mostrarExemplos, {
+      editoria: opts.editoria,
+      tag: opts.tag,
+      page: pagina,
+      pageSize: tamanho,
+    });
+  }
+
+  async getBySlug(slug: string): Promise<Article | null> {
+    if (!SLUG_REGEX.test(slug)) return null;
+    return obterEmCache(this.#conexao, this.#mostrarExemplos, slug);
+  }
+
+  async search(query: string): Promise<ArticleSummary[]> {
+    const termos = termosDaBusca(query);
+    if (termos.length === 0) return [];
+    return buscarEmCache(this.#conexao, this.#mostrarExemplos, termos);
+  }
+
+  async listEditorias(): Promise<Taxonomy[]> {
+    return editoriasEmCache(this.#conexao, this.#mostrarExemplos);
+  }
+
+  async listTags(): Promise<Taxonomy[]> {
+    return tagsEmCache(this.#conexao, this.#mostrarExemplos);
+  }
+}
