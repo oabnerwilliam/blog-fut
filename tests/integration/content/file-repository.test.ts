@@ -1,9 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { ContentError } from "@/lib/content/errors";
-import {
-  FileArticleRepository,
-  carregarArtigosDoDisco,
-} from "@/lib/content/file-repository";
+import { carregarArtigosDoDisco } from "@/lib/content/disco";
+import { FileArticleRepository } from "@/lib/content/file-repository";
 import type { ArticleRepository } from "@/lib/content/repository";
 import { readingTime } from "@/lib/content/reading-time";
 import { SLUGS_DE_EDITORIA } from "@/lib/editorias";

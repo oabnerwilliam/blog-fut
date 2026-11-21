@@ -89,15 +89,25 @@ function validarInteiroPositivo(nome: string, valor: number): number {
   return valor;
 }
 
+/** Página e tamanho com os padrões; RangeError se não forem inteiros ≥ 1. Vale para os dois repositórios. */
+export function validarPaginacao(opts: ListOptions = {}): {
+  readonly pagina: number;
+  readonly tamanho: number;
+} {
+  return {
+    pagina: validarInteiroPositivo("page", opts.page ?? 1),
+    tamanho: validarInteiroPositivo(
+      "pageSize",
+      opts.pageSize ?? TAMANHO_PADRAO_DA_PAGINA,
+    ),
+  };
+}
+
 export function listar(
   catalogo: Catalogo,
   opts: ListOptions = {},
 ): Paginated<ArticleSummary> {
-  const pagina = validarInteiroPositivo("page", opts.page ?? 1);
-  const tamanho = validarInteiroPositivo(
-    "pageSize",
-    opts.pageSize ?? TAMANHO_PADRAO_DA_PAGINA,
-  );
+  const { pagina, tamanho } = validarPaginacao(opts);
   const { editoria, tag } = opts;
   const filtrados = catalogo.artigos.filter(
     (artigo) =>
@@ -131,7 +141,13 @@ export function buscar(catalogo: Catalogo, query: string): ArticleSummary[] {
     .map(paraResumo);
 }
 
-export function contarEditorias(catalogo: Catalogo): Taxonomy[] {
+/**
+ * As contagens só leem `artigos`: servem ao Catalogo (arquivos) e às linhas do banco
+ * (`SupabaseArticleRepository`), com a mesma ordem e os mesmos totais.
+ */
+export function contarEditorias(catalogo: {
+  readonly artigos: readonly Pick<ArticleSummary, "editoria">[];
+}): Taxonomy[] {
   return EDITORIAS.map((editoria) =>
     Object.freeze({
       slug: editoria.slug,
@@ -144,7 +160,9 @@ export function contarEditorias(catalogo: Catalogo): Taxonomy[] {
 
 const COLLATOR = new Intl.Collator("pt-BR");
 
-export function contarTags(catalogo: Catalogo): Taxonomy[] {
+export function contarTags(catalogo: {
+  readonly artigos: readonly Pick<ArticleSummary, "tags">[];
+}): Taxonomy[] {
   const contagem = new Map<string, { rotulo: string; total: number }>();
   for (const artigo of catalogo.artigos) {
     for (const tag of artigo.tags) {

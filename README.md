@@ -22,17 +22,18 @@ pnpm typecheck     # next typegen + tsc
 pnpm test          # Vitest (unidade/integração)
 pnpm test:e2e      # Playwright (sobe build + start na porta 3100)
 pnpm build         # build de produção
+pnpm test:db       # Supabase local no Docker: sobe, reseta e roda tests/db (docs/operacao/supabase-local.md)
 ```
 
 ## Variáveis de ambiente
 
-Nenhuma é obrigatória. Um valor fora da lista é erro, nunca cai no padrão em silêncio.
+Nenhuma é obrigatória com `files`. Um valor fora da lista é erro, nunca cai no padrão em silêncio.
 
-| Variável           | Valores aceitos      | Padrão                  | O que faz                                                                                                                                                                                                     |
-| ------------------ | -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CONTENT_SOURCE`   | `files`              | `files`                 | Fonte das matérias. `files` lê `content/materias/*.md` e `content/tags.json`. Qualquer outro valor (inclusive `supabase`, `FILES` ou vazio) lança erro: o Supabase ainda não existe.                          |
-| `MOSTRAR_EXEMPLOS` | `true` ou `false`    | `true`                  | Com `false`, as matérias fictícias (`ficticio: true`) somem de todas as listas, buscas e taxonomias. **Vale no build**: as páginas são estáticas, então mudar o valor exige um build novo.                    |
-| `SITE_URL`         | URL http(s) absoluta | `http://localhost:3000` | URL pública do portal. Vira o `metadataBase` (canonical e Open Graph) e a base das URLs do JSON-LD. Um valor que não seja URL http(s) absoluta faz o build falhar com `SITE_URL inválido`. **Vale no build.** |
+| Variável           | Valores aceitos       | Padrão                  | O que faz                                                                                                                                                                                                                                       |
+| ------------------ | --------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CONTENT_SOURCE`   | `files` ou `supabase` | `files`                 | Fonte das matérias. `files` lê `content/materias/*.md` e `content/tags.json`. `supabase` lê do banco com a chave anon e exige `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` (ADR 0008). Outro valor (`FILES`, vazio) lança erro. |
+| `MOSTRAR_EXEMPLOS` | `true` ou `false`     | `true`                  | Com `false`, as matérias fictícias (`ficticio: true`) somem de todas as listas, buscas e taxonomias. **Vale no build**: as páginas são estáticas, então mudar o valor exige um build novo.                                                      |
+| `SITE_URL`         | URL http(s) absoluta  | `http://localhost:3000` | URL pública do portal. Vira o `metadataBase` (canonical e Open Graph) e a base das URLs do JSON-LD. Um valor que não seja URL http(s) absoluta faz o build falhar com `SITE_URL inválido`. **Vale no build.**                                   |
 
 Não commite arquivos `.env*` (o repositório é público).
 

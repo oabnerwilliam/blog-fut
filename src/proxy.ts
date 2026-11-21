@@ -10,9 +10,13 @@ const SEM_ROTA = "/_nao-encontrada";
  * página rodar para um slug fora do build. Para responder 404 de verdade, a rota é
  * conferida aqui, antes da renderização (guia `loading.md`, "Status codes"; ADR 0006).
  * A regra fica em `rotaExiste`, que usa as mesmas consultas das páginas.
+ *
+ * `semCache`: o Proxy não cria escopo de "use cache" (doc `use-cache.md`), então lê o
+ * repositório direto. Com o Supabase, isso consulta o banco por requisição até a
+ * história 14 trocar por um índice em memória (U12).
  */
 export async function proxy(request: NextRequest) {
-  if (await rotaExiste(getRepository(), request.nextUrl)) {
+  if (await rotaExiste(getRepository({ semCache: true }), request.nextUrl)) {
     return NextResponse.next();
   }
   return NextResponse.rewrite(new URL(SEM_ROTA, request.url));
