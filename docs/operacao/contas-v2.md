@@ -2,7 +2,7 @@
 
 Plano: `docs/superpowers/plans/2026-11-21-blog-fut-v2.md`, Parte 0. Spec: `docs/superpowers/specs/2026-11-21-blog-fut-v2-supabase-design.md`, U10 e U15.
 
-Este guia leva uns 30 a 40 minutos. Nenhuma senha vai para o chat nem para o git: as chaves ficam no `.env.producao.local`, que está no `.gitignore`, e nos painéis da Vercel e do GitHub.
+Este guia leva uns 30 a 40 minutos. Nenhuma senha vai para o chat nem para o git: as chaves ficam no `.env.prod.local`, que está no `.gitignore`, e nos painéis da Vercel e do GitHub.
 
 ## 1. Supabase (produção, plano gratuito)
 1. Em https://supabase.com, crie um projeto. Sugestão de nome: `blog-fut`. A região mais próxima é São Paulo (`sa-east-1`). Anote a **senha do banco**.
@@ -58,7 +58,9 @@ Também dá para criar pelo terminal, digitando o valor quando o comando pedir:
 GH_TOKEN=$(gh auth token --user oabnerwilliam) gh secret set SUPABASE_ACCESS_TOKEN
 ```
 
-## 5. `.env.producao.local` (na raiz do blog-fut, nunca commitado)
+## 5. `.env.prod.local` (na raiz do blog-fut, nunca commitado)
+**Não use o nome `.env.production.local`.** O Next.js carrega esse arquivo sozinho em todo `next build` e `next start`. Com ele, os builds e os testes locais leriam as chaves de produção. O nome `.env.prod.local` é ignorado pelo Next e só é lido pelos comandos que recebem `--prod`.
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<chave anon>
@@ -76,7 +78,7 @@ REVALIDATE_SECRET=<o mesmo da Vercel>
 2. A sessão, ou você, roda `pnpm admin:promover <seu e-mail> --prod --sim`. A partir daí, você é o primeiro admin e aceita os próximos pedidos em `/admin/acessos`.
 
 ## Checklist rápido para a sessão autônoma conferir (sem imprimir valores)
-- [ ] `.env.producao.local` com as 5 chaves.
+- [ ] `.env.prod.local` com as 5 chaves.
 - [ ] `gh secret list` mostra os 3 secrets.
 - [ ] Projeto Vercel ligado ao repositório, com as variáveis da tabela.
 - [ ] Provedor Google ativo no Supabase.
