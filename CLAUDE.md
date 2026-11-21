@@ -18,7 +18,7 @@ Subagentes não chamam outros subagentes. Quem coordena é sempre o orquestrador
 | 3 | `dev` | Implementa com TDD | código + testes |
 | 4 | `revisor` | Code review + testes dos riscos que faltam + os cinco portões, numa passada | parecer APROVADO / MUDANÇAS |
 | 5 | `homologador` | **Só com UI nova:** sobe o site, navega como leitor e tira screenshots | parecer APROVADO / REPROVADO |
-| 6 | `versionador` | Publica matérias da caixa de entrada (`content/entrada` → PR) | PR `content/<slug>` |
+| 6 | `versionador` | Envia matérias da caixa de entrada ao banco como rascunho (`pnpm materia:enviar`); publica (`pnpm materia:publicar`) só quando o usuário pedir | relatório do envio |
 
 O **orquestrador** roda o git e o gh das histórias: branch, commits, PR, comentários e merge.
 
@@ -51,7 +51,7 @@ pnpm build
 - **Prefixo `_` no lint:** só para parâmetro ou desestruturação exigidos por um contrato e ainda não usados, com comentário apontando a história que vai usá-los. Código que deixou de ser usado é apagado, não renomeado. Veja `docs/adr/0003-prefixo-underscore-no-lint.md`.
 - **Texto do squad é imutável:** o corpo de uma matéria é renderizado exatamente como está no `.md`. Ninguém do squad-blog reescreve conteúdo editorial.
 - **Matérias fictícias** (`ficticio: true`): clubes e jogadores inventados, selo "Exemplo", aviso no topo, `noindex`, fora do sitemap e nunca no destaque da capa enquanto existir uma matéria real.
-- **Caixa de entrada:** o diagramador do squad-fut grava matérias novas em `content/entrada/`, que fica fora do git. Para publicar uma matéria, o versionador cria `content/<slug>` a partir da `main`, move o arquivo para `content/materias/` e abre o PR.
+- **Caixa de entrada:** o diagramador do squad-fut grava matérias novas em `content/entrada/`, que fica fora do git. O versionador roda `pnpm materia:enviar <slug>`, que valida o arquivo, grava a matéria no banco como rascunho e move o arquivo para `content/entrada/enviadas/`. Publicar (`pnpm materia:publicar <slug>`) é decisão do usuário. Matéria não vira mais PR: o `content/materias/` é só fixture de dev e testes. Veja `docs/operacao/materias.md`.
 - Interface em pt-BR. Acessibilidade: contraste AA, foco visível, um único `h1` por página, layout funcionando a partir de 320px sem rolagem horizontal.
 - Repositório **público**: nunca commitar segredos nem `.env*`.
 
@@ -62,4 +62,4 @@ pnpm build
 - Commits no padrão Conventional Commits, em português (`feat: página da matéria`), terminando com `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 - A `main` é protegida: só recebe merge por PR, com squash.
 - Um hook global (git-guard) bloqueia git e gh de escrita fora dos repositórios autorizados. **Se o git-guard bloquear algo, pare e avise o usuário. Nunca tente contornar.**
-- Git e gh de escrita: só o orquestrador (histórias) e o `versionador` (matérias da caixa de entrada), sempre rodando de dentro do repositório. Os outros agentes podem usar `git status`, `git diff` e `git log` para ler.
+- Git e gh de escrita: só o orquestrador, sempre rodando de dentro do repositório. Os outros agentes podem usar `git status`, `git diff` e `git log` para ler.
