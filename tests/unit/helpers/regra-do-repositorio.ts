@@ -24,6 +24,14 @@ export function encontrarImportsDeFs(codigo: string): string[] {
   return linhasQueCasam(codigo, IMPORT_DE_FS);
 }
 
+/** `from "@supabase/supabase-js"`, `import("@supabase/ssr")`, `require("@supabase/...")`. */
+const IMPORT_DO_SUPABASE =
+  /(?:\bfrom\s*|\bimport\s*\(?\s*|\brequire\s*\(\s*)(["'`])@supabase\/[^"'`]+\1/;
+
+export function encontrarImportsDoSupabase(codigo: string): string[] {
+  return linhasQueCasam(codigo, IMPORT_DO_SUPABASE);
+}
+
 export function encontrarCaminhosParaContent(codigo: string): string[] {
   return linhasQueCasam(codigo, CAMINHO_PARA_CONTENT);
 }

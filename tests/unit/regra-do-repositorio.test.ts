@@ -5,6 +5,7 @@ import { SLUGS_DE_EDITORIA } from "@/lib/editorias";
 import {
   encontrarCaminhosParaContent,
   encontrarImportsDeFs,
+  encontrarImportsDoSupabase,
   encontrarLiterais,
   listarCodigo,
 } from "./helpers/regra-do-repositorio";
@@ -12,6 +13,14 @@ import {
 const RAIZ = path.resolve(__dirname, "../..");
 const SRC = path.join(RAIZ, "src");
 const CAMADA_DE_CONTEUDO = path.join(SRC, "lib", "content");
+const SCRIPTS = path.join(RAIZ, "scripts");
+
+/** Onde o cliente Supabase pode ser importado (plano v2, Restrições globais; história 13). */
+const PODEM_IMPORTAR_O_SUPABASE = [
+  path.join(CAMADA_DE_CONTEUDO, "supabase"),
+  path.join(SRC, "lib", "admin"),
+  path.join(SRC, "lib", "auth"),
+].map((pasta) => pasta + path.sep);
 
 const relativo = (arquivo: string) =>
   path.relative(RAIZ, arquivo).replace(/\\/g, "/");
@@ -86,20 +95,38 @@ describe("regra do repositório", () => {
     );
     expect(encontrarLiterais('const e = "analises";', ["analise"])).toEqual([]);
     expect(encontrarLiterais("// analise", ["analise"])).toEqual([]);
+
+    // supabase: positivos
+    for (const codigo of [
+      'import { createClient } from "@supabase/supabase-js";',
+      "import type { SupabaseClient } from '@supabase/supabase-js';",
+      'const m = await import("@supabase/ssr");',
+      'const s = require("@supabase/supabase-js");',
+    ]) {
+      expect(encontrarImportsDoSupabase(codigo), codigo).toHaveLength(1);
+    }
+    // supabase: negativos
+    for (const codigo of [
+      'import { x } from "./supabase/repository";',
+      'const texto = "@supabase/supabase-js";',
+      'import { getRepository } from "@/lib/content";',
+    ]) {
+      expect(encontrarImportsDoSupabase(codigo), codigo).toEqual([]);
+    }
   });
 
   it("nenhum arquivo fora de src/lib/content importa fs", () => {
     expect(achadosEm(foraDaCamada(), encontrarImportsDeFs)).toEqual([]);
   });
 
-  it("dentro de src/lib/content, só file-repository.ts importa fs", () => {
+  it("dentro de src/lib/content, só disco.ts importa fs", () => {
     const comFs = listarCodigo(CAMADA_DE_CONTEUDO)
       .filter(
         (arquivo) =>
           encontrarImportsDeFs(readFileSync(arquivo, "utf8")).length > 0,
       )
       .map(relativo);
-    expect(comFs).toEqual(["src/lib/content/file-repository.ts"]);
+    expect(comFs).toEqual(["src/lib/content/disco.ts"]);
   });
 
   it("nenhum arquivo fora de src/lib/content monta caminho para content/", () => {
@@ -128,12 +155,32 @@ describe("regra do repositório", () => {
     ).toEqual([]);
   });
 
-  it("nenhum script, teste ou código cita supabase/migrations", () => {
-    const pacote = readFileSync(path.join(RAIZ, "package.json"), "utf8");
-    expect(pacote).not.toMatch(/supabase/i);
+  it("o cliente Supabase só é importado em src/lib/content/supabase, src/lib/admin e src/lib/auth", () => {
+    const fora = listarCodigo(SRC).filter(
+      (arquivo) =>
+        !PODEM_IMPORTAR_O_SUPABASE.some((pasta) => arquivo.startsWith(pasta)),
+    );
+    expect(achadosEm(fora, encontrarImportsDoSupabase)).toEqual([]);
+    // O caso positivo existe: a regra não passa por não achar nada.
+    expect(
+      achadosEm(listarCodigo(CAMADA_DE_CONTEUDO), encontrarImportsDoSupabase),
+    ).not.toEqual([]);
+  });
+
+  it("scripts/ pode usar fs e o cliente Supabase (comandos locais)", () => {
+    const codigo = listarCodigo(SCRIPTS).map((a) => readFileSync(a, "utf8"));
+    expect(codigo.some((c) => encontrarImportsDeFs(c).length > 0)).toBe(true);
+    expect(codigo.some((c) => encontrarImportsDoSupabase(c).length > 0)).toBe(
+      true,
+    );
+  });
+
+  it("a service_role nunca aparece em src/ (só em scripts/)", () => {
     expect(
       achadosEm(listarCodigo(SRC), (codigo) =>
-        /supabase\/migrations/.test(codigo) ? ["cita supabase/migrations"] : [],
+        /SERVICE_ROLE|service_role|serviceRole/.test(codigo)
+          ? ["cita a service_role"]
+          : [],
       ),
     ).toEqual([]);
   });
