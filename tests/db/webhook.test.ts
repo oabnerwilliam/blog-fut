@@ -162,6 +162,68 @@ describe("webhook com o Vault configurado", () => {
     ]);
   });
 
+  it("rascunho não avisa; publicar e despublicar avisam (história 15)", async () => {
+    // Tag que já existe: o envio não insere tag nova, então só articles poderia avisar.
+    const tag = await servico
+      .from("tags")
+      .upsert({ slug: "tag-do-rascunho", rotulo: "Tag do Rascunho" });
+    expect(tag.error).toBeNull();
+    await esperarAvisos(1);
+
+    const envio = await servico.rpc("enviar_materia_do_squad", {
+      dados: {
+        slug: "rascunho-do-webhook",
+        titulo: "Rascunho do webhook",
+        titulo_seo: null,
+        linha_fina: "Linha fina",
+        editoria: "noticia",
+        tags: ["tag-do-rascunho"],
+        meta_description: null,
+        palavras_chave: [],
+        publicado_em: "2026-11-21",
+        autor: "Squad Fut",
+        ficticio: true,
+        origem: null,
+        corpo_md: "Texto.\n",
+        rotulos: { "tag-do-rascunho": "Tag do Rascunho" },
+      },
+    });
+    expect(envio.error).toBeNull();
+    const id = envio.data as string;
+    expect(await esperarAvisos(1, 1_500)).toEqual([]);
+
+    // editar o rascunho também não avisa
+    const edicao = await servico
+      .from("articles")
+      .update({ titulo: "Rascunho editado" })
+      .eq("id", id);
+    expect(edicao.error).toBeNull();
+    expect(await esperarAvisos(1, 1_500)).toEqual([]);
+
+    const publicar = await servico.rpc("publicar_revisao", {
+      p_article_id: id,
+    });
+    expect(publicar.error).toBeNull();
+    expect((await esperarAvisos(1)).map((a) => a.corpo)).toEqual([
+      { tabela: "articles", slug: "rascunho-do-webhook" },
+    ]);
+
+    const despublicar = await servico
+      .from("articles")
+      .update({ status: "rascunho" })
+      .eq("id", id);
+    expect(despublicar.error).toBeNull();
+    expect((await esperarAvisos(1)).map((a) => a.corpo)).toEqual([
+      { tabela: "articles", slug: "rascunho-do-webhook" },
+    ]);
+
+    // apagar um rascunho (só o old conta, e ele não era público) não avisa
+    await servico.from("article_revisions").delete().eq("article_id", id);
+    const apagar = await servico.from("articles").delete().eq("id", id);
+    expect(apagar.error).toBeNull();
+    expect(await esperarAvisos(1, 1_500)).toEqual([]);
+  });
+
   it("update que não muda nada não avisa", async () => {
     const { error } = await servico
       .from("tags")
