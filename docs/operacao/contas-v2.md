@@ -13,7 +13,7 @@ Este guia leva uns 30 a 40 minutos. Nenhuma senha vai para o chat nem para o git
 3. Em **Project Settings → General**, anote o **Reference ID** (`project-ref`).
 4. Em **Account → Access Tokens**, crie um token chamado `blog-fut-ci` e anote-o. Ele é usado pelo GitHub Actions para aplicar as migrações.
 5. Em **Authentication → Providers**, deixe tudo desligado por enquanto, inclusive o e-mail. O Google é ligado no passo 3.
-6. Em **Database → Extensions**, você não precisa fazer nada: as migrações ligam `unaccent` e `pg_net`.
+6. Em **Database → Extensions**, você não precisa fazer nada: as migrações ligam o que for preciso (`pg_net` na história 14; a busca não usa `unaccent`, ver ADR 0008).
 
 ## 2. Vercel
 1. Em https://vercel.com, faça **Add New → Project** e importe `oabnerwilliam/blog-fut`, mantendo o framework Next.js. O primeiro deploy pode falhar por falta de variáveis, e tudo bem.
