@@ -29,16 +29,16 @@ Production: `SITE_URL`, `CONTENT_SOURCE=supabase`, `MOSTRAR_EXEMPLOS`, `NEXT_PUB
 - `/api/revalidar` e `/api/manter-ativo` respondem 401 sem segredo (testes de unidade).
 
 ## Resultado
-_O orquestrador preenche depois do merge, num PR `docs/`._
+Preenchido pelo orquestrador em 2026-11-21, depois do merge do PR #17. Produção: `https://blog-fut-tau.vercel.app`.
 
 | Passo | Resultado |
 |---|---|
-| 1. Migrações pelo CI | pendente |
-| 2. `db:vault --prod --sim` | pendente |
-| 3. `db:importar --prod --sim` | pendente |
-| 4. `SITE_URL/` com 9 matérias | pendente |
-| 5. `normalizar_busca` na produção | pendente |
-| 6. Cron na Vercel | pendente |
+| 1. Migrações pelo CI | ✅ O `migracoes.yml` rodou verde e aplicou `20261121180000_articles.sql` e `20261121190000_webhook_revalidar.sql`. |
+| 2. `db:vault --prod --sim` | ✅ Gravou `url_revalidar = https://blog-fut-tau.vercel.app/api/revalidar` e o segredo, sem exibir o valor. O segredo do `.env.prod.local` é igual ao da Vercel: um `POST /api/revalidar` com ele respondeu 200, e sem ele, 401. |
+| 3. `db:importar --prod --sim` | ✅ 9 matérias inseridas, mais as tags. |
+| 4. `SITE_URL/` com 9 matérias | ✅ A capa mostra links para as 9 matérias. O deploy do merge foi gerado com o banco vazio, e a importação o atualizou pelo webhook, sem novo deploy. Responderam 200: `/`, a matéria do PSG, `/editorias/analise`, `/tags/psg`, `/busca?q=sao ciriaco` e `/sitemap.xml`. `/materias/nao-existe` responde 404. |
+| 5. `normalizar_busca` na produção | ✅ `'ÇÉDILHA ß Æ Ø Đ Ł São Ciríaco'` virou `cedilha ß æ ø đ ł sao ciriaco`, igual ao `normalizarParaBusca` do JS. |
+| 6. Cron na Vercel | ✅ `vercel crons ls` mostra `/api/manter-ativo` com `0 9 * * *`. A rota responde 401 sem o `CRON_SECRET`. |
 
 ## Pendências conhecidas
 - O índice de rotas do Proxy é por instância. Na Vercel, cada função aquecida tem o seu, e o prazo de 60 s para uma matéria nova sair do 404 vale para cada uma.
