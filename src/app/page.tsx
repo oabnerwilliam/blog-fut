@@ -7,7 +7,8 @@ import { montarCapa } from "@/lib/capa";
 import { getRepository } from "@/lib/content";
 
 /**
- * Capa (mockup variacao-2/capa.html). Estática: o conteúdo só muda a cada build.
+ * Capa (mockup variacao-2/capa.html). Estática: com `files`, muda a cada build; com o
+ * Supabase, as leituras ficam em cache e o webhook do banco as invalida (história 14).
  * O h1 é visualmente oculto; cada seção tem seu h2, e o título do destaque é o h2 dele.
  */
 export default async function Capa() {

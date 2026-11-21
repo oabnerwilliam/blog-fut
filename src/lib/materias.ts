@@ -23,11 +23,32 @@ export async function listarTodosOsSlugs(
  */
 export const SLUG_DE_RESERVA = "nenhuma-materia-publicada";
 
+/**
+ * Slugs para o `generateStaticParams`, com a reserva quando não há nenhum. Se o
+ * repositório lançar (banco fora do ar ou pausado, U11), registra o erro e usa a reserva:
+ * o build não quebra, e as rotas reais renderizam sob demanda quando o banco voltar.
+ */
+export async function slugsOuReserva(
+  rota: string,
+  carregar: () => Promise<readonly string[]>,
+): Promise<string[]> {
+  try {
+    const slugs = await carregar();
+    return slugs.length > 0 ? [...slugs] : [SLUG_DE_RESERVA];
+  } catch (erro) {
+    console.error(
+      `[generateStaticParams] ${rota}: o repositório falhou; usando o slug de reserva.`,
+      erro,
+    );
+    return [SLUG_DE_RESERVA];
+  }
+}
+
 export async function paramsDasMaterias(
   repositorio: ArticleRepository,
 ): Promise<{ slug: string }[]> {
-  const slugs = await listarTodosOsSlugs(repositorio);
-  return (slugs.length > 0 ? slugs : [SLUG_DE_RESERVA]).map((slug) => ({
-    slug,
-  }));
+  const slugs = await slugsOuReserva("/materias/[slug]", () =>
+    listarTodosOsSlugs(repositorio),
+  );
+  return slugs.map((slug) => ({ slug }));
 }
