@@ -35,6 +35,8 @@ describe("@/lib/content", () => {
     expect(typeof renderMarkdown).toBe("function");
     expect(typeof readingTime).toBe("function");
     expect(Object.keys(conteudo).sort()).toEqual([
+      "TAMANHO_PADRAO_DA_PAGINA",
+      "cutucarBanco",
       "getRepository",
       "readingTime",
       "renderMarkdown",

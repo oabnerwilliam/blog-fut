@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { rotaExiste } from "@/lib/rotas";
+import { criarIndiceDeRotas, rotaExiste } from "@/lib/rotas";
 import { artigo, repositorioEmMemoria } from "./helpers/repositorio-em-memoria";
 
 /**
- * Regra de 404 do Proxy (ADR 0006, extensão da história 05). O Proxy só chama esta
- * função; o teste usa um repositório em memória sem nenhuma entrevista.
+ * Regra de 404 do Proxy (ADR 0006, extensões das histórias 05 e 14). O Proxy só chama
+ * esta função, com o índice em memória; o teste usa um repositório em memória sem
+ * nenhuma entrevista. Os casos são os da história 05: o índice não muda o resultado.
  */
 const TACA = { slug: "taca-das-serras", rotulo: "Taça das Serras" };
 const repositorio = repositorioEmMemoria([
@@ -12,8 +13,10 @@ const repositorio = repositorioEmMemoria([
   artigo("cronica-b", "2026-10-18", "cronica"),
 ]);
 
+const indice = criarIndiceDeRotas({ repositorio: () => repositorio });
+
 const existe = (caminho: string) =>
-  rotaExiste(repositorio, new URL(caminho, "http://localhost"));
+  rotaExiste(indice, new URL(caminho, "http://localhost"));
 
 describe("rotaExiste", () => {
   it.each([
