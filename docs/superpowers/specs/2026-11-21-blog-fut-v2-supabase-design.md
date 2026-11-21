@@ -52,7 +52,7 @@ O motivo não é publicar mais rápido. É ter uma base onde três origens de ma
 | U12 | 404 real com o banco: o proxy usa a função de leitura com `"use cache"`, se a doc do Next 16 permitir cache no proxy. Se não permitir, um índice em memória com TTL de 60 s. Uma matéria recém-publicada pode dar 404 por até 1 minuto. |
 | U13 | Webhook de invalidação **numa migração** (`pg_net` + trigger). A URL e o segredo ficam no **Vault** do Supabase, configurados uma vez por ambiente, e o webhook é testável no Supabase local. |
 | U14 | Previews da Vercel: `CONTENT_SOURCE=files`, com o **`/admin` desligado**, que responde 404. O admin é testado no Supabase local e no CI. |
-| U15 | **O usuário cria as contas antes** da sessão autônoma (Supabase, Vercel, Google Cloud OAuth, secrets do GitHub e `.env.producao.local`), seguindo `docs/operacao/contas-v2.md`. A sessão conecta e põe no ar. Se uma configuração estiver faltando ou errada, ela **não para tudo**: registra o problema, segue com o que é local e deixa o passo pendente no relatório final. |
+| U15 | **O usuário cria as contas antes** da sessão autônoma (Supabase, Vercel, Google Cloud OAuth, secrets do GitHub e `.env.prod.local`), seguindo `docs/operacao/contas-v2.md`. A sessão conecta e põe no ar. Se uma configuração estiver faltando ou errada, ela **não para tudo**: registra o problema, segue com o que é local e deixa o passo pendente no relatório final. |
 | O1 | *(Orquestrador.)* Editor (F): `textarea` de markdown + prévia renderizada pelo mesmo pipeline sanitizado, sem lib de editor. |
 | O2 | *(Orquestrador.)* As telas do `/admin` seguem a identidade visual da v1. O designer faz os mockups (D, E, F) e eles não voltam para aprovação do usuário. |
 
@@ -101,7 +101,7 @@ Um trigger em `auth.users` cria o perfil `pendente` no primeiro login.
 - **Admin:** a função `public.eh_admin()` (`security definer`, `stable`) verdadeira se o perfil do `auth.uid()` está `aprovado`. Admin lê e grava `articles`, insere em `article_revisions`, lê `perfis` e decide solicitações.
 - **Quem não é admin** (pendente, recusado, revogado) lê só o próprio perfil e não grava nada.
 - **Restrições:** um admin não pode alterar o próprio `status`, para o painel nunca ficar sem dono. O primeiro admin é promovido por um comando com `service_role` (`pnpm admin:promover <email>`), porque sem ele ninguém aceita o primeiro pedido.
-- **Os comandos locais** (`materia:*`, `admin:promover`, importação) apontam por padrão para o **Supabase local**, configurado no `.env.local`. Para mirar a produção, é preciso um `.env.producao.local` separado **e** a flag `--prod`, que mostra o projeto de destino e pede confirmação. Assim, um `pnpm dev` ou um teste nunca escreve na produção. *(Decisão do orquestrador.)*
+- **Os comandos locais** (`materia:*`, `admin:promover`, importação) apontam por padrão para o **Supabase local**, configurado no `.env.local`. Para mirar a produção, é preciso um `.env.prod.local` separado **e** a flag `--prod`, que mostra o projeto de destino e pede confirmação. Assim, um `pnpm dev` ou um teste nunca escreve na produção. *(Decisão do orquestrador.)*
 - **`service_role`** só existe em comandos locais (`scripts/`) e em rotas de servidor que precisem dela. Nunca vai para componente cliente nem para variável `NEXT_PUBLIC_*`.
 - **Testes de RLS:** cada regra tem um teste no Supabase local, com usuários `anon`, pendente, aprovado e recusado.
 
