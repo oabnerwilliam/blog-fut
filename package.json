@@ -11,12 +11,15 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
-    "test:e2e": "playwright test",
-    "test:db": "supabase start && supabase db reset && vitest run --project db",
+    "test:e2e": "playwright test && playwright test -c playwright.sem-banco.config.ts",
+    "test:e2e:sem-banco": "playwright test -c playwright.sem-banco.config.ts",
+    "test:e2e:db": "playwright test -c playwright.db.config.ts",
+    "test:db": "supabase start && supabase db reset && vitest run --project db && playwright test -c playwright.db.config.ts",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:importar": "tsx scripts/importar-conteudo.ts",
+    "db:vault": "tsx scripts/configurar-vault.ts",
     "format": "prettier --write ."
   },
   "dependencies": {

@@ -4,6 +4,13 @@ const PORT = 3100;
 
 export default defineConfig({
   testDir: "tests/e2e",
+  /*
+   * As referências visuais da v1 (`visual.spec.ts-snapshots/`) só existem para win32: a
+   * renderização de fontes muda entre sistemas. No CI (ubuntu-latest), o visual.spec é
+   * pulado, e as referências continuam conferidas nos portões locais (decisão do
+   * orquestrador na história 14; ADR 0008, §8).
+   */
+  testIgnore: process.env.CI ? ["**/visual.spec.ts"] : [],
   outputDir: "test-results/e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
