@@ -81,7 +81,7 @@ test("os links de Editorias têm a contagem por extenso no nome acessível", asy
     editorias.getByRole("link", { name: /^Crônica 2 matérias$/ }),
   ).toHaveAttribute("href", "/editorias/cronica");
   await expect(
-    editorias.getByRole("link", { name: /^Análise 1 matéria$/ }),
+    editorias.getByRole("link", { name: /^Análise 2 matérias$/ }),
   ).toHaveAttribute("href", "/editorias/analise");
 });
 
