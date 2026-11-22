@@ -611,3 +611,59 @@ describe("lista do painel", () => {
     ).toMatchObject({ ok: false, erro: "filtros_invalidos" });
   });
 });
+
+describe("salvar_revisao chamada direto pelo admin (o banco valida, sem o zod)", () => {
+  it("tipos errados, tags vazias e campo obrigatório faltando: erro e o banco igual", async () => {
+    const antes = await fotoDoBanco();
+    const base = campos();
+    for (const [caso, payload] of [
+      ["tags como texto", { ...base, tags: "psg" }],
+      ["tags vazias", { ...base, tags: [] }],
+      ["palavras_chave como texto", { ...base, palavras_chave: "psg" }],
+      ["ficticio como texto", { ...base, ficticio: "false" }],
+      ["sem ficticio", { ...base, ficticio: undefined }],
+      ["sem título", { ...base, titulo: undefined }],
+      ["sem corpo", { ...base, corpo_md: undefined }],
+    ] as const) {
+      const { error } = await admin.cliente.rpc("salvar_revisao", {
+        p_article_id: id,
+        campos: payload,
+      });
+      expect(error, caso).not.toBeNull();
+    }
+    expect(await fotoDoBanco()).toEqual(antes);
+  });
+
+  it("chaves a mais não forjam a origem, o autor, o número nem a data da revisão", async () => {
+    const { data, error } = await admin.cliente.rpc("salvar_revisao", {
+      p_article_id: id,
+      campos: {
+        ...campos({ titulo: "Com chaves a mais" }),
+        numero: 1,
+        origem_da_revisao: "squad",
+        autor_id: pendente.id,
+        publicado_em: "1999-01-01",
+        slug: "outro-slug",
+        status: "publicado",
+      },
+    });
+    expect(error).toBeNull();
+    expect(data).toBe(2);
+    const [primeira, nova] = await revisoes();
+    expect(primeira.titulo).toBe(DO_SQUAD.titulo);
+    expect(nova).toMatchObject({
+      numero: 2,
+      origem_da_revisao: "painel",
+      autor_id: admin.id,
+      publicado_em: DO_SQUAD.publicado_em,
+      titulo: "Com chaves a mais",
+    });
+    const linha = await artigo();
+    expect(linha).toMatchObject({
+      slug: SLUG,
+      titulo: DO_SQUAD.titulo,
+      revisao_publicada: 1,
+      revisao_em_edicao: 2,
+    });
+  });
+});
