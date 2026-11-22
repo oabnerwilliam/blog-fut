@@ -9,6 +9,8 @@ const CAMINHOS = [
   "/admin",
   "/admin/entrar",
   "/admin/acessos",
+  "/admin/materias",
+  "/admin/materias/00000000-0000-4000-8000-000000000001/historico",
   "/admin/auth/callback?code=qualquer",
 ];
 
