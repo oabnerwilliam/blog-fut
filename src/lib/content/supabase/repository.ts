@@ -12,6 +12,7 @@ import type {
   Article,
   ArticleSummary,
   EditoriaRef,
+  FonteDaMateria,
   Paginated,
   TagRef,
   Taxonomy,
@@ -33,6 +34,7 @@ interface LinhaResumo {
   readonly publicado_em: string;
   readonly autor: string;
   readonly ficticio: boolean;
+  readonly fonte: FonteDaMateria;
   readonly corpo_md: string;
 }
 
@@ -44,7 +46,7 @@ interface LinhaArtigo extends LinhaResumo {
 }
 
 const COLUNAS_RESUMO =
-  "slug,titulo,linha_fina,editoria,tags,publicado_em,autor,ficticio,corpo_md";
+  "slug,titulo,linha_fina,editoria,tags,publicado_em,autor,ficticio,fonte,corpo_md";
 const COLUNAS_ARTIGO = `${COLUNAS_RESUMO},titulo_seo,meta_description,palavras_chave,origem`;
 
 /** PostgREST: o `range` pedido começa depois da última linha (página além da última). */
@@ -86,6 +88,7 @@ function paraResumo(linha: LinhaResumo, rotulos: Rotulos): ArticleSummary {
     publicado_em: linha.publicado_em,
     autor: linha.autor,
     ficticio: linha.ficticio,
+    fonte: linha.fonte,
     tempo_de_leitura: readingTime(linha.corpo_md),
   };
 }

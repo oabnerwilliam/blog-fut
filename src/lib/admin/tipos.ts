@@ -5,11 +5,17 @@
  * as listas. Quem grava valida de novo no servidor (`materias.ts`), sempre.
  */
 import { z } from "zod";
-import { frontmatterSchema } from "@/lib/content/schema";
+import { frontmatterSchema, SLUG_REGEX } from "@/lib/content/schema";
+import type { FonteDaMateria } from "@/lib/content/types";
 import { SLUGS_DE_EDITORIA, type Editoria } from "@/lib/editorias";
+import { TAMANHO_MAXIMO_DO_SLUG } from "./slug";
 
 /** De onde a matéria veio: o squad-fut, o painel (história 18) ou a importação da v1. */
-export const FONTES = ["squad", "painel", "importacao"] as const;
+export const FONTES = [
+  "squad",
+  "painel",
+  "importacao",
+] as const satisfies readonly FonteDaMateria[];
 export type Fonte = (typeof FONTES)[number];
 
 export const STATUS_DA_MATERIA = ["rascunho", "publicado"] as const;
@@ -106,6 +112,75 @@ export type NomeDoCampo = keyof CamposEditoriais;
 /** A primeira mensagem de erro de cada campo inválido. */
 export type ErrosDosCampos = Readonly<Partial<Record<NomeDoCampo, string>>>;
 
+// ---------------------------------------------------------------------------
+// Criação (história 18)
+// ---------------------------------------------------------------------------
+
+const { titulo, ...depoisDoTitulo } = camposEditoriaisSchema.shape;
+
+/**
+ * O slug de uma matéria nova: escolhido só na criação (sugerido por `gerarSlug` e
+ * editável) e nunca mais muda. Mesmas regras do frontmatter (`SLUG_REGEX`), com o teto de
+ * 80 caracteres do `gerarSlug`. O vazio (título só com pontuação, por exemplo) tem uma
+ * mensagem própria e para por aí (`abort`), sem a mensagem do kebab-case junto.
+ */
+const slugDaCriacao = z
+  .string({
+    error: (issue) =>
+      issue.input === undefined
+        ? "obrigatório e ausente"
+        : "o slug precisa ser um texto",
+  })
+  .refine((s) => s !== "", {
+    error:
+      "não pode ficar vazio; escreva o endereço da matéria com letras ou números",
+    abort: true,
+  })
+  .refine((s) => s.length <= TAMANHO_MAXIMO_DO_SLUG, {
+    error: `passa de ${TAMANHO_MAXIMO_DO_SLUG} caracteres`,
+    abort: true,
+  })
+  .regex(SLUG_REGEX, {
+    error:
+      "precisa estar em kebab-case minúsculo (a-z, 0-9 e -, sem acento, sem hífen no começo, no fim ou repetido)",
+  });
+
+/**
+ * Os campos de "Criar rascunho": os editoriais da 17 mais o `slug`, logo depois do título
+ * (a ordem do formulário). Continua estrito: `fonte`, `origem`, `status` e
+ * `publicado_em` quem decide é o banco (`criar_materia`, migração `_criar_materia.sql`).
+ */
+export const camposDaCriacaoSchema = z.strictObject(
+  { titulo, slug: slugDaCriacao, ...depoisDoTitulo },
+  { error: "os campos precisam ser um objeto" },
+);
+
+export type CamposDaCriacaoDeEntrada = z.input<typeof camposDaCriacaoSchema>;
+export type CamposDaCriacao = z.output<typeof camposDaCriacaoSchema>;
+export type NomeDoCampoDaCriacao = keyof CamposDaCriacao;
+
+/** Os nomes dos campos da criação, na ordem do formulário. */
+export const NOMES_DOS_CAMPOS_DA_CRIACAO = Object.keys(
+  camposDaCriacaoSchema.shape,
+) as readonly NomeDoCampoDaCriacao[];
+
+/** Os erros por campo da criação: os da edição mais o `slug`. */
+export type ErrosDaCriacao = Readonly<
+  Partial<Record<NomeDoCampoDaCriacao, string>>
+>;
+
+/** O formato de `public.criar_materia(campos jsonb)`. */
+export interface CamposDaMateriaNova extends CamposDaRevisao {
+  readonly slug: string;
+}
+
+export function paraCamposDaCriacao(
+  campos: CamposDaCriacao,
+): CamposDaMateriaNova {
+  const { slug, ...editoriais } = campos;
+  return { slug, ...paraCamposDaRevisao(editoriais) };
+}
+
 /** Filtros da lista `/admin/materias`. Cada um é opcional; vazio é "todos". */
 export const filtrosDoPainelSchema = z.strictObject({
   status: z.enum(STATUS_DA_MATERIA).optional(),
@@ -150,6 +225,7 @@ export type ErroDoPainel =
   | "revisao_inexistente"
   | "revisao_concorrente"
   | "origem_obrigatoria"
+  | "slug_ja_existe"
   | "falha";
 
 export type Recusa = {
@@ -158,8 +234,11 @@ export type Recusa = {
   readonly mensagem: string;
   /** Só em `campos_invalidos`: um problema por linha, como o validador do squad. */
   readonly problemas?: readonly string[];
-  /** Só em `campos_invalidos`: a mensagem de cada campo, para marcar o formulário. */
-  readonly errosDosCampos?: ErrosDosCampos;
+  /**
+   * Em `campos_invalidos` (e no `slug_ja_existe` da criação): a mensagem de cada campo,
+   * para marcar o formulário. Na edição, nunca vem o `slug`.
+   */
+  readonly errosDosCampos?: ErrosDaCriacao;
 };
 
 /** `{ ok: true, ...dados }` ou `{ ok: false, erro, mensagem }`. */

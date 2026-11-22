@@ -76,6 +76,7 @@ export function paraResumo(artigo: Article): ArticleSummary {
     publicado_em: artigo.publicado_em,
     autor: artigo.autor,
     ficticio: artigo.ficticio,
+    fonte: artigo.fonte,
     tempo_de_leitura: artigo.tempo_de_leitura,
   });
 }

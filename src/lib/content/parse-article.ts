@@ -81,6 +81,10 @@ export function parseArticleFile(
     meta_description: fm.meta_description ?? null,
     palavras_chave: Object.freeze([...(fm.palavras_chave ?? [])]),
     origem: fm.origem ? fm.origem : null,
+    // O arquivo não diz a fonte: matéria com origem veio do squad; sem origem (as
+    // fictícias), da importação da v1. A mesma regra da importação para o banco
+    // (scripts/lib/importacao.ts, fonteDoArtigo), e a suíte de contrato confere.
+    fonte: fm.origem ? "squad" : "importacao",
     corpo_md: corpo,
   });
 

@@ -4,12 +4,15 @@ import type { z } from "zod";
 import type { Editoria } from "@/lib/editorias";
 import { nomeParaExibir } from "./formatos";
 import {
+  camposDaCriacaoSchema,
   camposEditoriaisSchema,
   filtrosDoPainelSchema,
   NOMES_DOS_CAMPOS,
+  NOMES_DOS_CAMPOS_DA_CRIACAO,
+  paraCamposDaCriacao,
   paraCamposDaRevisao,
-  type ErrosDosCampos,
-  type NomeDoCampo,
+  type ErrosDaCriacao,
+  type NomeDoCampoDaCriacao,
   type CamposDaRevisao,
   type ErroDoPainel,
   type Fonte,
@@ -48,6 +51,8 @@ const MENSAGENS: Record<ErroDoPainel, string> = {
     "Outra revisão desta matéria foi salva ao mesmo tempo. Recarregue e salve de novo.",
   origem_obrigatoria:
     "Uma matéria do squad sem origem precisa continuar marcada como fictícia.",
+  // A criação troca pela frase com o slug (inserirMateria).
+  slug_ja_existe: "Já existe uma matéria com esse slug.",
   falha: "Não foi possível gravar. Tente de novo em instantes.",
 };
 
@@ -98,18 +103,22 @@ export function problemasDosCampos(erro: z.ZodError): string[] {
 /**
  * A primeira mensagem de cada campo, para a tela marcar o campo (`aria-invalid`) e
  * mostrar a frase embaixo dele. `tags[2]` conta como `tags`. Campo desconhecido não entra:
- * ele não existe no formulário (fica só em `problemas`).
+ * ele não existe no formulário (fica só em `problemas`). `nomes` são os campos do
+ * formulário: os da edição (padrão) ou os da criação, que têm o `slug`.
  */
-export function errosPorCampo(erro: z.ZodError): ErrosDosCampos {
-  const erros: Partial<Record<NomeDoCampo, string>> = {};
+export function errosPorCampo(
+  erro: z.ZodError,
+  nomes: readonly NomeDoCampoDaCriacao[] = NOMES_DOS_CAMPOS,
+): ErrosDaCriacao {
+  const erros: Partial<Record<NomeDoCampoDaCriacao, string>> = {};
   for (const issue of erro.issues) {
     const campo = issue.path[0];
     if (
       typeof campo === "string" &&
-      (NOMES_DOS_CAMPOS as readonly string[]).includes(campo) &&
+      (nomes as readonly string[]).includes(campo) &&
       !(campo in erros)
     ) {
-      erros[campo as NomeDoCampo] = issue.message;
+      erros[campo as NomeDoCampoDaCriacao] = issue.message;
     }
   }
   return erros;
@@ -245,6 +254,45 @@ export async function gravarRevisao(
   });
   if (error) return recusaDoBanco("salvar a revisão", error);
   return { ok: true, numero: data as number };
+}
+
+/**
+ * Cria a matéria do editor (história 18): rascunho com `fonte = 'painel'` e a revisão 1
+ * assinada por quem está logado (`criar_materia`, migração `_criar_materia.sql`). Os
+ * campos vêm da tela: validados aqui, pelo mesmo zod da edição mais o slug.
+ *
+ * Slug repetido volta como `slug_ja_existe`, com a frase que cita o slug, também no campo
+ * `slug` (a tela marca o campo e põe o foco no bloco de erro).
+ */
+export async function inserirMateria(
+  cliente: SupabaseClient,
+  campos: unknown,
+): Promise<ResultadoDoPainel<{ id: string; slug: string }>> {
+  const validados = camposDaCriacaoSchema.safeParse(campos);
+  if (!validados.success) {
+    return recusa("campos_invalidos", {
+      problemas: problemasDosCampos(validados.error),
+      errosDosCampos: errosPorCampo(
+        validados.error,
+        NOMES_DOS_CAMPOS_DA_CRIACAO,
+      ),
+    });
+  }
+  const dados = paraCamposDaCriacao(validados.data);
+  const { data, error } = await cliente.rpc("criar_materia", { campos: dados });
+  if (error) {
+    if (error.hint === "slug_ja_existe") {
+      const mensagem = `Já existe uma matéria com o slug ${dados.slug}.`;
+      return {
+        ok: false,
+        erro: "slug_ja_existe",
+        mensagem,
+        errosDosCampos: { slug: mensagem },
+      };
+    }
+    return recusaDoBanco("criar a matéria", error);
+  }
+  return { ok: true, id: data as string, slug: dados.slug };
 }
 
 /** O slug da matéria (para as etiquetas do cache), ou `null` se ela não existe. */

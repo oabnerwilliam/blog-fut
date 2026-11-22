@@ -85,6 +85,33 @@ describe("jsonLdDaMateria", () => {
       expect(j["@type"]).toBe("Article");
     }
   });
+
+  it("matéria criada no painel: o autor vira Person com o nome dela (história 18)", () => {
+    const j = jsonLdDaMateria(
+      montarArtigo({ fonte: "painel", origem: null, autor: "Marina Duarte" }),
+      BASE,
+    );
+    expect(j.author).toEqual({ "@type": "Person", name: "Marina Duarte" });
+    // Quem publica continua sendo o portal.
+    expect(j.publisher).toEqual({
+      "@type": "Organization",
+      name: NOME_DO_PORTAL,
+    });
+  });
+
+  it.each(["squad", "importacao"] as const)(
+    "fonte %s: o autor continua Organization, mesmo com outro nome em autor",
+    (fonte) => {
+      const j = jsonLdDaMateria(
+        montarArtigo({ fonte, autor: "Marina Duarte" }),
+        BASE,
+      );
+      expect(j.author).toEqual({
+        "@type": "Organization",
+        name: NOME_DO_PORTAL,
+      });
+    },
+  );
 });
 
 describe("serializarJsonLd", () => {
