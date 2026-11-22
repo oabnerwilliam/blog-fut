@@ -22,6 +22,12 @@ Subagentes não chamam outros subagentes. Quem coordena é sempre o orquestrador
 
 O **orquestrador** roda o git e o gh das histórias: branch, commits, PR, comentários e merge.
 
+## Histórias e tarefas
+
+- **Histórias** são as funcionalidades maiores, em `docs/backlog/NN-slug.md`.
+- **Tarefas** são os itens menores (ajuste, bug, melhoria pontual, de 3 a 6 critérios), em `docs/tarefas/TNN-slug.md`, na ordem de [`docs/tarefas/FILA.md`](docs/tarefas/FILA.md). A branch é `feat/TNN-slug`, `fix/TNN-slug` ou `chore/TNN-slug`.
+- As duas seguem o mesmo fluxo abaixo. O usuário escolhe a próxima.
+
 ## Fluxo de cada história
 
 1. **Planejador** escreve `docs/backlog/NN-slug.md` com critérios e notas técnicas. Dúvidas do usuário → o orquestrador pergunta com opções.
