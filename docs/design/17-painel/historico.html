@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Histórico · Zona Mista Admin (mockup história 17)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script>
+  /*
+   * 1) O que já existe no app (SCRIPT_DO_TEMA, história 07): lê localStorage["tema"] e marca data-js.
+   * 2) Só do mockup: ?theme=sistema|light|dark força o tema; ?estado=... escolhe o estado da tela;
+   *    ?shot esconde a barra de ferramentas do mockup.
+   */
+  (function () {
+    var q = new URLSearchParams(location.search), h = document.documentElement, t = q.get('theme');
+    if (t !== 'sistema' && t !== 'light' && t !== 'dark') { try { t = localStorage.getItem('tema'); } catch (e) { t = null; } }
+    if (t === 'light' || t === 'dark') h.setAttribute('data-theme', t);
+    if (q.get('estado')) h.setAttribute('data-estado', q.get('estado'));
+    if (q.has('shot')) h.classList.add('shot');
+    h.setAttribute('data-js', '');
+  })();
+</script>
+<style>
+/* ===== Tokens (cópia de docs/design/tokens.md §1, §3, §4). Nenhum token novo (história 17 também não cria). ===== */
+  :root {
+    --color-bg: #EFEEE9; --color-ink: #16181D; --color-ink-muted: #585B63; --color-rule: #C9C7BF;
+    --color-rule-strong: #16181D; --color-accent: #2638C9; --color-amber: #FFB000;
+    --color-night: #0E1120; --color-night-ink: #ECEBE5; --color-night-ink-muted: #A3A7B6; --color-night-rule: #2C3148;
+    --color-badge-bg: #FFB000; --color-badge-ink: #16181D; --color-focus: #2638C9; --color-focus-night: #FFB000;
+    --font-display: "Instrument Serif", "Times New Roman", Georgia, serif;
+    --font-text: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --text-label: .6875rem;
+    --text-nav: .9375rem;
+    --text-body: clamp(1.0625rem, 1rem + .25vw, 1.15rem);
+    --text-dek: clamp(1.0625rem, 1rem + .4vw, 1.3125rem);
+    --text-row-title: clamp(1.45rem, 1.25rem + .7vw, 1.9rem);
+    --text-section: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+    --text-feature: clamp(2.1rem, 1.2rem + 3.2vw, 4rem);
+    --space-section: clamp(2.5rem, 6vw, 4.5rem);
+    --layout-gutter: clamp(1rem, 4vw, 3rem);
+    --layout-max: 84rem;
+    --layout-measure: 66ch;
+    --rule-width: 1px; --rule-width-strong: 2px;
+    --focus-width: 3px; --focus-offset: 3px;
+    --tap-min: 40px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-bg: #0E1120; --color-ink: #ECEBE5; --color-ink-muted: #A3A7B6; --color-rule: #272B3F;
+      --color-rule-strong: #ECEBE5; --color-accent: #9DAAFF; --color-night: #1A2142; --color-night-rule: #343C63;
+      --color-focus: #9DAAFF; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --color-bg: #0E1120; --color-ink: #ECEBE5; --color-ink-muted: #A3A7B6; --color-rule: #272B3F;
+    --color-rule-strong: #ECEBE5; --color-accent: #9DAAFF; --color-night: #1A2142; --color-night-rule: #343C63;
+    --color-focus: #9DAAFF; color-scheme: dark;
+  }
+  @media (min-width: 64rem) { :root { --text-nav: 1rem; } }
+
+  /* ===== Base do portal (globals.css) ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--color-bg); color: var(--color-ink); font-family: var(--font-text); font-size: 1rem; line-height: 1.5; overflow-wrap: break-word; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, p, ul, ol, dl, dd { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  h1, h2 { font-weight: 400; text-wrap: balance; }
+  :focus-visible { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--focus-offset); }
+  #conteudo:focus { outline: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .skip { position: absolute; left: var(--layout-gutter); top: -200px; z-index: 20; background: var(--color-amber); color: var(--color-badge-ink);
+          font: 600 .8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; padding: .85rem 1rem; }
+  .skip:focus { top: .75rem; outline-color: var(--color-ink); box-shadow: 0 0 0 var(--focus-offset) var(--color-bg); }
+  .wrap { max-width: var(--layout-max); margin-inline: auto; padding-inline: var(--layout-gutter); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero; }
+  .label { font: 500 var(--text-label)/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; font-variant-numeric: tabular-nums slashed-zero; }
+  .link { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: var(--rule-width); text-underline-offset: .2em; }
+  @media (hover: hover) { .link:hover { text-decoration-thickness: var(--rule-width-strong); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+  /* ===== Botão de tema (BotaoDeTema, história 07, sem mudança) ===== */
+  .tema { flex: none; position: relative; display: inline-flex; align-items: center; gap: .5em;
+          min-height: var(--tap-min); min-width: var(--tap-min); margin: -.5rem -.5rem -.5rem auto; padding: 0 .5rem;
+          border: 0; border-radius: 0; background: transparent; color: var(--color-ink-muted);
+          font: 500 var(--text-label)/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; cursor: pointer; }
+  .tema:focus-visible { outline-offset: 0; }
+  .tema__valor { color: var(--color-ink); font-weight: 600; display: inline-grid; justify-items: start; }
+  .tema:hover, .tema:hover .tema__valor { color: var(--color-accent); }
+  .tema:hover .tema__valor { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  .tema__losango { flex: none; width: .62em; height: .62em; margin-inline: .12em; transform: rotate(45deg); border: var(--rule-width) solid currentColor; color: var(--color-ink); }
+  .tema:hover .tema__losango { color: var(--color-accent); }
+  .tema [data-rotulo] { grid-area: 1 / 1; visibility: hidden; }
+  html:not([data-theme]) .tema [data-rotulo="sistema"], html[data-theme="light"] .tema [data-rotulo="light"], html[data-theme="dark"] .tema [data-rotulo="dark"] { visibility: visible; }
+  html:not([data-theme]) .tema__losango { background: linear-gradient(to top right, currentColor 50%, var(--color-bg) 50%); }
+  html[data-theme="dark"] .tema__losango { background: currentColor; }
+  html:not([data-js]) .tema { display: none; }
+
+  /* ===== NOVO: topo do admin (AdminHeader) ===== */
+  .adm-top { padding-top: .9rem; }
+  .adm-linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
+               padding-bottom: .65rem; border-bottom: var(--rule-width) solid var(--color-rule); color: var(--color-ink-muted); }
+  .adm-linha > span { flex: 1 1 9rem; min-width: 0; }
+  /* faixa do nome: filete forte de ponta a ponta embaixo (como a borda de cima da nav pública) */
+  .adm-faixa { border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .adm-main { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; padding-block: .8rem; }
+  .marca { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .3rem .7rem; min-width: 0; }
+  .marca__nome { white-space: nowrap; font: 400 var(--text-section)/.9 var(--font-display); letter-spacing: -.03em; padding-bottom: .06em; }
+  .marca__nome i { margin-left: .08em; letter-spacing: -.04em; }
+  /* Marcador "Admin": texto mono com filete vertical, sem fundo (o único objeto com fundo continua sendo o selo Exemplo). */
+  .marca__admin { font: 600 var(--text-label)/1 var(--font-mono); text-transform: uppercase; letter-spacing: .1em;
+                  padding: .3rem 0 .3rem .7rem; border-left: var(--rule-width) solid var(--color-rule-strong); }
+  a.marca:hover .marca__nome { color: var(--color-accent); }
+  /* Quem está logado: avatar + nome + Sair. Abaixo de 48rem vai para a linha de baixo, Sair à direita. */
+  .quem { flex: 1 1 15rem; display: flex; align-items: center; gap: .65rem; min-width: 0; }
+  .quem__nome { min-width: 0; font: 500 .9375rem/1.25 var(--font-text); }
+  .quem form { margin-left: auto; }
+  @media (min-width: 48rem) { .quem { flex: 0 1 auto; } .quem form { margin-left: .5rem; } }
+  /* Nav do admin (só para aprovado): Painel e Acessos (a 17 acrescenta Matérias). */
+  .adm-nav { border-bottom: var(--rule-width) solid var(--color-rule); }
+  .adm-nav ul { max-width: var(--layout-max); margin: 0 auto; padding: .2rem var(--layout-gutter); display: flex; flex-wrap: wrap; gap: 0 1.5rem; }
+  .adm-nav a { display: inline-flex; align-items: center; min-height: var(--tap-min); font: 500 var(--text-nav)/1 var(--font-text); font-stretch: 92%; }
+  .adm-nav a:hover, .adm-nav a[aria-current="page"] { color: var(--color-accent); }
+  .adm-nav a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: var(--rule-width-strong); text-underline-offset: .35em; }
+  .adm-nav a:focus-visible { outline-offset: 0; }
+
+  /* ===== NOVO: avatar. Raio 0, como tudo. Foto do Google ou iniciais sobre a faixa noturna. ===== */
+  .av { flex: none; display: inline-grid; place-items: center; width: 2.5rem; height: 2.5rem; object-fit: cover;
+        background: var(--color-night); color: var(--color-night-ink); font: 600 .8125rem/1 var(--font-mono); letter-spacing: .04em; }
+  .av--p { width: 2rem; height: 2rem; font-size: .6875rem; }
+
+  /* ===== NOVO: botões. Primário (cheio de tinta) e secundário (filete, como o Buscar). ===== */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5em; flex: none; min-height: var(--tap-min); margin: 0; padding: 0 .9rem;
+         border: var(--rule-width) solid var(--color-rule-strong); border-radius: 0; background: transparent; color: var(--color-ink);
+         font: 600 var(--text-label)/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; cursor: pointer; }
+  .btn:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .btn--cheio { background: var(--color-ink); color: var(--color-bg); }
+  .btn--cheio:hover { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-bg); }
+  .btn--grande { min-height: 3rem; padding: 0 1.4rem; font-size: .8125rem; }
+  .btn[disabled] { cursor: progress; }
+
+  /* ===== Página ===== */
+  .pag { padding-block: var(--space-section) 0; }
+  .pag__corpo { max-width: var(--layout-measure); }
+  @media (min-width: 64rem) { .pag--estreita .pag__corpo { margin-left: 25%; } }
+  .chapeu { color: var(--color-accent); }
+  .titulo { margin-top: .6rem; max-width: 16ch; font: 400 var(--text-feature)/.98 var(--font-display); letter-spacing: -.025em; }
+  .fina { margin-top: 1rem; max-width: 40ch; font: 400 var(--text-dek)/1.5 var(--font-text); text-wrap: pretty; }
+  .texto { margin-top: 1rem; font: 400 var(--text-body)/1.6 var(--font-text); color: var(--color-ink-muted); text-wrap: pretty; }
+  .texto strong, .texto .mono { color: var(--color-ink); }
+  .acao { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+
+  
+/* Mensagem de erro do callback (entrar.html?estado=erro). Filetes de 2px, sem fundo, para não lembrar o aviso de fictício. */
+  .erro { margin-top: 1.5rem; display: grid; gap: .3rem 1.25rem; padding: .85rem 0; border-block: var(--rule-width-strong) solid var(--color-rule-strong); }
+  .erro p:last-child { font: 400 1rem/1.45 var(--font-text); }
+  @media (min-width: 40rem) { .erro { grid-template-columns: 7rem 1fr; align-items: baseline; } }
+
+  
+/* Ficha do pedido (pedido enviado, não autorizado): <dl> em linhas de súmula */
+  .ficha { margin-top: 2rem; border-top: var(--rule-width) solid var(--color-rule-strong); border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .ficha > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: .35rem 1.25rem; padding-block: .9rem; }
+  .ficha > div + div { border-top: var(--rule-width) solid var(--color-rule); }
+  .ficha dt { color: var(--color-ink-muted); }
+  @media (min-width: 30rem) { .ficha > div { grid-template-columns: 7.5rem minmax(0, 1fr); align-items: baseline; } }
+  .conta { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+  .conta > span { min-width: 0; }
+  .conta b { display: block; font-weight: 600; }
+  .email { color: var(--color-ink-muted); font-size: .9375rem; overflow-wrap: anywhere; }
+
+  /* Situação: forma + palavra (nunca só cor). ○ pendente · ● aprovado · ✕ recusado · — revogado */
+  .sit { display: inline-flex; align-items: baseline; gap: .45em; color: var(--color-ink); font-weight: 600; }
+  .sit::before { font-weight: 500; }
+  .sit--pendente::before { content: "○"; }
+  .sit--aprovado::before { content: "●"; }
+  .sit--recusado::before { content: "✕"; }
+  .sit--revogado::before { content: "—"; }
+
+  
+  .resumo { margin-top: 1.25rem; color: var(--color-ink-muted); }
+  .resumo b { color: var(--color-ink); font-weight: 600; }
+  /* A região role="status" fica sempre no DOM; o filete aparece só quando há mensagem. */
+  .feito { max-width: var(--layout-measure); font: 400 1rem/1.45 var(--font-text); }
+  .feito > p { display: block; margin-top: 1.25rem; padding: .55rem 0 .55rem 1rem; border-left: var(--rule-width-strong) solid var(--color-accent); }
+  .grupo { padding-top: var(--space-section); }
+  .sec { margin-bottom: .25rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem .9rem; }
+  .sec::after { content: ""; order: 1; flex: 1; min-width: 2rem; height: var(--rule-width); align-self: center; background: var(--color-rule-strong); }
+  .sec h2 { font: italic 400 var(--text-section)/1 var(--font-display); letter-spacing: -.015em; }
+  .sec .label { order: 2; color: var(--color-ink-muted); }
+
+  .vazio { padding-block: 1.25rem 1.5rem; border-top: var(--rule-width) solid var(--color-rule-strong); }
+  .vazio p:first-child { font: italic 400 var(--text-row-title)/1.1 var(--font-display); letter-spacing: -.012em; }
+  .vazio p + p { margin-top: .5rem; max-width: var(--layout-measure); color: var(--color-ink-muted); }
+
+  /* ===== NOVO: rodapé do admin (colofão no papel, sem a faixa noturna) ===== */
+  .adm-pe { margin-top: clamp(3rem, 7vw, 6rem); border-top: var(--rule-width) solid var(--color-rule-strong); }
+  .adm-pe .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .25rem 2rem; padding-block: .6rem 1.5rem; color: var(--color-ink-muted); }
+  .adm-pe a { display: inline-flex; align-items: center; min-height: var(--tap-min); color: var(--color-accent); }
+  .adm-pe a:hover { text-decoration: underline; text-underline-offset: .25em; }
+
+  
+/* ===== Ferramentas do mockup (não vão para o app) ===== */
+  .mock { position: fixed; right: .5rem; bottom: .5rem; z-index: 30; display: flex; flex-wrap: wrap; gap: .25rem; max-width: calc(100vw - 1rem); justify-content: flex-end; }
+  .mock a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 .6rem; border: 1px solid var(--color-ink); background: var(--color-bg); color: var(--color-ink);
+            font: 500 .6875rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
+  .mock a[aria-current="true"] { background: var(--color-ink); color: var(--color-bg); }
+  .shot .mock { display: none; }
+
+
+  /* ===== NOVO (17): peças comuns do painel de matérias ===== */
+  .voltar { margin-bottom: 1.25rem; }
+  .voltar a { display: inline-flex; align-items: center; min-height: var(--tap-min); }
+  .badge { display: inline-flex; align-items: center; gap: .35em; background: var(--color-badge-bg); color: var(--color-badge-ink);
+           font: 600 var(--text-label)/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; padding: .34em .5em .3em; }
+  .badge::before { content: "◇"; font-size: .95em; line-height: 1; }
+  .ed { color: var(--color-accent); }
+  .kicker { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .8rem; }
+  /* Status da matéria: forma + palavra, como a Situação da 16. ● publicado · ○ rascunho */
+  .st { display: inline-flex; align-items: baseline; gap: .45em; color: var(--color-ink); font-weight: 600; }
+  .st::before { font-weight: 500; }
+  .st--publicado::before { content: "●"; }
+  .st--rascunho::before { content: "○"; }
+  /* Marcadores sem fundo (como o "VOCÊ" da 16). Tracejado = ainda não está no site; contínuo = é o que está no site. */
+  .marc { display: inline-flex; align-items: center; gap: .4em; padding: .28rem .45rem; font: 600 .625rem/1 var(--font-mono);
+          text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; color: var(--color-ink);
+          border: var(--rule-width) solid var(--color-rule-strong); }
+  .marc--edicao { border-style: dashed; }
+  .marc--edicao::before { content: "◐"; font-size: 1.1em; }
+  .marc--publicada::before { content: "●"; font-size: 1.1em; }
+  .marc--original::before { content: "◇"; font-size: 1.1em; }
+  /* Com a fonte ampliada em 320px, marcadores e botões de frase quebram linha em vez de vazar. */
+  .marc { white-space: normal; max-width: 100%; line-height: 1.2; }
+  .btn--frase { white-space: normal; max-width: 100%; text-align: center; padding-block: .55rem; line-height: 1.2; }
+  .nota { color: var(--color-ink-muted); font: 400 .9375rem/1.5 var(--font-text); }
+
+  /* Campos de formulário: rótulo visível em cima, filete forte de 1px, raio 0, sem fundo. Erro: 2px + ✕ + frase. */
+  .campo { display: grid; grid-template-columns: minmax(0, 1fr); gap: .4rem; }
+  .campo + .campo, .campo + fieldset, fieldset + .campo { margin-top: 1.5rem; }
+  .rot { font: 600 .9375rem/1.3 var(--font-text); }
+  .rot .opc { font-weight: 400; color: var(--color-ink-muted); }
+  .dica { color: var(--color-ink-muted); font: 400 .875rem/1.45 var(--font-text); }
+  .entrada { width: 100%; min-height: 2.75rem; margin: 0; padding: .55rem .75rem; border: var(--rule-width) solid var(--color-rule-strong); border-radius: 0;
+             background: transparent; color: var(--color-ink); font: 400 1rem/1.45 var(--font-text); }
+  textarea.entrada { resize: vertical; }
+  .entrada--corpo { font: 400 .9375rem/1.65 var(--font-mono); min-height: 24rem; }
+  .entrada:focus-visible { outline-offset: 0; }
+  select.entrada { appearance: none; padding-right: 2.25rem; cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: calc(100% - 1.15rem) 55%, calc(100% - .8rem) 55%; background-size: .35rem .35rem; background-repeat: no-repeat; }
+  select.entrada option { background: var(--color-bg); color: var(--color-ink); }
+  .entrada[aria-invalid="true"] { border-width: var(--rule-width-strong); padding: calc(.55rem - 1px) calc(.75rem - 1px); }
+  .msg-erro { display: flex; gap: .45em; font: 600 .9375rem/1.4 var(--font-text); color: var(--color-ink); }
+  .msg-erro::before { content: "✕"; font-weight: 500; }
+  .entrada::placeholder { color: var(--color-ink-muted); opacity: 1; }
+  fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+  legend { padding: 0; }
+
+
+  /* ===== Histórico ===== */
+  .hist { margin-top: 2rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-section) 3rem; }
+  @media (min-width: 64rem) { .hist { grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr); align-items: start; } }
+  .bloco-h { font: italic 400 var(--text-row-title)/1.06 var(--font-display); letter-spacing: -.012em; padding-bottom: .6rem; border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .revs { border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .rev { display: grid; grid-template-columns: 2.75rem minmax(0, 1fr); gap: .25rem .75rem; padding: .9rem 0 .5rem; border-top: var(--rule-width) solid var(--color-rule); }
+  .rev:first-child { border-top: 0; }
+  /* Revisão aberta: filete de 2px em --color-accent à esquerda (como o item ativo da nav, mas na vertical). */
+  html[data-estado="revisao"] .rev[data-aberta] { margin-left: -.85rem; padding-left: calc(.85rem - var(--rule-width-strong)); border-left: var(--rule-width-strong) solid var(--color-accent); }
+  .rev__n .mono { font: 500 1.5rem/1 var(--font-mono); }
+  .rev__meta { font: 400 1rem/1.35 var(--font-text); }
+  .rev__autor { font-weight: 600; }
+  .rev__meta .label { color: var(--color-ink-muted); }
+  .rev__data { color: var(--color-ink-muted); }
+  .rev__marcas { margin-top: .45rem; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .rev__links { margin-top: .15rem; display: flex; flex-wrap: wrap; gap: 0 1.1rem; }
+  .rev__links a { display: inline-flex; align-items: center; min-height: var(--tap-min); }
+  html[data-estado="revisao"] .rev__links a[data-cur="revisao"], html:not([data-estado]) .rev__links a[data-cur="comparar"],
+  html[data-estado="comparar"] .rev__links a[data-cur="comparar"], html[data-estado="restaurada"] .rev__links a[data-cur="revisao"] { font-weight: 600; text-decoration-thickness: var(--rule-width-strong); }
+  .comparar { margin-top: 1.5rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; align-items: end; }
+  .comparar .legend { grid-column: 1 / -1; margin-bottom: .5rem; font: 600 .9375rem/1.3 var(--font-text); }
+  .comparar .campo + .campo { margin-top: 0; }
+  .comparar .btn { grid-column: 1 / -1; justify-self: start; }
+  .comparar .rot { font: 500 var(--text-label)/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--color-ink-muted); }
+
+  .painel h2 { font: 400 var(--text-section)/1 var(--font-display); letter-spacing: -.015em; }
+  .painel__cab { padding-bottom: .9rem; border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .painel__cab .label { margin-top: .6rem; color: var(--color-ink-muted); }
+  .painel h3 { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .9rem; font: italic 400 var(--text-row-title)/1.06 var(--font-display); letter-spacing: -.012em; }
+  .painel h3 .label { font-style: normal; color: var(--color-ink-muted); }
+  /* Legenda: os mesmos símbolos e estilos do diff, para ensinar a ler. */
+  .legenda { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; }
+  .legenda span { display: inline-flex; align-items: baseline; gap: .5em; }
+  .legenda b { font: 600 1rem/1 var(--font-mono); }
+  .legenda .lg-add b { color: var(--color-accent); }
+  .legenda .lg-rem s { color: var(--color-ink-muted); text-decoration-thickness: var(--rule-width); }
+
+  /* Diff de linhas. Removida: − + filete de 2px em --color-rule-strong + texto em --color-ink-muted riscado com 1px.
+     Adicionada: + em --color-accent + filete de 2px em --color-accent + texto em --color-ink. Nunca só cor:
+     o símbolo, o risco e (para leitor de tela) o prefixo "Removida/Adicionada, linha N" dizem o tipo. */
+  .diff { margin-top: .75rem; border-top: var(--rule-width) solid var(--color-rule-strong); border-bottom: var(--rule-width) solid var(--color-rule-strong);
+          font: 400 1rem/1.6 var(--font-text); }
+  .dl { display: grid; grid-template-columns: 3.25rem minmax(0, 1fr); gap: 0 .75rem; padding: .35rem .5rem .35rem 0; border-left: var(--rule-width-strong) solid transparent; }
+  .dl + .dl { border-top: var(--rule-width) solid var(--color-rule); }
+  .dl__g { display: flex; justify-content: space-between; padding-left: .5rem; font: 500 .8125rem/1.95 var(--font-mono); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+  .dl__s { font-weight: 600; font-size: 1rem; line-height: 1.6; color: var(--color-ink); }
+  .dl__t { min-width: 0; text-decoration: none; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .dl--igual .dl__t { color: var(--color-ink-muted); }
+  .dl--rem { border-left-color: var(--color-rule-strong); }
+  .dl--rem .dl__t { color: var(--color-ink-muted); text-decoration: line-through; text-decoration-thickness: var(--rule-width); }
+  .dl--add { border-left-color: var(--color-accent); }
+  .dl--add .dl__s { color: var(--color-accent); }
+  .dl--add .dl__t { color: var(--color-ink); }
+  .dl--pulo .dl__t { font: 500 var(--text-label)/1.95 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--color-ink-muted); }
+  .dl--pulo .dl__s { color: var(--color-ink-muted); }
+  /* Campos alterados: o mesmo par −/+ do corpo, campo a campo. */
+  .campos-diff { margin-top: .75rem; border-top: var(--rule-width) solid var(--color-rule-strong); }
+  .campos-diff > div { padding-block: .75rem; border-bottom: var(--rule-width) solid var(--color-rule); }
+  .campos-diff dt { color: var(--color-ink-muted); margin-bottom: .35rem; }
+  .campos-diff dd { display: grid; gap: 0; }
+  .campos-diff .dl { padding-block: .25rem; }
+  .campos-diff .dl + .dl { border-top: 0; }
+
+  /* Revisão aberta */
+  .restaurar { margin-top: 1.25rem; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: .45rem; }
+  .ficha--rev { margin-top: 1.25rem; }
+  .ficha--rev dd { font: 400 1rem/1.5 var(--font-text); }
+  @media (min-width: 30rem) { .ficha--rev > div { grid-template-columns: 9.5rem minmax(0, 1fr); } }
+  .fonte-md { margin-top: .75rem; padding-top: 1rem; border-top: var(--rule-width) solid var(--color-rule-strong); max-width: var(--layout-measure);
+              font: 400 .9375rem/1.7 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .fonte-md + .nota { margin-top: .75rem; }
+
+  /* ===== Estados: só no mockup (no app, cada estado é um ramo do JSX) ===== */
+  [data-so] { display: none !important; }
+  html:not([data-estado]) [data-so~="comparar"],
+  html[data-estado="comparar"] [data-so~="comparar"],
+  html[data-estado="revisao"] [data-so~="revisao"],
+  html[data-estado="restaurada"] [data-so~="restaurada"] { display: revert !important; }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="adm-top">
+  <div class="wrap">
+    <div class="adm-linha label">
+      <span>Área restrita da redação</span>
+      <button class="tema" type="button" id="tema" aria-label="Tema: sistema. Mudar para claro">
+        <span class="tema__losango" aria-hidden="true"></span>
+        <span>Tema:&nbsp;<span class="tema__valor"><span data-rotulo="sistema">sistema</span><span data-rotulo="light">claro</span><span data-rotulo="dark">escuro</span></span></span>
+      </button>
+    </div>
+  </div>
+  <div class="adm-faixa">
+    <div class="wrap adm-main">
+      <a class="marca" href="/admin">
+        <span class="sr-only">Zona Mista Admin, painel</span>
+        <span class="marca__nome" aria-hidden="true">Zona<i>Mista</i></span>
+        <span class="marca__admin" aria-hidden="true">Admin</span>
+      </a>
+      <div class="quem">
+        <img class="av av--p" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23C9B79C%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%227.5%22%20fill%3D%22%235B4636%22%2F%3E%3Cpath%20d%3D%22M6%2040c1.5-9%207-13.5%2014-13.5S32.5%2031%2034%2040z%22%20fill%3D%22%235B4636%22%2F%3E%3C%2Fsvg%3E" alt="" width="32" height="32">
+        <span class="quem__nome"><span class="sr-only">Conectado como </span>Marina Couto</span>
+        <form action="/admin/sair" method="post"><button class="btn" type="button">Sair</button></form>
+      </div>
+    </div>
+  </div>
+  <!-- A nav ganha "Matérias" (história 17). Em /admin/materias/[id] e /historico o item continua ativo:
+       aria-current="page" só na lista; nas páginas filhas, aria-current="true" (mesmo visual). -->
+  <nav class="adm-nav" aria-label="Admin">
+    <ul>
+      <li><a href="/admin">Painel</a></li>
+      <li><a href="/admin/materias" aria-current="true">Matérias</a></li>
+      <li><a href="/admin/acessos">Acessos</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="conteudo" tabindex="-1">
+  <div class="wrap pag">
+    <p class="voltar label"><a class="link" href="/admin/materias/7b1e2c4a-6f3d-4b8e-9a21-2c5d8e1f0a37">← Editar matéria</a></p>
+    <p class="kicker label"><span class="chapeu">Admin · Matérias</span><span class="ed">Análise</span></p>
+    <h1 class="titulo">Histórico</h1>
+    <p class="fina">O mercado enxuto do PSG funcionou até aqui. Falta aguentar até maio</p>
+    <p class="resumo label"><b data-so="comparar revisao">5</b><b data-so="restaurada">6</b> revisões · publicada: <b>3</b> · em edição: <b data-so="comparar revisao">5</b><b data-so="restaurada">6</b> · nenhuma revisão é apagada</p>
+    <div class="feito" role="status"><p data-so="restaurada">Revisão <strong>2</strong> restaurada como revisão <strong>6</strong>. O site continua na revisão 3 até você publicar na <a class="link" href="/admin/materias/7b1e2c4a-6f3d-4b8e-9a21-2c5d8e1f0a37">edição</a>.</p></div>
+
+    <div class="hist">
+      <section aria-labelledby="h-revs">
+        <h2 class="bloco-h" id="h-revs">Revisões</h2>
+        <ol class="revs" reversed>
+          <li class="rev" data-so="restaurada">
+            <p class="rev__n"><span class="sr-only">Revisão </span><span class="mono" aria-hidden="true">06</span></p>
+            <div class="rev__corpo">
+              <p class="rev__meta"><span class="rev__autor">Marina Couto</span> <span class="label">· painel</span></p>
+              <p class="label rev__data"><span class="mono">21.11.2026 · 11:02</span></p>
+              <p class="rev__marcas"><span class="marc marc--edicao">Em edição</span></p>
+              <p class="rev__links label"><a class="link" href="?ver=6">Abrir<span class="sr-only"> a revisão 6</span></a> <a class="link" href="?de=3&amp;para=6">Comparar com a publicada<span class="sr-only"> (revisão 3 com a 6)</span></a></p>
+            </div>
+          </li>
+          <li class="rev">
+            <p class="rev__n"><span class="sr-only">Revisão </span><span class="mono" aria-hidden="true">05</span></p>
+            <div class="rev__corpo">
+              <p class="rev__meta"><span class="rev__autor">Marina Couto</span> <span class="label">· painel</span></p>
+              <p class="label rev__data"><span class="mono">21.11.2026 · 10:20</span></p>
+              <p class="rev__marcas" data-so="comparar revisao"><span data-so="comparar revisao"><span class="marc marc--edicao">Em edição</span></span></p>
+              <p class="rev__links label">
+                <a class="link" href="?ver=5">Abrir<span class="sr-only"> a revisão 5</span></a>
+                <a class="link" href="?de=3&amp;para=5" data-cur="comparar">Comparar com a publicada<span class="sr-only"> (revisão 3 com a 5)</span></a>
+              </p>
+            </div>
+          </li>
+          <li class="rev">
+            <p class="rev__n"><span class="sr-only">Revisão </span><span class="mono" aria-hidden="true">04</span></p>
+            <div class="rev__corpo">
+              <p class="rev__meta"><span class="rev__autor">Tiago Moreira</span> <span class="label">· painel</span></p>
+              <p class="label rev__data"><span class="mono">20.11.2026 · 17:05</span></p>
+              
+              <p class="rev__links label">
+                <a class="link" href="?ver=4">Abrir<span class="sr-only"> a revisão 4</span></a>
+                <a class="link" href="?de=3&amp;para=4">Comparar com a publicada<span class="sr-only"> (revisão 3 com a 4)</span></a>
+              </p>
+            </div>
+          </li>
+          <li class="rev">
+            <p class="rev__n"><span class="sr-only">Revisão </span><span class="mono" aria-hidden="true">03</span></p>
+            <div class="rev__corpo">
+              <p class="rev__meta"><span class="rev__autor">Tiago Moreira</span> <span class="label">· painel</span></p>
+              <p class="label rev__data"><span class="mono">20.11.2026 · 16:48</span></p>
+              <p class="rev__marcas"><span class="marc marc--publicada">Publicada</span></p>
+              <p class="rev__links label">
+                <a class="link" href="?ver=3">Abrir<span class="sr-only"> a revisão 3</span></a>
+              </p>
+            </div>
+          </li>
+          <li class="rev" data-aberta>
+            <p class="rev__n"><span class="sr-only">Revisão </span><span class="mono" aria-hidden="true">02</span></p>
+            <div class="rev__corpo">
+              <p class="rev__meta"><span class="rev__autor">Marina Couto</span> <span class="label">· painel</span></p>
+              <p class="label rev__data"><span class="mono">20.11.2026 · 09:31</span></p>
+              
+              <p class="rev__links label">
+                <a class="link" href="?ver=2" data-cur="revisao">Abrir<span class="sr-only"> a revisão 2</span></a>
+                <a class="link" href="?de=3&amp;para=2">Comparar com a publicada<span class="sr-only"> (revisão 3 com a 2)</span></a>
+              </p>
+            </div>
+          </li>
+          <li class="rev">
+            <p class="rev__n"><span class="sr-only">Revisão </span><span class="mono" aria-hidden="true">01</span></p>
+            <div class="rev__corpo">
+              <p class="rev__meta"><span class="rev__autor">Squad Fut</span> <span class="label">· do squad</span></p>
+              <p class="label rev__data"><span class="mono">19.11.2026 · 18:40</span></p>
+              <p class="rev__marcas"><span class="marc marc--original">Texto do squad</span></p>
+              <p class="rev__links label">
+                <a class="link" href="?ver=1">Abrir<span class="sr-only"> a revisão 1</span></a>
+                <a class="link" href="?de=3&amp;para=1">Comparar com a publicada<span class="sr-only"> (revisão 3 com a 1)</span></a>
+              </p>
+            </div>
+          </li>
+        </ol>
+
+        <form class="comparar" method="get" action="" aria-labelledby="h-comparar">
+            <p class="legend" id="h-comparar">Comparar duas revisões</p>
+            <div class="campo">
+              <label class="rot" for="c-de">De</label>
+              <select class="entrada" id="c-de" name="de"><option>Revisão 1</option><option>Revisão 2</option><option selected>Revisão 3</option><option>Revisão 4</option><option>Revisão 5</option></select>
+            </div>
+            <div class="campo">
+              <label class="rot" for="c-para">Para</label>
+              <select class="entrada" id="c-para" name="para"><option>Revisão 1</option><option>Revisão 2</option><option>Revisão 3</option><option>Revisão 4</option><option selected>Revisão 5</option></select>
+            </div>
+            <button class="btn" type="submit">Comparar</button>
+        </form>
+      </section>
+
+      <!-- Comparação (?de=3&para=5) -->
+      <section class="painel" aria-labelledby="h-comp" data-so="comparar">
+        <div class="painel__cab">
+          <h2 id="h-comp">Revisão 3 → revisão 5</h2>
+          <p class="label">Da publicada (Tiago Moreira, <span class="mono">20.11.2026</span>) para a em edição (Marina Couto, <span class="mono">21.11.2026</span>)</p>
+          <p class="legenda label" aria-hidden="true"><span class="lg-rem"><b>−</b><s>removida</s></span><span class="lg-add"><b>+</b>adicionada</span><span><b>⋯</b>linhas iguais escondidas</span></p>
+        </div>
+
+        <h3 id="h-campos-diff">Campos <span class="label">1 alterado</span></h3>
+        <dl class="campos-diff" aria-labelledby="h-campos-diff">
+          <div>
+            <dt class="label">Título</dt>
+            <dd>
+              <span class="dl dl--rem"><span class="dl__g" aria-hidden="true"><span class="dl__s">−</span></span><span class="sr-only">Antes, na revisão 3: </span><del class="dl__t">O mercado enxuto do PSG deu certo até aqui. Falta aguentar até maio</del></span>
+              <span class="dl dl--add"><span class="dl__g" aria-hidden="true"><span class="dl__s">+</span></span><span class="sr-only">Depois, na revisão 5: </span><ins class="dl__t">O mercado enxuto do PSG funcionou até aqui. Falta aguentar até maio</ins></span>
+            </dd>
+          </div>
+        </dl>
+
+        <h3 id="h-corpo-diff">Corpo <span class="label">2 removidas · 4 adicionadas · 49 iguais</span></h3>
+        <ol class="diff" aria-labelledby="h-corpo-diff" aria-describedby="d-diff">
+              <li class="dl dl--pulo"><span class="dl__g" aria-hidden="true"><span class="dl__s">⋯</span></span><span class="dl__t">2 linhas iguais (1–2)</span></li>
+              <li class="dl dl--igual"><span class="dl__g" aria-hidden="true"><span class="dl__s"></span><span class="dl__n">3</span></span><span class="sr-only">Igual, linha 3: </span><span class="dl__t">O placar resume o primeiro terço da temporada do bicampeão europeu. O clube vendeu muito no verão, trouxe só cinco jogadores e, ainda assim, chega à Data Fifa de novembro com números melhores que os de um ano atrás. Na Ligue 1 e na Champions, o mercado enxuto funcionou.</span></li>
+              <li class="dl dl--igual"><span class="dl__g" aria-hidden="true"><span class="dl__s"></span><span class="dl__n">4</span></span><span class="sr-only">Igual, linha 4: </span><span class="dl__t"><span class="sr-only">linha em branco</span></span></li>
+              <li class="dl dl--rem"><span class="dl__g" aria-hidden="true"><span class="dl__s">−</span><span class="dl__n">5</span></span><span class="sr-only">Removida, linha 5 da revisão 3: </span><del class="dl__t">Só que três daqueles desfalques vieram de uma única noite, duas semanas antes, contra o Barcelona. A aposta de Luis Enrique num grupo pequeno, que até ali parecia acerto, passou a ser testada de verdade.</del></li>
+              <li class="dl dl--add"><span class="dl__g" aria-hidden="true"><span class="dl__s">+</span><span class="dl__n">5</span></span><span class="sr-only">Adicionada, linha 5 da revisão 5: </span><ins class="dl__t">Só que três daqueles desfalques saíram de uma única noite, duas semanas antes, contra o Barcelona. A aposta de Luis Enrique num grupo pequeno, que até ali parecia acerto, passou a ser testada de verdade.</ins></li>
+              <li class="dl dl--igual"><span class="dl__g" aria-hidden="true"><span class="dl__s"></span><span class="dl__n">6</span></span><span class="sr-only">Igual, linha 6: </span><span class="dl__t"><span class="sr-only">linha em branco</span></span></li>
+              <li class="dl dl--igual"><span class="dl__g" aria-hidden="true"><span class="dl__s"></span><span class="dl__n">7</span></span><span class="sr-only">Igual, linha 7: </span><span class="dl__t">## A régua do bicampeão</span></li>
+              <li class="dl dl--pulo"><span class="dl__g" aria-hidden="true"><span class="dl__s">⋯</span></span><span class="dl__t">2 linhas iguais (8–9)</span></li>
+              <li class="dl dl--igual"><span class="dl__g" aria-hidden="true"><span class="dl__s"></span><span class="dl__n">10</span></span><span class="sr-only">Igual, linha 10: </span><span class="dl__t"><span class="sr-only">linha em branco</span></span></li>
+              <li class="dl dl--rem"><span class="dl__g" aria-hidden="true"><span class="dl__s">−</span><span class="dl__n">11</span></span><span class="sr-only">Removida, linha 11 da revisão 3: </span><del class="dl__t">Luis Enrique, no cargo desde 2023, renovou até 2030 em 4 de setembro. Pela contagem da AFP, a Supercopa de agosto foi seu 13º troféu no clube. Para um time assim, liderar o Campeonato Francês é obrigação. O que interessa medir é se o patamar se mantém.</del></li>
+              <li class="dl dl--add"><span class="dl__g" aria-hidden="true"><span class="dl__s">+</span><span class="dl__n">11</span></span><span class="sr-only">Adicionada, linha 11 da revisão 5: </span><ins class="dl__t">Luis Enrique, no cargo desde 2023, renovou até 2030 em 4 de setembro. Pela contagem da AFP, a Supercopa de agosto foi seu 13º troféu no clube.</ins></li>
+              <li class="dl dl--add"><span class="dl__g" aria-hidden="true"><span class="dl__s">+</span><span class="dl__n">12</span></span><span class="sr-only">Adicionada, linha 12 da revisão 5: </span><ins class="dl__t"><span class="sr-only">linha em branco</span></ins></li>
+              <li class="dl dl--add"><span class="dl__g" aria-hidden="true"><span class="dl__s">+</span><span class="dl__n">13</span></span><span class="sr-only">Adicionada, linha 13 da revisão 5: </span><ins class="dl__t">Para um time assim, liderar o Campeonato Francês é obrigação. O que interessa medir é se o patamar se mantém.</ins></li>
+              <li class="dl dl--igual"><span class="dl__g" aria-hidden="true"><span class="dl__s"></span><span class="dl__n">14</span></span><span class="sr-only">Igual, linha 14: </span><span class="dl__t"><span class="sr-only">linha em branco</span></span></li>
+              <li class="dl dl--igual"><span class="dl__g" aria-hidden="true"><span class="dl__s"></span><span class="dl__n">15</span></span><span class="sr-only">Igual, linha 15: </span><span class="dl__t">## Vender caro, comprar pouco</span></li>
+              <li class="dl dl--pulo"><span class="dl__g" aria-hidden="true"><span class="dl__s">⋯</span></span><span class="dl__t">38 linhas iguais (16–53), até o fim</span></li>
+        </ol>
+        <p class="nota" id="d-diff" style="margin-top:.75rem">Cada linha é um parágrafo do Markdown. A numeração das removidas é a da revisão 3; a das outras, a da revisão 5.</p>
+
+        <form class="restaurar" action="" method="post">
+          <button class="btn btn--frase" type="button" aria-describedby="d-rest3">Restaurar a revisão 3</button>
+          <p class="dica" id="d-rest3">Volta a edição para o texto publicado: cria a revisão 6 com o conteúdo da 3. Nada é apagado.</p>
+        </form>
+      </section>
+
+      <!-- Revisão aberta (?ver=2) e depois de restaurar -->
+      <section class="painel" aria-labelledby="h-rev2" data-so="revisao restaurada">
+        <div class="painel__cab">
+          <h2 id="h-rev2">Revisão 2</h2>
+          <p class="label">Marina Couto · painel · <span class="mono">20.11.2026 · 09:31</span></p>
+          <p class="rev__links label"><a class="link" href="?de=1&amp;para=2">Comparar com a anterior<span class="sr-only"> (revisão 1 com a 2)</span></a> <a class="link" href="?de=2&amp;para=3">Comparar com a publicada<span class="sr-only"> (revisão 2 com a 3)</span></a></p>
+        </div>
+        <form class="restaurar" action="" method="post" data-so="revisao">
+          <button class="btn btn--cheio btn--frase" type="button" aria-describedby="d-rest2">Restaurar esta versão</button>
+          <p class="dica" id="d-rest2">Cria a revisão 6 com o conteúdo da 2 e a deixa em edição. Nada é apagado, e o site não muda até você publicar.</p>
+        </form>
+
+        <dl class="ficha ficha--rev">
+          <div><dt class="label">Título</dt><dd>O mercado enxuto do PSG deu certo até aqui. Falta aguentar até maio</dd></div>
+          <div><dt class="label">Título p/ buscadores</dt><dd>Balanço do PSG 2026/27: mercado enxuto, liderança e lesões</dd></div>
+          <div><dt class="label">Linha fina</dt><dd>O clube arrecadou mais de 350 milhões de euros em vendas, trouxe só cinco reforços e tem números melhores que os de um ano atrás. Mas as lesões de Kvaratskhelia, Dembélé e Marquinhos já põem o grupo pequeno de Luis Enrique à prova.</dd></div>
+          <div><dt class="label">Editoria</dt><dd>Análise</dd></div>
+          <div><dt class="label">Tags</dt><dd class="mono" style="font-size:.875rem">psg · ligue-1 · champions-league · luis-enrique · kvaratskhelia</dd></div>
+          <div><dt class="label">Autor</dt><dd>Squad Fut</dd></div>
+          <div><dt class="label">Fictício</dt><dd>Não</dd></div>
+        </dl>
+        <h3>Corpo <span class="label">Markdown, como foi salvo</span></h3>
+        <div class="fonte-md">Na noite de 3 de novembro, em La Cerámica, o PSG entrou em campo sem Kvaratskhelia, Dembélé, Marquinhos e Nuno Mendes, todos lesionados. Aos 17 minutos, já vencia o Villarreal por 4 a 0. Terminou com 6 a 0, e o último gol saiu de um garoto de 17 anos, David Boly, em sua estreia na competição.
+
+O placar resume o primeiro terço da temporada do bicampeão europeu. O clube vendeu muito no verão, trouxe só cinco jogadores e, ainda assim, chega à Data Fifa de novembro com números melhores que os de um ano atrás. Na Ligue 1 e na Champions, o mercado enxuto funcionou.
+
+Só que três daqueles desfalques vieram de uma única noite, duas semanas antes, contra o Barcelona. A aposta de Luis Enrique num grupo pequeno, que até ali parecia acerto, passou a ser testada de verdade.
+
+## A régua do bicampeão
+
+O PSG terminou 2025/26 com cinco títulos: Supercopa da Uefa, Intercontinental da Fifa, Trophée des Champions, Ligue 1 (o 14º do clube) e Champions League, decidida nos pênaltis contra o Arsenal, em Budapeste. Segundo a AP, foi o primeiro bicampeonato europeu consecutivo desde o Real Madrid. A única mancha foi a eliminação na Copa da França, diante do Paris FC.
+
+Luis Enrique, no cargo desde 2023, renovou até 2030 em 4 de setembro. Pela contagem da AFP, a Supercopa de agosto foi seu 13º troféu no clube. Para um time assim, liderar o Campeonato Francês é obrigação. O que interessa medir é se o patamar se mantém.
+
+## Vender caro, comprar pouco
+
+A lista de saídas do verão foi pesada. Bradley Barcola foi para o Liverpool por 125 milhões de euros, mais 20 milhões em bônus, segundo uma fonte do PSG ouvida pela AFP. Foi a maior venda da janela.</div>
+        <p class="nota">No app, o corpo aparece inteiro.</p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="adm-pe">
+  <div class="wrap label">
+    <span>© <span class="mono">2026</span> Zona Mista · Admin</span>
+    <a href="/">Ir para o portal →</a>
+  </div>
+</footer>
+
+<div class="mock" role="group" aria-label="Ferramentas do mockup">
+  <a href="?" data-mock="">Comparação</a>
+  <a href="?estado=revisao" data-mock="estado=revisao">Revisão aberta</a>
+  <a href="?estado=restaurada" data-mock="estado=restaurada">Depois de restaurar</a>
+  <a href="editar.html">→ Editar</a>
+  <a href="materias.html">→ Lista</a>
+</div>
+
+<script>
+  /* BotaoDeTema (história 07) em JS puro, como no mockup 07. */
+  (function () {
+    var h = document.documentElement, b = document.getElementById('tema');
+    var ROTULO = { sistema: 'sistema', light: 'claro', dark: 'escuro' };
+    var PROXIMO = { sistema: 'light', light: 'dark', dark: 'sistema' };
+    function atual() { var t = h.getAttribute('data-theme'); return t === 'light' || t === 'dark' ? t : 'sistema'; }
+    function rotular() { var t = atual(); b.setAttribute('aria-label', 'Tema: ' + ROTULO[t] + '. Mudar para ' + ROTULO[PROXIMO[t]]); }
+    b.addEventListener('click', function () {
+      var t = PROXIMO[atual()];
+      if (t === 'sistema') h.removeAttribute('data-theme'); else h.setAttribute('data-theme', t);
+      try { if (t === 'sistema') localStorage.removeItem('tema'); else localStorage.setItem('tema', t); } catch (e) {}
+      rotular();
+    });
+    rotular();
+    var q = location.search.replace(/^\?/, '').replace(/&?shot/, '').replace(/&?theme=[a-z]+/, '').replace(/^&/, '');
+    document.querySelectorAll('.mock a[data-mock]').forEach(function (a) { if (a.dataset.mock === q) a.setAttribute('aria-current', 'true'); });
+  })();
+</script>
+</body>
+</html>
