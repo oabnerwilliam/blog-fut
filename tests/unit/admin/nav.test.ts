@@ -16,6 +16,10 @@ describe("atualDaNav", () => {
     ["/admin/materias/abc/historico", "/admin/materias", "true"],
     ["/admin/materiasx", "/admin/materias", undefined],
     ["/admin/acessos", "/admin/materias", undefined],
+    // História 18: "Nova matéria" é um item próprio; "Matérias" não fica marcado nela.
+    ["/admin/materias/nova", "/admin/materias/nova", "page"],
+    ["/admin/materias/nova", "/admin/materias", undefined],
+    ["/admin/materias/abc", "/admin/materias/nova", undefined],
   ])("%s, item %s: %s", (caminho, href, esperado) => {
     expect(atualDaNav(caminho, href)).toBe(esperado);
   });

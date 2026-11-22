@@ -3,24 +3,37 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-/** Itens da nav do admin (a história 17 acrescentou "Matérias"). */
+/** Itens da nav do admin (a 17 acrescentou "Matérias", e a 18, "Nova matéria"). */
 const ITENS = [
   { href: "/admin", rotulo: "Painel" },
   { href: "/admin/materias", rotulo: "Matérias" },
+  { href: "/admin/materias/nova", rotulo: "Nova matéria" },
   { href: "/admin/acessos", rotulo: "Acessos" },
 ] as const;
 
+function estaDentro(caminho: string, href: string): boolean {
+  return caminho === href || caminho.startsWith(`${href}/`);
+}
+
 /**
  * `page` no próprio item; `true` nas páginas de dentro dele (a edição e o histórico de
- * uma matéria continuam em "Matérias"), com o mesmo visual (README de 17-painel).
+ * uma matéria continuam em "Matérias"), com o mesmo visual (README de 17-painel). Quando
+ * um item mais específico também contém o caminho ("Nova matéria" está dentro de
+ * `/admin/materias`), só ele fica marcado (README de 18-editor, "Nav").
  */
 export function atualDaNav(
   caminho: string,
   href: string,
 ): "page" | "true" | undefined {
   if (caminho === href) return "page";
-  if (href !== "/admin" && caminho.startsWith(`${href}/`)) return "true";
-  return undefined;
+  if (href === "/admin" || !caminho.startsWith(`${href}/`)) return undefined;
+  const outroMaisEspecifico = ITENS.some(
+    (item) =>
+      item.href !== href &&
+      item.href.startsWith(`${href}/`) &&
+      estaDentro(caminho, item.href),
+  );
+  return outroMaisEspecifico ? undefined : "true";
 }
 
 /**

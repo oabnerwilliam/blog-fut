@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CHAPEU, LINHA_FINA, TITULO } from "@/components/admin/classes";
+import {
+  BOTAO_SECUNDARIO,
+  CHAPEU,
+  LINHA_FINA,
+  TITULO,
+} from "@/components/admin/classes";
 import { FiltrosDaLista } from "@/components/admin/materias/FiltrosDaLista";
 import { ListaDeMaterias } from "@/components/admin/materias/ListaDeMaterias";
 import { listarMateriasDoPainel } from "@/lib/admin/materias";
@@ -53,6 +59,12 @@ export default async function Materias({
           <b>{resumo.rascunhos}</b>{" "}
           {plural(resumo.rascunhos, "rascunho", "rascunhos")} ·{" "}
           <b>{resumo.comAlteracoes}</b> com alterações não publicadas
+        </p>
+        {/* História 18: o mesmo destino do item "Nova matéria" da nav. */}
+        <p className="mt-6">
+          <Link className={BOTAO_SECUNDARIO} href="/admin/materias/nova">
+            Nova matéria
+          </Link>
         </p>
         <FiltrosDaLista filtros={filtros} />
         <ListaDeMaterias
