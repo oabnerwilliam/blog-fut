@@ -2,15 +2,15 @@
 
 import { createContext, use, useState, type ReactNode } from "react";
 
-const Contexto = createContext<((mensagem: string) => void) | null>(null);
+const Contexto = createContext<((mensagem: ReactNode) => void) | null>(null);
 
 /**
- * Retorno das ações de `/admin/acessos` (README do design: "uma região role=status que
+ * Retorno das ações do admin (`/admin/acessos` e, na 17, as telas de matérias) (README do design: "uma região role=status que
  * fica sempre no DOM e é preenchida depois da action"). A região existe desde o primeiro
  * HTML, vazia: um leitor de tela só anuncia mudanças numa região que já estava lá.
  */
 export function RetornoDasAcoes({ children }: { children: ReactNode }) {
-  const [mensagem, setMensagem] = useState("");
+  const [mensagem, setMensagem] = useState<ReactNode>(null);
   return (
     <Contexto value={setMensagem}>
       <div
@@ -28,7 +28,7 @@ export function RetornoDasAcoes({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAvisar(): (mensagem: string) => void {
+export function useAvisar(): (mensagem: ReactNode) => void {
   const avisar = use(Contexto);
   if (!avisar) throw new Error("useAvisar fora de <RetornoDasAcoes>");
   return avisar;
