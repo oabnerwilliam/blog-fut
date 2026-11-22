@@ -2,7 +2,9 @@
  * RLS do admin (história 16, critério 8; risco 1 do foco de revisão do plano v2).
  *
  * Uma conta Google qualquer (pendente, recusada ou revogada) chamando a API direto com o
- * próprio JWT não lê rascunho e não grava nada. Só o aprovado lê e grava matérias, e
+ * próprio JWT não lê rascunho e não grava nada. Na história 17, `publicar_revisao`,
+ * `despublicar_materia` e `salvar_revisao` passam a ser executáveis por `authenticated`,
+ * e a primeira linha de cada uma recusa quem não é admin. Só o aprovado lê e grava matérias, e
  * nem ele muda o próprio status nem altera ou apaga revisões.
  *
  * Os usuários são reais no Supabase local (`auth.admin.createUser` + `signInWithPassword`).
@@ -554,7 +556,6 @@ describe("funções", () => {
         { p_titulo: "a", p_linha_fina: "b", p_tags: ["c"], p_corpo: "d" },
       ],
       ["enviar_materia_do_squad", { dados: { slug: "x" } }],
-      ["publicar_revisao", { p_article_id: idDoRascunho }],
       [
         "configurar_revalidacao",
         {
@@ -568,7 +569,7 @@ describe("funções", () => {
       ["tags_depois_de_gravar", {}],
       ["criar_perfil_do_usuario", {}],
     ];
-    for (const usuario of [aprovado, pendente]) {
+    for (const usuario of [aprovado, pendente, recusado, revogado]) {
       const antes = await fotoDoBanco();
       for (const [funcao, args] of internas) {
         const { data, error } = await usuario.cliente.rpc(funcao, args);
@@ -580,14 +581,117 @@ describe("funções", () => {
   });
 
   it("as funções com argumentos falham por permissão (42501), não por outro motivo", async () => {
-    for (const [funcao, args] of [
-      ["normalizar_busca", { texto: "x" }],
-      ["enviar_materia_do_squad", { dados: { slug: "x" } }],
-      ["publicar_revisao", { p_article_id: idDoRascunho }],
-    ] as const) {
-      const { error } = await aprovado.cliente.rpc(funcao, args);
-      expect(error?.code, funcao).toBe("42501");
+    // Pendente do PR #16: o pendente também, e não só o aprovado.
+    for (const usuario of [aprovado, pendente]) {
+      for (const [funcao, args] of [
+        ["normalizar_busca", { texto: "x" }],
+        [
+          "calcular_busca_normalizada",
+          { p_titulo: "a", p_linha_fina: "b", p_tags: ["c"], p_corpo: "d" },
+        ],
+        ["enviar_materia_do_squad", { dados: { slug: "x" } }],
+        [
+          "configurar_revalidacao",
+          {
+            p_url: "http://exemplo.test/api/revalidar",
+            p_segredo: "segredo-de-teste-123456",
+          },
+        ],
+      ] as const) {
+        const { error } = await usuario.cliente.rpc(funcao, args);
+        expect(error?.code, `${usuario.email} ${funcao}`).toBe("42501");
+      }
     }
+  });
+
+  describe("as funções do painel (história 17): abertas a authenticated, mas só o aprovado grava", () => {
+    let idParaPublicar = "";
+    const DO_PAINEL = () =>
+      [
+        ["publicar_revisao", { p_article_id: idParaPublicar }],
+        ["despublicar_materia", { p_article_id: idParaPublicar }],
+        [
+          "salvar_revisao",
+          {
+            p_article_id: idParaPublicar,
+            campos: {
+              titulo: "Invasão",
+              linha_fina: "x",
+              editoria: "noticia",
+              tags: ["tag-publica"],
+              autor: "x",
+              ficticio: true,
+              corpo_md: "x",
+            },
+          },
+        ],
+      ] as const;
+
+    beforeAll(async () => {
+      const { data, error } = await servico
+        .from("articles")
+        .insert({
+          ...BASE,
+          slug: "publicada-pelo-admin",
+          titulo: "Publicada pelo admin",
+          tags: ["tag-publica"],
+          corpo_md: "Texto que o admin publica.\n",
+          status: "rascunho",
+        })
+        .select("id")
+        .single();
+      expect(error).toBeNull();
+      idParaPublicar = data!.id;
+      const { error: erroDaRevisao } = await servico
+        .from("article_revisions")
+        .insert({
+          ...revisao(1, {
+            titulo: "Publicada pelo admin",
+            tags: ["tag-publica"],
+            corpo_md: "Texto que o admin publica.\n",
+            origem_da_revisao: "importacao",
+          }),
+          article_id: idParaPublicar,
+        });
+      expect(erroDaRevisao).toBeNull();
+    });
+
+    it("anon, pendente, recusado e revogado recebem erro (42501) e nada muda", async () => {
+      for (const [nome, cliente] of naoAdmins()) {
+        for (const [funcao, args] of DO_PAINEL()) {
+          const antes = await fotoDoBanco();
+          const { data, error } = await cliente.rpc(funcao, args);
+          expect(error?.code, `${nome} ${funcao}`).toBe("42501");
+          expect(data, `${nome} ${funcao}`).toBeNull();
+          expect(await fotoDoBanco(), `${nome} ${funcao}`).toEqual(antes);
+        }
+      }
+    });
+
+    it("o aprovado publica, e o anon passa a ler a matéria", async () => {
+      const { error } = await aprovado.cliente.rpc("publicar_revisao", {
+        p_article_id: idParaPublicar,
+      });
+      expect(error).toBeNull();
+      const { data } = await anon
+        .from("articles")
+        .select("slug,status,revisao_publicada")
+        .eq("id", idParaPublicar);
+      expect(data).toEqual([
+        {
+          slug: "publicada-pelo-admin",
+          status: "publicado",
+          revisao_publicada: 1,
+        },
+      ]);
+    });
+
+    it("a service_role (pnpm materia:publicar) continua publicando", async () => {
+      const { error } = await servico.rpc("publicar_revisao", {
+        p_article_id: idParaPublicar,
+      });
+      expect(error).toBeNull();
+    });
   });
 
   it("buscar_artigos continua aberta (security invoker: o admin acha o rascunho)", async () => {

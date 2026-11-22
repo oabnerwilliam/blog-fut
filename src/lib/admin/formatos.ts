@@ -33,6 +33,16 @@ export function formatarDataDoAdmin(iso: string): string {
   return `${p.day}.${p.month}.${p.year}`;
 }
 
+/**
+ * Data de calendário (AAAA-MM-DD, a `publicado_em` editorial) → "19.11.2026". Sem fuso:
+ * `new Date("2026-11-19")` é meia-noite UTC, que em São Paulo ainda é o dia 18.
+ */
+export function formatarDiaDoAdmin(data: string): string {
+  const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(data);
+  if (!partes) throw new Error(`Data inválida: "${data}".`);
+  return `${partes[3]}.${partes[2]}.${partes[1]}`;
+}
+
 /** "2026-11-21T12:14:00Z" → "21.11.2026 · 09:14". */
 export function formatarDataEHoraDoAdmin(iso: string): string {
   const p = partes(iso);

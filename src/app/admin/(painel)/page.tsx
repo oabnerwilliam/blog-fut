@@ -5,7 +5,7 @@ import { CHAPEU, LINHA_FINA, LINK, TITULO } from "@/components/admin/classes";
 export const metadata: Metadata = { title: "Painel" };
 
 /**
- * Painel provisório (história 16, critério 4). A lista de matérias chega na história 17.
+ * Painel (história 16, critério 4). A história 17 acrescentou a lista de matérias.
  * Só aparece para quem está aprovado: o layout do grupo `(painel)` confere antes.
  */
 export default function Painel() {
@@ -15,14 +15,21 @@ export default function Painel() {
         <p className={CHAPEU}>Admin</p>
         <h1 className={TITULO}>Painel</h1>
         <p className={LINHA_FINA}>
-          Daqui a redação vai revisar e publicar as matérias do squad-fut. Por
-          enquanto, o painel cuida de quem pode entrar.
+          Daqui a redação revisa e publica as matérias do squad-fut e decide
+          quem pode entrar.
         </p>
-        <p className="mt-8">
-          <Link className={LINK} href="/admin/acessos">
-            Ver os pedidos de acesso
-          </Link>
-        </p>
+        <ul className="mt-8 grid gap-3">
+          <li>
+            <Link className={LINK} href="/admin/materias">
+              Ver as matérias
+            </Link>
+          </li>
+          <li>
+            <Link className={LINK} href="/admin/acessos">
+              Ver os pedidos de acesso
+            </Link>
+          </li>
+        </ul>
       </div>
     </main>
   );

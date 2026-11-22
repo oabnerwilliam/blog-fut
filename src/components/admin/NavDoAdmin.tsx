@@ -3,11 +3,25 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-/** Itens da nav do admin. A história 17 acrescenta "Matérias". */
+/** Itens da nav do admin (a história 17 acrescentou "Matérias"). */
 const ITENS = [
   { href: "/admin", rotulo: "Painel" },
+  { href: "/admin/materias", rotulo: "Matérias" },
   { href: "/admin/acessos", rotulo: "Acessos" },
 ] as const;
+
+/**
+ * `page` no próprio item; `true` nas páginas de dentro dele (a edição e o histórico de
+ * uma matéria continuam em "Matérias"), com o mesmo visual (README de 17-painel).
+ */
+export function atualDaNav(
+  caminho: string,
+  href: string,
+): "page" | "true" | undefined {
+  if (caminho === href) return "page";
+  if (href !== "/admin" && caminho.startsWith(`${href}/`)) return "true";
+  return undefined;
+}
 
 /**
  * Nav do admin, só para quem está aprovado (README do design, "Nav do admin"). É de
@@ -26,8 +40,8 @@ export function NavDoAdmin() {
         {ITENS.map(({ href, rotulo }) => (
           <li key={href}>
             <Link
-              aria-current={caminho === href ? "page" : undefined}
-              className="inline-flex min-h-(--tap-min) items-center font-text text-nav leading-none font-medium [font-stretch:92%] hover:text-accent focus-visible:outline-offset-0 aria-[current=page]:text-accent aria-[current=page]:underline aria-[current=page]:decoration-(length:--rule-width-strong) aria-[current=page]:underline-offset-[0.35em]"
+              aria-current={atualDaNav(caminho, href)}
+              className="inline-flex min-h-(--tap-min) items-center font-text text-nav leading-none font-medium [font-stretch:92%] hover:text-accent focus-visible:outline-offset-0 aria-[current=page]:text-accent aria-[current=page]:underline aria-[current=page]:decoration-(length:--rule-width-strong) aria-[current=page]:underline-offset-[0.35em] aria-[current=true]:text-accent aria-[current=true]:underline aria-[current=true]:decoration-(length:--rule-width-strong) aria-[current=true]:underline-offset-[0.35em]"
               href={href}
             >
               {rotulo}

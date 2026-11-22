@@ -304,4 +304,24 @@
     color: var(--color-accent);
     font-size: 0.8em;
   }
+
+  /*
+   * Admin (história 17): a seta do <select>, desenhada em currentColor (README de
+   * docs/design/17-painel, "Campos"). As opções herdam o papel do tema.
+   */
+  .seta-do-select {
+    background-image:
+      linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.15rem) 55%,
+      calc(100% - 0.8rem) 55%;
+    background-size: 0.35rem 0.35rem;
+    background-repeat: no-repeat;
+  }
+
+  .seta-do-select option {
+    background: var(--color-bg);
+    color: var(--color-ink);
+  }
 }
