@@ -11,6 +11,7 @@ O Supabase local roda no Docker Desktop, pela CLI que vem como dependência do p
 | `pnpm db:importar` | Copia `content/materias/*.md` e `content/tags.json` para o banco local. Pode rodar quantas vezes quiser: o que já está igual não é regravado. Use `--dir <pasta>` para importar outra pasta com o mesmo formato. Nunca apaga: se houver matéria publicada no banco que não está na pasta, só avisa ("no banco, mas não no disco: ..."). |
 | `pnpm materia:enviar <slug>` | Envia `content/entrada/<slug>.md` ao banco como rascunho e move o arquivo para `content/entrada/enviadas/`. Veja `materias.md`. |
 | `pnpm materia:publicar <slug>` | Publica a revisão em edição da matéria. Veja `materias.md`. |
+| `pnpm admin:promover <email>` | Torna admin (`aprovado`) o perfil desse e-mail. A pessoa precisa ter entrado uma vez em `/admin/entrar`. Veja `contas-v2.md`, passo 7, e o ADR 0009. |
 | `pnpm test:db` | Sobe o banco (se já estiver no ar, não faz nada), roda `supabase db reset` e os testes de `tests/db/`. No fim, limpa as tabelas e reimporta o `content/` real (`tests/db/global-teardown.ts`), então o banco local sempre termina igual ao `content/`. Se os testes forem interrompidos no meio, rode `pnpm db:reset` e `pnpm db:importar`. |
 
 Os testes de banco **não** usam o `.env.local`: eles leem a URL e as chaves do `supabase status`.

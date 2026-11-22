@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { adminHabilitado, ehRotaDoAdmin } from "@/lib/auth/config";
+import { renovarSessaoDoAdmin } from "@/lib/auth/sessao-no-proxy";
 import { getRepository } from "@/lib/content";
 import { criarIndiceDeRotas, rotaExiste, ttlDoIndice } from "@/lib/rotas";
 
@@ -23,6 +25,14 @@ const indiceDeRotas = criarIndiceDeRotas({
  * A regra fica em `rotaExiste`.
  */
 export async function proxy(request: NextRequest) {
+  // /admin (história 16; ADR 0006, "Extensão (história 16)"): 404 real com o admin
+  // desligado (U14). Ligado, nunca consulta o banco: só renova a sessão vencida.
+  if (ehRotaDoAdmin(request.nextUrl.pathname)) {
+    if (!adminHabilitado(process.env)) {
+      return NextResponse.rewrite(new URL(SEM_ROTA, request.url));
+    }
+    return renovarSessaoDoAdmin(request);
+  }
   if (await rotaExiste(indiceDeRotas, request.nextUrl)) {
     return NextResponse.next();
   }
@@ -30,5 +40,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/materias/:slug", "/editorias/:editoria", "/tags/:tag"],
+  matcher: [
+    "/materias/:slug",
+    "/editorias/:editoria",
+    "/tags/:tag",
+    "/admin/:path*",
+  ],
 };

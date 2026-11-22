@@ -23,6 +23,9 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: `pnpm build && pnpm exec next start -p ${PORT}`,
+    // U14 (história 16): a suíte da v1 roda com o admin desligado, mesmo que o
+    // `.env.local` de alguém o ligue. O `env` vence o `.env.local`.
+    env: { ADMIN_HABILITADO: "false" },
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

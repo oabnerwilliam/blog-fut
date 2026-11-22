@@ -40,6 +40,15 @@ Preenchido pelo orquestrador em 2026-11-21, depois do merge do PR #17. Produçã
 | 5. `normalizar_busca` na produção | ✅ `'ÇÉDILHA ß Æ Ø Đ Ł São Ciríaco'` virou `cedilha ß æ ø đ ł sao ciriaco`, igual ao `normalizarParaBusca` do JS. |
 | 6. Cron na Vercel | ✅ `vercel crons ls` mostra `/api/manter-ativo` com `0 9 * * *`. A rota responde 401 sem o `CRON_SECRET`. |
 
+## Depois do merge da história 16: login e primeiro admin
+História: `docs/backlog/16-login-admin.md`. Decisões: ADR 0009 e ADR 0006 ("Extensão (história 16)"). O orquestrador segue estes passos e registra o resultado no relatório, **sem o e-mail de ninguém**.
+1. **Migração pelo CI.** O `migracoes.yml` aplica `<timestamp>_perfis.sql`, que é não destrutiva: cria `perfis`, `eh_admin()` e as políticas do admin, e troca a política de leitura das tags. Confira o run verde, como no passo 1 acima. Depois, `SITE_URL/` continua com as 9 matérias e as mesmas tags.
+2. **Admin ligado só na Production.** `ADMIN_HABILITADO=true` na Production e `false` no Preview. Confira que `SITE_URL/admin/entrar` responde 200 e que, num preview, qualquer `/admin/**` responde 404.
+3. **Provedor Google.** No Supabase, em Authentication → Providers → Google, o provedor está ligado, e as Redirect URLs incluem `SITE_URL/admin/auth/callback` (`docs/operacao/contas-v2.md`, passo 3).
+4. **Primeiro login do usuário.** O usuário entra uma vez em `SITE_URL/admin/entrar` com o Google e vê "pedido enviado". Isso cria o perfil `pendente`.
+5. **Primeiro admin.** `pnpm admin:promover <e-mail do usuário> --prod --sim`. O e-mail vem da memória da sessão, nunca do git. A saída mostra só o e-mail mascarado. Se responder "Nenhum perfil com o e-mail…", o passo 4 ainda não aconteceu: registre como pendência e não tente criar o perfil à mão.
+6. **Conferir.** O usuário recarrega `/admin` e vê o painel. Em `/admin/acessos`, a linha dele aparece sem ação.
+
 ## Pendências conhecidas
 - O índice de rotas do Proxy é por instância. Na Vercel, cada função aquecida tem o seu, e o prazo de 60 s para uma matéria nova sair do 404 vale para cada uma.
 - A primeira chamada do cron só acontece no dia seguinte ao deploy, às 9h UTC.
