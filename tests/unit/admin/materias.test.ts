@@ -20,7 +20,9 @@ const nucleo = {
   publicarRevisao: vi.fn(),
   despublicarMateria: vi.fn(),
   restaurarRevisao: vi.fn(),
+  inserirMateria: vi.fn(),
 };
+const renderizarPrevia = vi.fn();
 
 vi.mock("@/lib/auth/servidor", () => ({
   obterSessaoDoAdmin,
@@ -30,6 +32,7 @@ vi.mock("@/lib/admin/painel", async (original) => ({
   ...(await original<typeof import("@/lib/admin/painel")>()),
   ...nucleo,
 }));
+vi.mock("@/lib/admin/previa", () => ({ renderizarPrevia }));
 vi.mock("next/cache", () => ({ updateTag, refresh }));
 
 const acoes = await import("@/lib/admin/materias");
@@ -57,6 +60,12 @@ beforeEach(() => {
   nucleo.publicarRevisao.mockResolvedValue({ ok: true, slug: "psg-vence" });
   nucleo.despublicarMateria.mockResolvedValue({ ok: true, slug: "psg-vence" });
   nucleo.restaurarRevisao.mockResolvedValue({ ok: true, numero: 4 });
+  nucleo.inserirMateria.mockResolvedValue({
+    ok: true,
+    id: MATERIA,
+    slug: "nova-materia",
+  });
+  renderizarPrevia.mockResolvedValue({ ok: true, html: "<p>oi</p>" });
 });
 
 /** Cada action com argumentos válidos. */
@@ -66,10 +75,12 @@ const CHAMADAS = {
   publicarAlteracoes: () => acoes.publicarAlteracoes(MATERIA),
   despublicar: () => acoes.despublicar(MATERIA),
   restaurarRevisao: () => acoes.restaurarRevisao(MATERIA, 1),
+  criarMateria: () => acoes.criarMateria({} as never),
+  previsualizar: () => acoes.previsualizar("**oi**"),
 } as const;
 
 describe("o arquivo das actions", () => {
-  it('só exporta as cinco actions (tudo que um "use server" exporta vira endpoint)', () => {
+  it('só exporta as sete actions (tudo que um "use server" exporta vira endpoint)', () => {
     expect(Object.keys(acoes).sort()).toEqual(Object.keys(CHAMADAS).sort());
   });
 });
@@ -129,6 +140,7 @@ describe.each(Object.entries(CHAMADAS))("%s", (_nome, chamar) => {
     for (const funcao of Object.values(nucleo)) {
       expect(funcao).not.toHaveBeenCalled();
     }
+    expect(renderizarPrevia).not.toHaveBeenCalled();
     expect(updateTag).not.toHaveBeenCalled();
     expect(refresh).not.toHaveBeenCalled();
   });
@@ -183,7 +195,30 @@ describe("com o admin", () => {
     },
   );
 
+  it("criar: grava com o cliente da sessão e não mexe no cache nem na tela (é um rascunho)", async () => {
+    const campos = { titulo: "Nova" } as never;
+    expect(await acoes.criarMateria(campos)).toEqual({
+      ok: true,
+      id: MATERIA,
+      slug: "nova-materia",
+    });
+    expect(nucleo.inserirMateria).toHaveBeenCalledWith(CLIENTE, campos);
+    expect(updateTag).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("previsualizar: devolve o HTML da prévia e não mexe no cache nem na tela", async () => {
+    expect(await acoes.previsualizar("**oi**")).toEqual({
+      ok: true,
+      html: "<p>oi</p>",
+    });
+    expect(renderizarPrevia).toHaveBeenCalledWith("**oi**");
+    expect(updateTag).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
   it.each([
+    ["criarMateria", "inserirMateria"],
     ["salvarRevisao", "gravarRevisao"],
     ["restaurarRevisao", "restaurarRevisao"],
     ["publicarAlteracoes", "publicarRevisao"],

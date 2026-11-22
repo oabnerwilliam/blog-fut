@@ -1,43 +1,32 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { EDITORIAS } from "@/lib/editorias";
-import {
-  camposDoFormulario,
-  conferirTagNova,
-  frase,
-  IDS_DOS_CAMPOS,
-  ROTULOS_DOS_CAMPOS,
-} from "@/lib/admin/telas";
+import { camposDoFormulario, frase } from "@/lib/admin/telas";
 import type {
   CamposDaRevisao,
   CamposEditoriaisDeEntrada,
-  ErrosDosCampos,
   NomeDoCampo,
   ResultadoDoPainel,
 } from "@/lib/admin/tipos";
 import {
-  BLOCO_DE_ERRO,
   BOTAO_PRIMARIO_GRANDE,
-  BOTAO_SECUNDARIO,
   CAMPO,
   DICA,
   ENTRADA,
-  LINK,
-  MENSAGEM_DE_ERRO,
   OPCIONAL,
   ROTULO,
   SELECT,
   TITULO_DE_BLOCO,
 } from "../classes";
 import { useAvisar } from "../RetornoDasAcoes";
+import {
+  BlocoDeErros,
+  CampoDeTags,
+  descritoPor,
+  Erro,
+  type Falha,
+} from "./PartesDoFormulario";
 
 type Props = {
   /** A server action já ligada à matéria (`salvarRevisao.bind(null, id)`). */
@@ -52,27 +41,6 @@ type Props = {
   /** A revisão que o leitor vê agora; nula quando a matéria não está no site. */
   readonly revisaoNoSite: number | null;
 };
-
-interface Falha {
-  readonly mensagem: string;
-  readonly campos: ErrosDosCampos;
-}
-
-/** `aria-describedby` com o erro (quando há) antes da dica. */
-function descritoPor(
-  ...ids: (string | false | undefined)[]
-): string | undefined {
-  const lista = ids.filter(Boolean).join(" ");
-  return lista || undefined;
-}
-
-function Erro({ id, children }: { id: string; children: ReactNode }) {
-  return (
-    <p className={MENSAGEM_DE_ERRO} id={id}>
-      {children}
-    </p>
-  );
-}
 
 /**
  * O formulário dos campos editoriais (história 17, critério 4; README, "Edição").
@@ -96,34 +64,10 @@ export function FormularioDaMateria({
 }: Props) {
   const avisar = useAvisar();
   const [tags, setTags] = useState<readonly string[]>(campos.tags);
-  const [tagNova, setTagNova] = useState("");
-  const [erroDaTag, setErroDaTag] = useState<string | null>(null);
   const [falha, setFalha] = useState<Falha | null>(null);
   const [salvando, iniciar] = useTransition();
-  const blocoDeErro = useRef<HTMLDivElement>(null);
-
-  // O foco vai para o bloco de erro depois de um salvamento que falhou (README).
-  useEffect(() => {
-    if (falha) blocoDeErro.current?.focus();
-  }, [falha]);
 
   const erro = (campo: NomeDoCampo) => falha?.campos[campo];
-
-  function adicionarTag() {
-    const conferida = conferirTagNova(tagNova, tags);
-    if (conferida === null) {
-      setTagNova("");
-      setErroDaTag(null);
-      return;
-    }
-    if (!conferida.ok) {
-      setErroDaTag(conferida.mensagem);
-      return;
-    }
-    setTags([...tags, conferida.slug]);
-    setTagNova("");
-    setErroDaTag(null);
-  }
 
   function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -164,8 +108,6 @@ export function FormularioDaMateria({
     });
   }
 
-  const comErro = falha ? (Object.keys(falha.campos) as NomeDoCampo[]) : [];
-
   return (
     <form
       aria-labelledby="h-campos"
@@ -177,38 +119,7 @@ export function FormularioDaMateria({
         Campos editoriais
       </h2>
 
-      {falha && (
-        <div
-          className={`${BLOCO_DE_ERRO} mb-6`}
-          ref={blocoDeErro}
-          role="alert"
-          tabIndex={-1}
-        >
-          <p className="label">✕ Não salvou</p>
-          <div className="grid gap-1 font-text text-[1rem] leading-[1.45]">
-            {comErro.length > 0 ? (
-              <>
-                <p>
-                  {comErro.length === 1
-                    ? "Um campo precisa de ajuste:"
-                    : `${comErro.length} campos precisam de ajuste:`}
-                </p>
-                {comErro.map((campo) => (
-                  <a
-                    className={`inline-flex min-h-7 items-center ${LINK}`}
-                    href={`#${IDS_DOS_CAMPOS[campo]}`}
-                    key={campo}
-                  >
-                    {ROTULOS_DOS_CAMPOS[campo]}: {falha.campos[campo]}
-                  </a>
-                ))}
-              </>
-            ) : (
-              <p>{falha.mensagem}</p>
-            )}
-          </div>
-        </div>
-      )}
+      {falha && <BlocoDeErros falha={falha} titulo="Não salvou" />}
 
       <div className="grid gap-6">
         <div className={CAMPO}>
@@ -294,77 +205,19 @@ export function FormularioDaMateria({
           )}
         </div>
 
-        <fieldset className={`${CAMPO} m-0 min-w-0 border-0 p-0`}>
-          <legend className={`${ROTULO} mb-[0.4rem] p-0`}>Tags</legend>
-          {tags.length > 0 && (
-            <ul className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <li
-                  className="inline-flex max-w-full items-center gap-1 border-(length:--rule-width) border-rule-strong pl-[0.6rem] font-mono text-[0.8125rem] leading-none font-medium [overflow-wrap:anywhere]"
-                  key={tag}
-                >
-                  {tag}
-                  <button
-                    aria-label={`Remover ${tag}`}
-                    className="m-0 inline-grid min-h-9 w-9 cursor-pointer place-items-center border-0 border-l-(length:--rule-width) border-rule bg-transparent p-0 font-mono text-[0.875rem] leading-none font-medium text-ink hover:text-accent focus-visible:outline-offset-0"
-                    onClick={() => setTags(tags.filter((t) => t !== tag))}
-                    type="button"
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="mt-2 flex flex-wrap gap-2">
-            <label className="sr-only" htmlFor="c-tag">
-              Adicionar tag
-            </label>
-            <input
-              aria-describedby={descritoPor(
-                (erroDaTag || erro("tags")) && "e-tag",
-                "d-tags",
-              )}
-              aria-invalid={erroDaTag || erro("tags") ? true : undefined}
-              autoComplete="off"
-              className={`${ENTRADA} w-auto min-w-0 flex-[1_1_8rem]`}
-              id="c-tag"
-              list="tags-existentes"
-              onChange={(e) => setTagNova(e.target.value)}
-              onKeyDown={(e) => {
-                // Enter acrescenta a tag, em vez de enviar o formulário inteiro.
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  adicionarTag();
-                }
-              }}
-              placeholder="Adicionar tag"
-              value={tagNova}
-            />
-            <button
-              className={`${BOTAO_SECUNDARIO} min-h-11`}
-              onClick={adicionarTag}
-              type="button"
-            >
-              Adicionar
-            </button>
-          </div>
-          <datalist id="tags-existentes">
-            {tagsExistentes
-              .filter((t) => !tags.includes(t))
-              .map((t) => (
-                <option key={t} value={t} />
-              ))}
-          </datalist>
-          {(erroDaTag || erro("tags")) && (
-            <Erro id="e-tag">{erroDaTag ?? frase(erro("tags")!)}</Erro>
-          )}
-          <p className={DICA} id="d-tags">
-            Escolha uma tag que já existe ou digite um slug novo (a-z, 0-9 e
-            hífen). O nome de uma tag nova sai do slug: “paris-fc” vira “Paris
-            Fc”.
-          </p>
-        </fieldset>
+        <CampoDeTags
+          aoMudar={setTags}
+          dica={
+            <>
+              Escolha uma tag que já existe ou digite um slug novo (a-z, 0-9 e
+              hífen). O nome de uma tag nova sai do slug: “paris-fc” vira “Paris
+              Fc”.
+            </>
+          }
+          erro={erro("tags")}
+          tags={tags}
+          tagsExistentes={tagsExistentes}
+        />
 
         <div className={CAMPO}>
           <label className={ROTULO} htmlFor="c-meta">

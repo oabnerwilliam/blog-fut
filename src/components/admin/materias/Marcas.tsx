@@ -11,8 +11,16 @@ const STATUS: Record<StatusDaMateria, { simbolo: string; rotulo: string }> = {
   rascunho: { simbolo: "○", rotulo: "Rascunho" },
 };
 
-export function SituacaoDaMateria({ status }: { status: StatusDaMateria }) {
-  const { simbolo, rotulo } = STATUS[status];
+/** `rotulo` troca a palavra ("Sai como rascunho", na criação, história 18). */
+export function SituacaoDaMateria({
+  status,
+  rotulo: outroRotulo,
+}: {
+  status: StatusDaMateria;
+  rotulo?: string;
+}) {
+  const { simbolo } = STATUS[status];
+  const rotulo = outroRotulo ?? STATUS[status].rotulo;
   return (
     <span
       className="inline-flex items-baseline gap-[0.45em] font-semibold text-ink"

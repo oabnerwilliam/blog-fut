@@ -40,6 +40,7 @@ describe("parseArticleFile", () => {
       meta_description: null,
       palavras_chave: [],
       origem: "squad-fut/textos/materia-teste",
+      fonte: "squad",
       corpo_md: CORPO_TIPOGRAFICO,
     });
   });
@@ -77,6 +78,16 @@ describe("parseArticleFile", () => {
     expect(
       parse(montarMateria({ ficticio: true, origem: undefined })).artigo.origem,
     ).toBeNull();
+  });
+
+  it("fonte: squad quando há origem, importacao quando não há (história 18)", () => {
+    expect(parse(montarMateria(null)).artigo.fonte).toBe("squad");
+    expect(
+      parse(montarMateria({ ficticio: true, origem: undefined })).artigo.fonte,
+    ).toBe("importacao");
+    expect(
+      parse(montarMateria({ ficticio: true, origem: "" })).artigo.fonte,
+    ).toBe("importacao");
   });
 
   it("o objeto devolvido é congelado", () => {

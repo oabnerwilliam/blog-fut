@@ -157,6 +157,7 @@ export function descreverContratoDoRepositorio(
           publicado_em: "2026-10-20",
           autor: "Squad Fut",
           ficticio: false,
+          fonte: "squad",
           tempo_de_leitura: 1,
         });
         expect(Object.keys(alfa)).not.toContain("corpo_md");
@@ -181,6 +182,7 @@ export function descreverContratoDoRepositorio(
           meta_description: null,
           palavras_chave: [],
           origem: "squad-fut/textos/delta-noticia",
+          fonte: "squad",
           corpo_md: corpo,
         });
         expect(await repo.getBySlug("bravo-analise")).toMatchObject({
@@ -193,6 +195,28 @@ export function descreverContratoDoRepositorio(
           ],
         });
         expect((await repo.getBySlug("charlie-cronica"))?.origem).toBeNull();
+      });
+
+      it("fonte: squad nas reais (com origem) e importacao nas fictícias, no resumo e na matéria", async () => {
+        const repo = await comExemplos();
+        const fontes = Object.fromEntries(
+          (await repo.list()).itens.map((a) => [a.slug, a.fonte]),
+        );
+        expect(fontes).toEqual(
+          Object.fromEntries(
+            TODAS.map((slug) => [
+              slug,
+              REAIS.includes(slug) ? "squad" : "importacao",
+            ]),
+          ),
+        );
+        expect((await repo.getBySlug("charlie-cronica"))?.fonte).toBe(
+          "importacao",
+        );
+        expect((await repo.getBySlug("bravo-analise"))?.fonte).toBe("squad");
+        for (const achado of await repo.search("aurora")) {
+          expect(achado.fonte, achado.slug).toBe(fontes[achado.slug]);
+        }
       });
 
       it("inexistente ou malformado → null", async () => {

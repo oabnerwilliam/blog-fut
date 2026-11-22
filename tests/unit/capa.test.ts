@@ -23,6 +23,7 @@ function materia(
     publicado_em,
     autor: "squad-fut",
     ficticio,
+    fonte: ficticio ? "importacao" : "squad",
     tempo_de_leitura: 5,
   };
 }

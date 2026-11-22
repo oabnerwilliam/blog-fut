@@ -111,6 +111,7 @@ describe("FileArticleRepository", () => {
       meta_description: null,
       palavras_chave: [],
       origem: "squad-fut/textos/alfa-cronica",
+      fonte: "squad",
       corpo_md: CORPO_TIPOGRAFICO,
     });
   });

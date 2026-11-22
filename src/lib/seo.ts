@@ -83,9 +83,18 @@ export function metadadosDaBusca(termo: string): Metadata {
   };
 }
 
-/** Dados estruturados (schema.org) da matéria. */
+/**
+ * Dados estruturados (schema.org) da matéria. O autor é o portal (`Organization`) nas
+ * matérias do squad e da importação, e a pessoa que assina (`Person`, o campo `autor`)
+ * nas criadas no editor do painel (spec v2 §7.7, história 18). Quem publica é sempre o
+ * portal.
+ */
 export function jsonLdDaMateria(artigo: Article, base: URL) {
   const organizacao = { "@type": "Organization", name: NOME_DO_PORTAL };
+  const autor =
+    artigo.fonte === "painel"
+      ? { "@type": "Person", name: artigo.autor }
+      : organizacao;
   return {
     "@context": "https://schema.org",
     "@type": EDITORIAS_AUTORAIS.includes(artigo.editoria.slug)
@@ -96,7 +105,7 @@ export function jsonLdDaMateria(artigo: Article, base: URL) {
     datePublished: artigo.publicado_em,
     inLanguage: "pt-BR",
     mainEntityOfPage: new URL(caminhoDaMateria(artigo.slug), base).href,
-    author: organizacao,
+    author: autor,
     publisher: organizacao,
   };
 }

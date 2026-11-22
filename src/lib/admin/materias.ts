@@ -5,12 +5,15 @@ import { TAG_MATERIAS, tagDaMateria } from "@/lib/content/cache";
 import {
   despublicarMateria,
   gravarRevisao,
+  inserirMateria,
   listarMaterias,
   publicarRevisao,
   restaurarRevisao as restaurar,
 } from "./painel";
+import { renderizarPrevia } from "./previa";
 import { exigirAdmin } from "./sessao";
 import type {
+  CamposDaCriacaoDeEntrada,
   CamposEditoriaisDeEntrada,
   FiltrosDoPainel,
   MateriaDoPainel,
@@ -28,7 +31,8 @@ import type {
  * na hora as etiquetas da história 14 (`materias` e `materia:<slug>`). O `updateTag` é o
  * das Server Actions: a próxima leitura espera o dado novo, sem servir o velho (o webhook
  * do banco ainda avisa a rota `/api/revalidar`, que usa `revalidateTag`). Salvar e
- * restaurar não mudam o site: só o `refresh()` da tela do painel.
+ * restaurar não mudam o site: só o `refresh()` da tela do painel. Criar (história 18)
+ * grava um rascunho e não mexe em nada disso; a prévia não grava nada.
  */
 
 export async function listarMateriasDoPainel(
@@ -83,6 +87,32 @@ export async function restaurarRevisao(
   const resultado = await restaurar(acesso.admin.cliente, articleId, numero);
   if (resultado.ok) refresh();
   return resultado;
+}
+
+/**
+ * "Criar rascunho" no editor (história 18, critério 3). Uma matéria nova nasce em
+ * rascunho: o site não muda, então não há cache para expirar, e a tela de criação navega
+ * para a edição (onde se publica), sem precisar do `refresh()`.
+ */
+export async function criarMateria(
+  campos: CamposDaCriacaoDeEntrada,
+): Promise<ResultadoDoPainel<{ id: string; slug: string }>> {
+  const acesso = await exigirAdmin();
+  if (!acesso.ok) return acesso;
+  return inserirMateria(acesso.admin.cliente, campos);
+}
+
+/**
+ * A prévia do editor (história 18, critério 4): o HTML sanitizado do `renderMarkdown` do
+ * site (ADR 0004). Também exige admin: sem isso, seria um renderizador de markdown aberto
+ * a qualquer um. Não grava nada.
+ */
+export async function previsualizar(
+  md: string,
+): Promise<ResultadoDoPainel<{ html: string }>> {
+  const acesso = await exigirAdmin();
+  if (!acesso.ok) return acesso;
+  return renderizarPrevia(md);
 }
 
 /** Não exportada: num arquivo "use server", tudo que sai vira endpoint. */

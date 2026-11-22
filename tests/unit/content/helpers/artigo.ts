@@ -22,6 +22,7 @@ export function montarArtigo(parcial: Partial<Article> = {}): Article {
     meta_description: null,
     palavras_chave: [],
     origem: "squad-fut/textos/teste",
+    fonte: "squad",
     corpo_md: "Corpo de teste.\n",
     ...parcial,
   };

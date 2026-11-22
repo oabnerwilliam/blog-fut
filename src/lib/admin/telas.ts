@@ -3,9 +3,12 @@
  * docs/design/17-painel). Sem `server-only`: o formulário de edição (cliente) usa
  * `camposDoFormulario` e `sugerirSlug`.
  */
+import { readingTime } from "@/lib/content/reading-time";
 import { SLUG_REGEX } from "@/lib/content/schema";
 import { isEditoria, rotuloDaEditoria, type Editoria } from "@/lib/editorias";
+import { gerarSlug } from "./slug";
 import type {
+  CamposDaCriacaoDeEntrada,
   CamposDaRevisao,
   CamposEditoriaisDeEntrada,
   FiltrosDoPainel,
@@ -13,6 +16,7 @@ import type {
   HistoricoDaMateria,
   MateriaDoPainel,
   NomeDoCampo,
+  NomeDoCampoDaCriacao,
   ResumoDaMateria,
   RevisaoResumida,
 } from "./tipos";
@@ -32,9 +36,12 @@ export function rotuloDaFonte(fonte: Fonte): string {
   return FONTES[fonte];
 }
 
-/** Os rótulos dos campos, como no formulário. */
-export const ROTULOS_DOS_CAMPOS: Readonly<Record<NomeDoCampo, string>> = {
+/** Os rótulos dos campos, como no formulário (o slug só existe na criação, história 18). */
+export const ROTULOS_DOS_CAMPOS: Readonly<
+  Record<NomeDoCampoDaCriacao, string>
+> = {
   titulo: "Título",
+  slug: "Slug",
   titulo_seo: "Título para buscadores",
   linha_fina: "Linha fina",
   editoria: "Editoria",
@@ -47,8 +54,9 @@ export const ROTULOS_DOS_CAMPOS: Readonly<Record<NomeDoCampo, string>> = {
 };
 
 /** O `id` de cada campo no formulário: os links do bloco de erro levam até ele. */
-export const IDS_DOS_CAMPOS: Readonly<Record<NomeDoCampo, string>> = {
+export const IDS_DOS_CAMPOS: Readonly<Record<NomeDoCampoDaCriacao, string>> = {
   titulo: "c-titulo",
+  slug: "c-slug",
   titulo_seo: "c-seo",
   linha_fina: "c-fina",
   editoria: "c-editoria",
@@ -107,6 +115,63 @@ export function camposDoFormulario(
     ficticio: formulario.get("ficticio") === "on",
     corpo_md: texto(formulario.get("corpo_md")),
   };
+}
+
+/**
+ * O formulário de "Nova matéria" (história 18): os campos da edição mais o slug, como foi
+ * digitado. O servidor valida (`criarMateria`).
+ */
+export function camposDaCriacaoDoFormulario(
+  formulario: FormData,
+  tags: readonly string[],
+): CamposDaCriacaoDeEntrada {
+  return {
+    ...camposDoFormulario(formulario, tags),
+    slug: texto(formulario.get("slug")),
+  };
+}
+
+/**
+ * O slug enquanto o título muda (README de 18-editor, "Slug"): acompanha o título
+ * (`gerarSlug`) até a pessoa editar o slug. Depois disso, só "Usar o título" muda.
+ */
+export function proximoSlug(
+  titulo: string,
+  slugAtual: string,
+  editadoAMao: boolean,
+): string {
+  return editadoAMao ? slugAtual : gerarSlug(titulo);
+}
+
+/** Os minutos de leitura da prévia: a mesma conta do site (`readingTime`). */
+export function minutosDeLeitura(corpo: string): number {
+  return readingTime(corpo);
+}
+
+/** A prévia que está na tela: o corpo que ela representa e o HTML da action. */
+export interface PreviaNaTela {
+  readonly corpo: string;
+  readonly html: string;
+}
+
+export type EstadoDaPrevia = "vazia" | "em-dia" | "atualizando" | "falhou";
+
+/**
+ * O estado da prévia sai do que já se sabe, sem um estado a mais para sincronizar:
+ * - corpo vazio: "vazia" (não há o que pedir);
+ * - a prévia na tela é do corpo atual: "em-dia";
+ * - a última falha foi para o corpo atual: "falhou";
+ * - senão, a resposta do corpo atual ainda não chegou: "atualizando".
+ */
+export function estadoDaPrevia(
+  corpo: string,
+  previa: PreviaNaTela,
+  falhouPara: string | null,
+): EstadoDaPrevia {
+  if (corpo.trim() === "") return "vazia";
+  if (previa.corpo === corpo) return "em-dia";
+  if (falhouPara === corpo) return "falhou";
+  return "atualizando";
 }
 
 /** "Luis Enrique 2" → "luis-enrique-2": a sugestão da mensagem de tag inválida. */

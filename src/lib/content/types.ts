@@ -13,6 +13,12 @@ export interface TagRef {
   readonly rotulo: string;
 }
 
+/**
+ * De onde a matéria veio (coluna `articles.fonte`, história 18): o squad-fut, o editor do
+ * painel ou a importação da v1 (as fictícias). No JSON-LD, a do painel tem autor `Person`.
+ */
+export type FonteDaMateria = "squad" | "painel" | "importacao";
+
 export interface ArticleSummary {
   readonly slug: string;
   readonly titulo: string;
@@ -22,6 +28,7 @@ export interface ArticleSummary {
   readonly publicado_em: DataISO;
   readonly autor: string;
   readonly ficticio: boolean;
+  readonly fonte: FonteDaMateria;
   /** Minutos, calculado por readingTime(corpo_md). Não existe no frontmatter. */
   readonly tempo_de_leitura: number;
 }
