@@ -101,6 +101,11 @@ export const NOMES_DOS_CAMPOS = Object.keys(
   camposEditoriaisSchema.shape,
 ) as readonly (keyof CamposEditoriais)[];
 
+export type NomeDoCampo = keyof CamposEditoriais;
+
+/** A primeira mensagem de erro de cada campo inválido. */
+export type ErrosDosCampos = Readonly<Partial<Record<NomeDoCampo, string>>>;
+
 /** Filtros da lista `/admin/materias`. Cada um é opcional; vazio é "todos". */
 export const filtrosDoPainelSchema = z.strictObject({
   status: z.enum(STATUS_DA_MATERIA).optional(),
@@ -153,8 +158,57 @@ export type Recusa = {
   readonly mensagem: string;
   /** Só em `campos_invalidos`: um problema por linha, como o validador do squad. */
   readonly problemas?: readonly string[];
+  /** Só em `campos_invalidos`: a mensagem de cada campo, para marcar o formulário. */
+  readonly errosDosCampos?: ErrosDosCampos;
 };
 
 /** `{ ok: true, ...dados }` ou `{ ok: false, erro, mensagem }`. */
 export type ResultadoDoPainel<T extends object = object> =
   ({ readonly ok: true } & T) | Recusa;
+
+/** Uma revisão na lista do histórico (sem o corpo). */
+export interface RevisaoResumida {
+  readonly numero: number;
+  readonly origem: OrigemDaRevisao;
+  /** Quem salvou: o nome do admin, ou o `autor` da matéria nas do squad e da importação. */
+  readonly autor: string;
+  /** Quando foi salva (ISO). */
+  readonly criadaEm: string;
+  readonly titulo: string;
+  readonly editoria: Editoria;
+}
+
+/** Uma revisão inteira: para abrir, comparar e restaurar. */
+export interface RevisaoCompleta extends RevisaoResumida {
+  readonly campos: CamposDaRevisao;
+}
+
+/** O que não muda pelo painel e diz onde a matéria está. */
+export interface ResumoDaMateria {
+  readonly id: string;
+  readonly slug: string;
+  readonly status: StatusDaMateria;
+  readonly fonte: Fonte;
+  readonly origem: string | null;
+  /** Data editorial, AAAA-MM-DD. */
+  readonly publicadoEm: string;
+  readonly revisaoPublicada: number | null;
+  readonly revisaoEmEdicao: number;
+}
+
+/** `/admin/materias/[id]`: a matéria com os campos da revisão em edição. */
+export interface MateriaParaEdicao extends ResumoDaMateria {
+  readonly campos: CamposDaRevisao;
+  readonly emEdicao: RevisaoResumida;
+  readonly totalDeRevisoes: number;
+  /** Os slugs de `tags`, para o `datalist` (o admin lê todas). */
+  readonly tagsExistentes: readonly string[];
+}
+
+/** `/admin/materias/[id]/historico`: a matéria e as revisões, da mais nova para a mais antiga. */
+export interface HistoricoDaMateria extends ResumoDaMateria {
+  /** O título da revisão em edição (o que o admin vê no painel). */
+  readonly titulo: string;
+  readonly editoria: Editoria;
+  readonly revisoes: readonly RevisaoResumida[];
+}

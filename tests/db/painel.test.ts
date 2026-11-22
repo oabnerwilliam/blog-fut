@@ -283,6 +283,11 @@ describe("salvar (U9)", () => {
           'campo desconhecido "slug"',
         ]),
       );
+      // A tela marca cada campo com a primeira mensagem dele.
+      expect(resultado.errosDosCampos).toEqual({
+        titulo: "não pode ficar vazio",
+        tags: expect.stringContaining("kebab-case"),
+      });
     }
     expect(await fotoDoBanco()).toEqual(antes);
   });

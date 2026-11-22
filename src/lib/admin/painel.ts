@@ -2,13 +2,23 @@ import "server-only";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { Editoria } from "@/lib/editorias";
+import { nomeParaExibir } from "./formatos";
 import {
   camposEditoriaisSchema,
   filtrosDoPainelSchema,
+  NOMES_DOS_CAMPOS,
   paraCamposDaRevisao,
+  type ErrosDosCampos,
+  type NomeDoCampo,
+  type CamposDaRevisao,
   type ErroDoPainel,
   type Fonte,
+  type HistoricoDaMateria,
   type MateriaDoPainel,
+  type MateriaParaEdicao,
+  type RevisaoCompleta,
+  type RevisaoResumida,
+  type ResumoDaMateria,
   type Recusa,
   type ResultadoDoPainel,
   type StatusDaMateria,
@@ -44,11 +54,9 @@ const MENSAGENS: Record<ErroDoPainel, string> = {
 /** A recusa com a mensagem da tela (pt-BR). */
 export function recusaDoPainel(
   erro: ErroDoPainel,
-  problemas?: readonly string[],
+  detalhes?: Pick<Recusa, "problemas" | "errosDosCampos">,
 ): Recusa {
-  return problemas
-    ? { ok: false, erro, mensagem: MENSAGENS[erro], problemas }
-    : { ok: false, erro, mensagem: MENSAGENS[erro] };
+  return { ok: false, erro, mensagem: MENSAGENS[erro], ...detalhes };
 }
 
 const recusa = recusaDoPainel;
@@ -85,6 +93,26 @@ export function problemasDosCampos(erro: z.ZodError): string[] {
       caminho === "" ? issue.message : `campo "${caminho}": ${issue.message}`,
     ];
   });
+}
+
+/**
+ * A primeira mensagem de cada campo, para a tela marcar o campo (`aria-invalid`) e
+ * mostrar a frase embaixo dele. `tags[2]` conta como `tags`. Campo desconhecido não entra:
+ * ele não existe no formulário (fica só em `problemas`).
+ */
+export function errosPorCampo(erro: z.ZodError): ErrosDosCampos {
+  const erros: Partial<Record<NomeDoCampo, string>> = {};
+  for (const issue of erro.issues) {
+    const campo = issue.path[0];
+    if (
+      typeof campo === "string" &&
+      (NOMES_DOS_CAMPOS as readonly string[]).includes(campo) &&
+      !(campo in erros)
+    ) {
+      erros[campo as NomeDoCampo] = issue.message;
+    }
+  }
+  return erros;
 }
 
 /** As `hint` que as funções da migração `_painel.sql` levantam. */
@@ -206,7 +234,10 @@ export async function gravarRevisao(
   if (!ehIdValido(articleId)) return recusa("id_invalido");
   const validados = camposEditoriaisSchema.safeParse(campos);
   if (!validados.success) {
-    return recusa("campos_invalidos", problemasDosCampos(validados.error));
+    return recusa("campos_invalidos", {
+      problemas: problemasDosCampos(validados.error),
+      errosDosCampos: errosPorCampo(validados.error),
+    });
   }
   const { data, error } = await cliente.rpc("salvar_revisao", {
     p_article_id: articleId,
@@ -297,4 +328,208 @@ export async function restaurarRevisao(
     );
   }
   return gravarRevisao(cliente, articleId, data);
+}
+
+// ---------------------------------------------------------------------------
+// Leituras das telas (edição e histórico)
+// ---------------------------------------------------------------------------
+// As páginas já conferiram a sessão (ADR 0009); o RLS só mostra rascunho e revisões ao
+// admin. Um id inválido ou de matéria que não existe devolve `null` (a página dá
+// `notFound()`). Um erro do banco lança: quem trata é o error.tsx.
+
+interface LinhaDoResumo {
+  id: string;
+  slug: string;
+  status: StatusDaMateria;
+  fonte: Fonte;
+  origem: string | null;
+  publicado_em: string;
+  revisao_publicada: number | null;
+  revisao_em_edicao: number;
+  editoria: Editoria;
+  titulo: string;
+}
+
+interface LinhaDaRevisao {
+  numero: number;
+  origem_da_revisao: Fonte;
+  autor_id: string | null;
+  autor: string;
+  created_at: string;
+  titulo: string;
+  editoria: Editoria;
+}
+
+const COLUNAS_DO_RESUMO =
+  "id,slug,status,fonte,origem,publicado_em,revisao_publicada,revisao_em_edicao,editoria,titulo";
+const COLUNAS_DA_REVISAO =
+  "numero,origem_da_revisao,autor_id,autor,created_at,titulo,editoria";
+
+/** Sem coluna repetida (titulo, autor e editoria estão nas duas listas). */
+const COLUNAS_DA_REVISAO_COMPLETA = [
+  ...new Set(`${COLUNAS_DA_REVISAO},${COLUNAS_DOS_CAMPOS}`.split(",")),
+].join(",");
+
+function falhaDeLeitura(onde: string, error: PostgrestError): Error {
+  return new Error(`Não foi possível ler ${onde}: ${error.message}`);
+}
+
+async function lerResumo(
+  cliente: SupabaseClient,
+  id: unknown,
+): Promise<LinhaDoResumo | null> {
+  if (!ehIdValido(id)) return null;
+  const { data, error } = await cliente
+    .from("articles")
+    .select(COLUNAS_DO_RESUMO)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw falhaDeLeitura("a matéria", error);
+  return data as LinhaDoResumo | null;
+}
+
+function paraResumo(l: LinhaDoResumo): ResumoDaMateria {
+  return {
+    id: l.id,
+    slug: l.slug,
+    status: l.status,
+    fonte: l.fonte,
+    origem: l.origem,
+    publicadoEm: l.publicado_em,
+    revisaoPublicada: l.revisao_publicada,
+    revisaoEmEdicao: l.revisao_em_edicao,
+  };
+}
+
+/** Os nomes de quem salvou, pelos perfis (o admin lê todos). */
+async function nomesDosAutores(
+  cliente: SupabaseClient,
+  linhas: readonly LinhaDaRevisao[],
+): Promise<Map<string, string>> {
+  const ids = [
+    ...new Set(linhas.map((l) => l.autor_id).filter((id) => id !== null)),
+  ];
+  if (ids.length === 0) return new Map();
+  const { data, error } = await cliente
+    .from("perfis")
+    .select("user_id,nome,email")
+    .in("user_id", ids);
+  if (error) throw falhaDeLeitura("os autores das revisões", error);
+  return new Map(
+    (
+      data as { user_id: string; nome: string | null; email: string | null }[]
+    ).map((p) => [p.user_id, nomeParaExibir(p.nome, p.email)]),
+  );
+}
+
+function paraRevisaoResumida(
+  l: LinhaDaRevisao,
+  nomes: Map<string, string>,
+): RevisaoResumida {
+  return {
+    numero: l.numero,
+    origem: l.origem_da_revisao,
+    autor: (l.autor_id && nomes.get(l.autor_id)) || l.autor,
+    criadaEm: l.created_at,
+    titulo: l.titulo,
+    editoria: l.editoria,
+  };
+}
+
+async function lerRevisoesResumidas(
+  cliente: SupabaseClient,
+  id: string,
+): Promise<RevisaoResumida[]> {
+  const { data, error } = await cliente
+    .from("article_revisions")
+    .select(COLUNAS_DA_REVISAO)
+    .eq("article_id", id)
+    .order("numero", { ascending: false });
+  if (error) throw falhaDeLeitura("as revisões", error);
+  const linhas = data as LinhaDaRevisao[];
+  const nomes = await nomesDosAutores(cliente, linhas);
+  return linhas.map((l) => paraRevisaoResumida(l, nomes));
+}
+
+/** As revisões pedidas, inteiras, na ordem dos números. Número que não existe fica de fora. */
+export async function lerRevisoes(
+  cliente: SupabaseClient,
+  id: unknown,
+  numeros: readonly number[],
+): Promise<RevisaoCompleta[]> {
+  const validos = [...new Set(numeros.filter(ehNumeroDeRevisao))];
+  if (!ehIdValido(id) || validos.length === 0) return [];
+  const { data, error } = await cliente
+    .from("article_revisions")
+    .select(COLUNAS_DA_REVISAO_COMPLETA)
+    .eq("article_id", id)
+    .in("numero", validos)
+    .order("numero", { ascending: true });
+  if (error) throw falhaDeLeitura("as revisões", error);
+  const linhas = data as unknown as (LinhaDaRevisao & CamposDaRevisao)[];
+  const nomes = await nomesDosAutores(cliente, linhas);
+  return linhas.map((l) => ({
+    ...paraRevisaoResumida(l, nomes),
+    campos: camposDaLinha(l),
+  }));
+}
+
+function camposDaLinha(l: CamposDaRevisao): CamposDaRevisao {
+  return {
+    titulo: l.titulo,
+    titulo_seo: l.titulo_seo,
+    linha_fina: l.linha_fina,
+    editoria: l.editoria,
+    tags: l.tags,
+    meta_description: l.meta_description,
+    palavras_chave: l.palavras_chave ?? [],
+    autor: l.autor,
+    ficticio: l.ficticio,
+    corpo_md: l.corpo_md,
+  };
+}
+
+/** A tela de edição: os campos são os da revisão em edição, não os do site. */
+export async function lerMateriaParaEdicao(
+  cliente: SupabaseClient,
+  id: unknown,
+): Promise<MateriaParaEdicao | null> {
+  const linha = await lerResumo(cliente, id);
+  if (linha === null) return null;
+  const [revisoes, [emEdicao], tags] = await Promise.all([
+    lerRevisoesResumidas(cliente, linha.id),
+    lerRevisoes(cliente, linha.id, [linha.revisao_em_edicao]),
+    cliente.from("tags").select("slug").order("slug"),
+  ]);
+  if (tags.error) throw falhaDeLeitura("as tags", tags.error);
+  if (!emEdicao) {
+    throw new Error(
+      `A revisão em edição (${linha.revisao_em_edicao}) da matéria ${linha.slug} não existe.`,
+    );
+  }
+  const { campos, ...resumoDaRevisao } = emEdicao;
+  return {
+    ...paraResumo(linha),
+    campos,
+    emEdicao: resumoDaRevisao,
+    totalDeRevisoes: revisoes.length,
+    tagsExistentes: (tags.data as { slug: string }[]).map((t) => t.slug),
+  };
+}
+
+/** O histórico: a lista de revisões, sem os corpos (cada tela pede só as que mostra). */
+export async function lerHistorico(
+  cliente: SupabaseClient,
+  id: unknown,
+): Promise<HistoricoDaMateria | null> {
+  const linha = await lerResumo(cliente, id);
+  if (linha === null) return null;
+  const revisoes = await lerRevisoesResumidas(cliente, linha.id);
+  const emEdicao = revisoes.find((r) => r.numero === linha.revisao_em_edicao);
+  return {
+    ...paraResumo(linha),
+    titulo: emEdicao?.titulo ?? linha.titulo,
+    editoria: emEdicao?.editoria ?? linha.editoria,
+    revisoes,
+  };
 }

@@ -134,3 +134,59 @@ export function resumoDoDiff(linhas: readonly LinhaDoDiff[]): {
   }
   return { adicionadas, removidas };
 }
+
+/** Um trecho de linhas iguais escondido: "⋯ 38 linhas iguais (16–53), até o fim". */
+export interface TrechoIgual {
+  readonly tipo: "pulo";
+  readonly quantidade: number;
+  /** Primeira e última linha escondidas, na numeração da versão nova. */
+  readonly de: number;
+  readonly ate: number;
+  readonly ateOFim: boolean;
+}
+
+export type ItemDoDiff = LinhaDoDiff | TrechoIgual;
+
+/**
+ * Esconde os trechos longos de linhas iguais, deixando `contexto` linhas antes e depois
+ * de cada mudança (README do design: 2). Um trecho só some se esconder pelo menos 2
+ * linhas: trocar 1 linha por "⋯ 1 linha igual" não economiza nada.
+ */
+export function comContexto(
+  linhas: readonly LinhaDoDiff[],
+  contexto = 2,
+): ItemDoDiff[] {
+  const mudou = linhas.map((l) => l.tipo !== "igual");
+  if (!mudou.includes(true)) return [...linhas];
+  const visivel = linhas.map((_, i) => {
+    for (let k = Math.max(0, i - contexto); k <= i + contexto; k++) {
+      if (mudou[k]) return true;
+    }
+    return false;
+  });
+  const saida: ItemDoDiff[] = [];
+  let i = 0;
+  while (i < linhas.length) {
+    if (visivel[i]) {
+      saida.push(linhas[i]);
+      i++;
+      continue;
+    }
+    let fim = i;
+    while (fim < linhas.length && !visivel[fim]) fim++;
+    const quantidade = fim - i;
+    if (quantidade < 2) {
+      saida.push(...linhas.slice(i, fim));
+    } else {
+      saida.push({
+        tipo: "pulo",
+        quantidade,
+        de: linhas[i].linhaDepois ?? 0,
+        ate: linhas[fim - 1].linhaDepois ?? 0,
+        ateOFim: fim === linhas.length,
+      });
+    }
+    i = fim;
+  }
+  return saida;
+}
