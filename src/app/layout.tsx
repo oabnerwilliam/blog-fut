@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import "@/styles/tokens.css";
 import "./globals.css";
-import { SiteFooter } from "@/components/layout/SiteFooter";
-import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { DESCRICAO_DO_PORTAL, NOME_DO_PORTAL, SITE_URL } from "@/lib/site";
 import { SCRIPT_DO_TEMA } from "@/lib/tema";
@@ -33,17 +30,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <SkipLink />
-        <SiteHeader />
         {/*
-         * Com o conteúdo em cache, a página inteira entra no shell estático e este
-         * <Suspense> não muda nada. Ele vale quando o banco está fora do ar no build: a
-         * leitura que falha tem vida zero e fica fora do prerender (leitura-protegida.ts,
-         * U11). A página vira dinâmica e o build passa, com cabeçalho e rodapé estáticos
-         * (ADR 0008, §7). Sem ele, o Next recusa o build ("uncached data outside of
-         * <Suspense>").
+         * O cabeçalho e o rodapé ficam no layout de cada área: `(site)/layout.tsx` no
+         * portal e `admin/layout.tsx` no admin (história 16). A 404 raiz monta os do portal.
          */}
-        <Suspense>{children}</Suspense>
-        <SiteFooter />
+        {children}
       </body>
     </html>
   );

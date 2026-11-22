@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import Capa from "@/app/page";
+import Capa from "@/app/(site)/page";
 import type { ArticleRepository } from "@/lib/content";
 
 const PSG = "psg-balanco-temporada-2026-27-mercado-elenco-curto";
