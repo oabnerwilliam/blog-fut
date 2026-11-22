@@ -1,53 +1,23 @@
 /**
- * Cookies de sessão no formato do `@supabase/ssr`, gerados pela própria biblioteca
- * (história 16). Servem para testar o servidor sem passar pelo Google.
- *
- * Como funciona: um `createServerClient` com um pote de cookies em memória recebe a
- * sessão de um usuário logado por senha (`setSession`). A biblioteca grava os cookies
- * do jeito dela (nome `sb-<host>-auth-token`, valor `base64-<json>`, pedaços `.0`, `.1`
- * se passar de ~3 KB). O teste nunca monta esse formato à mão, então uma mudança de
- * formato numa versão nova do pacote não quebra os testes por engano.
- *
- * A fase 2 (e2e de banco) reaproveita `cookiesDaSessao` para injetar a sessão no
- * navegador com `context.addCookies`.
+ * Cookies de sessão no formato do `@supabase/ssr` para os testes de `tests/db/`
+ * (história 16). A geração fica em `tests/helpers/sessao-supabase.ts` (a própria
+ * biblioteca grava os cookies), que o e2e de banco também usa para injetar a sessão no
+ * navegador.
  */
-import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  gerarCookiesDaSessao,
+  type CookieSimples,
+} from "../../helpers/sessao-supabase";
 import { supabaseLocal } from "./supabase-local";
 
-export interface CookieSimples {
-  readonly name: string;
-  readonly value: string;
-}
+export type { CookieSimples } from "../../helpers/sessao-supabase";
 
 /** Os cookies que o navegador teria depois de entrar com essa sessão. */
-export async function cookiesDaSessao(
+export function cookiesDaSessao(
   logado: SupabaseClient,
 ): Promise<CookieSimples[]> {
-  const { data, error } = await logado.auth.getSession();
-  if (error || !data.session) {
-    throw new Error(`sem sessão para gerar cookies: ${error?.message ?? ""}`);
-  }
-  const pote = new Map<string, string>();
-  const { url, anonKey } = supabaseLocal();
-  const cliente = createServerClient(url, anonKey, {
-    cookies: {
-      getAll: () => [...pote].map(([name, value]) => ({ name, value })),
-      setAll(aGravar) {
-        for (const { name, value } of aGravar) {
-          if (value === "") pote.delete(name);
-          else pote.set(name, value);
-        }
-      },
-    },
-  });
-  const { error: erro } = await cliente.auth.setSession({
-    access_token: data.session.access_token,
-    refresh_token: data.session.refresh_token,
-  });
-  if (erro) throw new Error(`setSession: ${erro.message}`);
-  if (pote.size === 0) throw new Error("o @supabase/ssr não gravou cookie");
-  return [...pote].map(([name, value]) => ({ name, value }));
+  return gerarCookiesDaSessao(supabaseLocal(), logado);
 }
 
 /**

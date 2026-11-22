@@ -14,6 +14,8 @@ import { lerSupabaseLocal } from "./tests/e2e-db/supabase-local";
  * - O Postgres roda no Docker e chama o site por `host.docker.internal:<porta>`. No
  *   Linux (CI), o Supabase CLI já cria os containers com
  *   `host.docker.internal:host-gateway` (ver docs/operacao/supabase-local.md).
+ * - `ADMIN_HABILITADO=true`: o e2e do admin (história 16) entra com cookies de sessão
+ *   gerados pelo `@supabase/ssr` (tests/helpers/sessao-supabase.ts), sem o Google.
  * - O teardown devolve o banco ao `content/` real e apaga a configuração do Vault.
  */
 const supabase = lerSupabaseLocal();
@@ -43,6 +45,8 @@ export default defineConfig({
       NEXT_PUBLIC_SUPABASE_ANON_KEY: supabase.anonKey,
       REVALIDATE_SECRET: SEGREDO_DO_E2E_DB,
       TTL_DO_INDICE_MS_TESTE: "1000",
+      // História 16: o admin ligado, com a sessão injetada por cookie (tests/e2e-db/admin.spec.ts).
+      ADMIN_HABILITADO: "true",
     },
     url: `http://localhost:${PORTA_DO_E2E_DB}/robots.txt`,
     reuseExistingServer: false,
