@@ -355,6 +355,43 @@ describe("criarMateria", () => {
   });
 });
 
+describe("h1 no corpo (a regra da v1, no painel)", () => {
+  const MENSAGEM =
+    "O título da matéria já é o h1. Use ## para subtítulos (linha 3).";
+
+  it("criar com h1 é recusado com o erro no corpo, e nada é gravado", async () => {
+    const antes = await fotoDoBanco();
+    expect(
+      await acoes.criarMateria(
+        campos({ corpo_md: "Texto.\n\n# Outro título\n" }),
+      ),
+    ).toMatchObject({
+      ok: false,
+      erro: "campos_invalidos",
+      errosDosCampos: { corpo_md: MENSAGEM },
+    });
+    expect(await fotoDoBanco()).toEqual(antes);
+  });
+
+  it("salvar uma edição com h1 também é recusado", async () => {
+    const criada = await acoes.criarMateria(campos());
+    if (!criada.ok) throw new Error(criada.mensagem);
+    const antes = await fotoDoBanco();
+    const editoriais: Record<string, unknown> = {
+      ...campos({ corpo_md: "Texto.\n\n<h1>Outro título</h1>\n" }),
+    };
+    delete editoriais.slug;
+    expect(
+      await acoes.salvarRevisao(criada.id, editoriais as never),
+    ).toMatchObject({
+      ok: false,
+      erro: "campos_invalidos",
+      errosDosCampos: { corpo_md: MENSAGEM },
+    });
+    expect(await fotoDoBanco()).toEqual(antes);
+  });
+});
+
 describe("criar_materia chamada direto pelo admin (o banco valida, sem o zod)", () => {
   it.each([
     ["slug fora do kebab-case", { slug: "Com Espaço" }],

@@ -5,6 +5,7 @@
  * as listas. Quem grava valida de novo no servidor (`materias.ts`), sempre.
  */
 import { z } from "zod";
+import { encontrarLinhasDeH1 } from "@/lib/content/markdown";
 import { frontmatterSchema, SLUG_REGEX } from "@/lib/content/schema";
 import type { FonteDaMateria } from "@/lib/content/types";
 import { SLUGS_DE_EDITORIA, type Editoria } from "@/lib/editorias";
@@ -25,6 +26,26 @@ export type StatusDaMateria = (typeof STATUS_DA_MATERIA)[number];
 export type OrigemDaRevisao = Fonte;
 
 const campo = frontmatterSchema.shape;
+
+/**
+ * A regra da v1 para `h1` no corpo, também no painel (história 18): o título da matéria
+ * já é o `h1` da página. O detector é o mesmo do carregamento dos arquivos
+ * (`encontrarLinhasDeH1`, ADR 0004): `#`, o sublinhado com `===` e `<h1>`, sem contar o
+ * que está dentro de código. As linhas são as do corpo, contadas a partir de 1.
+ *
+ * Vale na criação e na edição, e por isso também no "Restaurar esta versão" (que grava
+ * pelos mesmos campos). Nenhuma revisão 1 do squad tem `h1`: o `materia:enviar` e a
+ * importação passam pelo parser da v1, que recusa o `h1`, e as 9 matérias da pasta de
+ * conteúdo passam nele. Se uma revisão antiga do painel tiver `h1`, restaurá-la mostra este mesmo
+ * erro, o que é aceitável: a pessoa troca o `#` por `##` e salva.
+ */
+export function mensagemDeH1(linhas: readonly number[]): string {
+  const onde =
+    linhas.length === 1
+      ? `linha ${linhas[0]}`
+      : `linhas ${linhas.slice(0, -1).join(", ")} e ${linhas[linhas.length - 1]}`;
+  return `O título da matéria já é o h1. Use ## para subtítulos (${onde}).`;
+}
 
 /** Teto do corpo: bem acima da maior matéria do squad, abaixo do 1 MB das actions. */
 export const TAMANHO_MAXIMO_DO_CORPO = 200_000;
@@ -61,6 +82,13 @@ export const camposEditoriaisSchema = z.strictObject(
       .refine((s) => s.trim() !== "", { error: "não pode ficar vazio" })
       .refine((s) => s.length <= TAMANHO_MAXIMO_DO_CORPO, {
         error: `passa de ${TAMANHO_MAXIMO_DO_CORPO.toLocaleString("pt-BR")} caracteres`,
+        abort: true,
+      })
+      .superRefine((corpo, ctx) => {
+        const linhas = encontrarLinhasDeH1(corpo);
+        if (linhas.length > 0) {
+          ctx.addIssue({ code: "custom", message: mensagemDeH1(linhas) });
+        }
       })
       .transform((s) => s.replace(/\r\n?/g, "\n")),
   },

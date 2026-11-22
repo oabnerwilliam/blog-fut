@@ -375,6 +375,9 @@ export async function restaurarRevisao(
       lido.slug === null ? "materia_inexistente" : "revisao_inexistente",
     );
   }
+  // Passa pelo mesmo zod de salvar, inclusive a regra do h1 no corpo (`mensagemDeH1`,
+  // tipos.ts). Nenhuma revisão 1 do squad tem h1 (o parser da v1 recusa); uma revisão
+  // antiga com h1 volta com o erro no corpo, e a pessoa corrige na edição.
   return gravarRevisao(cliente, articleId, data);
 }
 
@@ -537,6 +540,18 @@ function camposDaLinha(l: CamposDaRevisao): CamposDaRevisao {
   };
 }
 
+/** Os slugs de `tags`, para o `datalist` da edição e da criação (o admin lê todas). */
+export async function lerTagsExistentes(
+  cliente: SupabaseClient,
+): Promise<string[]> {
+  const { data, error } = await cliente
+    .from("tags")
+    .select("slug")
+    .order("slug");
+  if (error) throw falhaDeLeitura("as tags", error);
+  return (data as { slug: string }[]).map((t) => t.slug);
+}
+
 /** A tela de edição: os campos são os da revisão em edição, não os do site. */
 export async function lerMateriaParaEdicao(
   cliente: SupabaseClient,
@@ -547,9 +562,8 @@ export async function lerMateriaParaEdicao(
   const [revisoes, [emEdicao], tags] = await Promise.all([
     lerRevisoesResumidas(cliente, linha.id),
     lerRevisoes(cliente, linha.id, [linha.revisao_em_edicao]),
-    cliente.from("tags").select("slug").order("slug"),
+    lerTagsExistentes(cliente),
   ]);
-  if (tags.error) throw falhaDeLeitura("as tags", tags.error);
   if (!emEdicao) {
     throw new Error(
       `A revisão em edição (${linha.revisao_em_edicao}) da matéria ${linha.slug} não existe.`,
@@ -561,7 +575,7 @@ export async function lerMateriaParaEdicao(
     campos,
     emEdicao: resumoDaRevisao,
     totalDeRevisoes: revisoes.length,
-    tagsExistentes: (tags.data as { slug: string }[]).map((t) => t.slug),
+    tagsExistentes: tags,
   };
 }
 
