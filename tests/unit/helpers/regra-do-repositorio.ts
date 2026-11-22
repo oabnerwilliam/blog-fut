@@ -32,6 +32,20 @@ export function encontrarImportsDoSupabase(codigo: string): string[] {
   return linhasQueCasam(codigo, IMPORT_DO_SUPABASE);
 }
 
+/** Import de um módulo exato ou de um caminho abaixo dele (`@/lib/auth` pega `@/lib/auth/config`). */
+export function encontrarImportsDoModulo(
+  codigo: string,
+  modulo: string,
+): string[] {
+  const escapado = modulo.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return linhasQueCasam(
+    codigo,
+    new RegExp(
+      `(?:\\bfrom\\s*|\\bimport\\s*\\(?\\s*|\\brequire\\s*\\(\\s*)(["'\`])${escapado}(?:/[^"'\`]*)?\\1`,
+    ),
+  );
+}
+
 export function encontrarCaminhosParaContent(codigo: string): string[] {
   return linhasQueCasam(codigo, CAMINHO_PARA_CONTENT);
 }

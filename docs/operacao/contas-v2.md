@@ -73,9 +73,21 @@ REVALIDATE_SECRET=<o mesmo da Vercel>
 - O Docker Desktop precisa estar **aberto** durante a sessão, porque o Supabase local roda nele.
 - Não é preciso instalar o Supabase CLI: ele entra como dependência do projeto na história 13.
 
-## 7. Depois da história 16 (login)
-1. Abra `https://<domínio>/admin/entrar` e entre com o seu Google uma vez. Você vai ver "pedido enviado".
-2. A sessão, ou você, roda `pnpm admin:promover <seu e-mail> --prod --sim`. A partir daí, você é o primeiro admin e aceita os próximos pedidos em `/admin/acessos`.
+## 7. Depois da história 16 (login): o primeiro admin
+Sem um primeiro admin, ninguém aceita pedidos de acesso. Ele é promovido por comando, uma vez só (ADR 0009, §6).
+1. Confira que o CI aplicou a migração `<timestamp>_perfis.sql` na produção (`migracoes.yml` verde) e que o provedor Google está ligado no Supabase (passo 3).
+2. Abra `https://<domínio>/admin/entrar` e entre com o seu Google **uma vez**. Você vai ver "pedido enviado". É esse primeiro login que cria o seu perfil, como `pendente`.
+3. A sessão, ou você, roda na raiz do blog-fut:
+   ```
+   pnpm admin:promover <seu e-mail> --prod --sim
+   ```
+   - O comando mostra "Destino: PRODUÇÃO (<host>)" e o e-mail mascarado (`v***@gmail.com`), nunca inteiro. Maiúsculas não importam.
+   - Sem `--sim`, num terminal, ele pede confirmação.
+   - "Nenhum perfil com o e-mail…" (código 1): o login do passo 2 ainda não aconteceu, ou foi com outra conta. Entre e rode de novo.
+   - "… já é admin" (código 0): nada a fazer.
+4. Recarregue `/admin`. A partir daí, você é o primeiro admin e aceita, recusa, revoga ou reabre os próximos pedidos em `/admin/acessos`. Você não muda o seu próprio acesso, nem pela tela nem pela API.
+
+O e-mail de quem foi promovido não vai para o git: nem em relatório, nem em fixture, nem em log commitado. Os testes usam só endereços `@exemplo.test`.
 
 ## Checklist rápido para a sessão autônoma conferir (sem imprimir valores)
 - [ ] `.env.prod.local` com as 5 chaves.

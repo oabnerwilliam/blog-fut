@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Acessos · Zona Mista Admin (mockup história 16)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script>
+  /*
+   * 1) O que já existe no app (SCRIPT_DO_TEMA, história 07): lê localStorage["tema"] e marca data-js.
+   * 2) Só do mockup: ?theme=sistema|light|dark força o tema; ?estado=... escolhe o estado da tela;
+   *    ?shot esconde a barra de ferramentas do mockup.
+   */
+  (function () {
+    var q = new URLSearchParams(location.search), h = document.documentElement, t = q.get('theme');
+    if (t !== 'sistema' && t !== 'light' && t !== 'dark') { try { t = localStorage.getItem('tema'); } catch (e) { t = null; } }
+    if (t === 'light' || t === 'dark') h.setAttribute('data-theme', t);
+    if (q.get('estado')) h.setAttribute('data-estado', q.get('estado'));
+    if (q.has('shot')) h.classList.add('shot');
+    h.setAttribute('data-js', '');
+  })();
+</script>
+<style>
+  /* ===== Tokens (cópia de docs/design/tokens.md §1, §3, §4). Nenhum token novo. ===== */
+  :root {
+    --color-bg: #EFEEE9; --color-ink: #16181D; --color-ink-muted: #585B63; --color-rule: #C9C7BF;
+    --color-rule-strong: #16181D; --color-accent: #2638C9; --color-amber: #FFB000;
+    --color-night: #0E1120; --color-night-ink: #ECEBE5; --color-night-ink-muted: #A3A7B6; --color-night-rule: #2C3148;
+    --color-badge-bg: #FFB000; --color-badge-ink: #16181D; --color-focus: #2638C9; --color-focus-night: #FFB000;
+    --font-display: "Instrument Serif", "Times New Roman", Georgia, serif;
+    --font-text: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --text-label: .6875rem;
+    --text-nav: .9375rem;
+    --text-body: clamp(1.0625rem, 1rem + .25vw, 1.15rem);
+    --text-dek: clamp(1.0625rem, 1rem + .4vw, 1.3125rem);
+    --text-row-title: clamp(1.45rem, 1.25rem + .7vw, 1.9rem);
+    --text-section: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+    --text-feature: clamp(2.1rem, 1.2rem + 3.2vw, 4rem);
+    --space-section: clamp(2.5rem, 6vw, 4.5rem);
+    --layout-gutter: clamp(1rem, 4vw, 3rem);
+    --layout-max: 84rem;
+    --layout-measure: 66ch;
+    --rule-width: 1px; --rule-width-strong: 2px;
+    --focus-width: 3px; --focus-offset: 3px;
+    --tap-min: 40px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-bg: #0E1120; --color-ink: #ECEBE5; --color-ink-muted: #A3A7B6; --color-rule: #272B3F;
+      --color-rule-strong: #ECEBE5; --color-accent: #9DAAFF; --color-night: #1A2142; --color-night-rule: #343C63;
+      --color-focus: #9DAAFF; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --color-bg: #0E1120; --color-ink: #ECEBE5; --color-ink-muted: #A3A7B6; --color-rule: #272B3F;
+    --color-rule-strong: #ECEBE5; --color-accent: #9DAAFF; --color-night: #1A2142; --color-night-rule: #343C63;
+    --color-focus: #9DAAFF; color-scheme: dark;
+  }
+  @media (min-width: 64rem) { :root { --text-nav: 1rem; } }
+
+  /* ===== Base do portal (globals.css) ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--color-bg); color: var(--color-ink); font-family: var(--font-text); font-size: 1rem; line-height: 1.5; overflow-wrap: break-word; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, p, ul, ol, dl, dd { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  h1, h2 { font-weight: 400; text-wrap: balance; }
+  :focus-visible { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--focus-offset); }
+  #conteudo:focus { outline: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .skip { position: absolute; left: var(--layout-gutter); top: -200px; z-index: 20; background: var(--color-amber); color: var(--color-badge-ink);
+          font: 600 .8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; padding: .85rem 1rem; }
+  .skip:focus { top: .75rem; outline-color: var(--color-ink); box-shadow: 0 0 0 var(--focus-offset) var(--color-bg); }
+  .wrap { max-width: var(--layout-max); margin-inline: auto; padding-inline: var(--layout-gutter); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero; }
+  .label { font: 500 var(--text-label)/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; font-variant-numeric: tabular-nums slashed-zero; }
+  .link { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: var(--rule-width); text-underline-offset: .2em; }
+  @media (hover: hover) { .link:hover { text-decoration-thickness: var(--rule-width-strong); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+  /* ===== Botão de tema (BotaoDeTema, história 07, sem mudança) ===== */
+  .tema { flex: none; position: relative; display: inline-flex; align-items: center; gap: .5em;
+          min-height: var(--tap-min); min-width: var(--tap-min); margin: -.5rem -.5rem -.5rem auto; padding: 0 .5rem;
+          border: 0; border-radius: 0; background: transparent; color: var(--color-ink-muted);
+          font: 500 var(--text-label)/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; cursor: pointer; }
+  .tema:focus-visible { outline-offset: 0; }
+  .tema__valor { color: var(--color-ink); font-weight: 600; display: inline-grid; justify-items: start; }
+  .tema:hover, .tema:hover .tema__valor { color: var(--color-accent); }
+  .tema:hover .tema__valor { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  .tema__losango { flex: none; width: .62em; height: .62em; margin-inline: .12em; transform: rotate(45deg); border: var(--rule-width) solid currentColor; color: var(--color-ink); }
+  .tema:hover .tema__losango { color: var(--color-accent); }
+  .tema [data-rotulo] { grid-area: 1 / 1; visibility: hidden; }
+  html:not([data-theme]) .tema [data-rotulo="sistema"], html[data-theme="light"] .tema [data-rotulo="light"], html[data-theme="dark"] .tema [data-rotulo="dark"] { visibility: visible; }
+  html:not([data-theme]) .tema__losango { background: linear-gradient(to top right, currentColor 50%, var(--color-bg) 50%); }
+  html[data-theme="dark"] .tema__losango { background: currentColor; }
+  html:not([data-js]) .tema { display: none; }
+
+  /* ===== NOVO: topo do admin (AdminHeader) ===== */
+  .adm-top { padding-top: .9rem; }
+  .adm-linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
+               padding-bottom: .65rem; border-bottom: var(--rule-width) solid var(--color-rule); color: var(--color-ink-muted); }
+  .adm-linha > span { flex: 1 1 9rem; min-width: 0; }
+  /* faixa do nome: filete forte de ponta a ponta embaixo (como a borda de cima da nav pública) */
+  .adm-faixa { border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .adm-main { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; padding-block: .8rem; }
+  .marca { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .3rem .7rem; min-width: 0; }
+  .marca__nome { white-space: nowrap; font: 400 var(--text-section)/.9 var(--font-display); letter-spacing: -.03em; padding-bottom: .06em; }
+  .marca__nome i { margin-left: .08em; letter-spacing: -.04em; }
+  /* Marcador "Admin": texto mono com filete vertical, sem fundo (o único objeto com fundo continua sendo o selo Exemplo). */
+  .marca__admin { font: 600 var(--text-label)/1 var(--font-mono); text-transform: uppercase; letter-spacing: .1em;
+                  padding: .3rem 0 .3rem .7rem; border-left: var(--rule-width) solid var(--color-rule-strong); }
+  a.marca:hover .marca__nome { color: var(--color-accent); }
+  /* Quem está logado: avatar + nome + Sair. Abaixo de 48rem vai para a linha de baixo, Sair à direita. */
+  .quem { flex: 1 1 15rem; display: flex; align-items: center; gap: .65rem; min-width: 0; }
+  .quem__nome { min-width: 0; font: 500 .9375rem/1.25 var(--font-text); }
+  .quem form { margin-left: auto; }
+  @media (min-width: 48rem) { .quem { flex: 0 1 auto; } .quem form { margin-left: .5rem; } }
+  /* Nav do admin (só para aprovado): Painel e Acessos (a 17 acrescenta Matérias). */
+  .adm-nav { border-bottom: var(--rule-width) solid var(--color-rule); }
+  .adm-nav ul { max-width: var(--layout-max); margin: 0 auto; padding: .2rem var(--layout-gutter); display: flex; flex-wrap: wrap; gap: 0 1.5rem; }
+  .adm-nav a { display: inline-flex; align-items: center; min-height: var(--tap-min); font: 500 var(--text-nav)/1 var(--font-text); font-stretch: 92%; }
+  .adm-nav a:hover, .adm-nav a[aria-current="page"] { color: var(--color-accent); }
+  .adm-nav a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: var(--rule-width-strong); text-underline-offset: .35em; }
+  .adm-nav a:focus-visible { outline-offset: 0; }
+
+  /* ===== NOVO: avatar. Raio 0, como tudo. Foto do Google ou iniciais sobre a faixa noturna. ===== */
+  .av { flex: none; display: inline-grid; place-items: center; width: 2.5rem; height: 2.5rem; object-fit: cover;
+        background: var(--color-night); color: var(--color-night-ink); font: 600 .8125rem/1 var(--font-mono); letter-spacing: .04em; }
+  .av--p { width: 2rem; height: 2rem; font-size: .6875rem; }
+
+  /* ===== NOVO: botões. Primário (cheio de tinta) e secundário (filete, como o Buscar). ===== */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5em; flex: none; min-height: var(--tap-min); margin: 0; padding: 0 .9rem;
+         border: var(--rule-width) solid var(--color-rule-strong); border-radius: 0; background: transparent; color: var(--color-ink);
+         font: 600 var(--text-label)/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; cursor: pointer; }
+  .btn:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .btn--cheio { background: var(--color-ink); color: var(--color-bg); }
+  .btn--cheio:hover { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-bg); }
+  .btn--grande { min-height: 3rem; padding: 0 1.4rem; font-size: .8125rem; }
+  .btn[disabled] { cursor: progress; }
+
+  /* ===== Página ===== */
+  .pag { padding-block: var(--space-section) 0; }
+  .pag__corpo { max-width: var(--layout-measure); }
+  @media (min-width: 64rem) { .pag--estreita .pag__corpo { margin-left: 25%; } }
+  .chapeu { color: var(--color-accent); }
+  .titulo { margin-top: .6rem; max-width: 16ch; font: 400 var(--text-feature)/.98 var(--font-display); letter-spacing: -.025em; }
+  .fina { margin-top: 1rem; max-width: 40ch; font: 400 var(--text-dek)/1.5 var(--font-text); text-wrap: pretty; }
+  .texto { margin-top: 1rem; font: 400 var(--text-body)/1.6 var(--font-text); color: var(--color-ink-muted); text-wrap: pretty; }
+  .texto strong, .texto .mono { color: var(--color-ink); }
+  .acao { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+
+  /* Mensagem de erro do callback (entrar.html?estado=erro). Filetes de 2px, sem fundo, para não lembrar o aviso de fictício. */
+  .erro { margin-top: 1.5rem; display: grid; gap: .3rem 1.25rem; padding: .85rem 0; border-block: var(--rule-width-strong) solid var(--color-rule-strong); }
+  .erro p:last-child { font: 400 1rem/1.45 var(--font-text); }
+  @media (min-width: 40rem) { .erro { grid-template-columns: 7rem 1fr; align-items: baseline; } }
+
+  /* Passos (entrar): súmula numerada em mono, separada por filetes */
+  .passos { margin-top: var(--space-section); border-top: var(--rule-width) solid var(--color-rule-strong); counter-reset: p; }
+  .passos li { counter-increment: p; display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: 1rem; padding-block: .9rem; border-bottom: var(--rule-width) solid var(--color-rule); }
+  .passos li::before { content: counter(p, decimal-leading-zero); font: 500 var(--text-label)/1.9 var(--font-mono); color: var(--color-ink-muted); font-variant-numeric: tabular-nums slashed-zero; }
+  .passos b { font-weight: 600; }
+  .passos span { color: var(--color-ink-muted); }
+
+  /* Ficha do pedido (pedido enviado, não autorizado): <dl> em linhas de súmula */
+  .ficha { margin-top: 2rem; border-top: var(--rule-width) solid var(--color-rule-strong); border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .ficha > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: .35rem 1.25rem; padding-block: .9rem; }
+  .ficha > div + div { border-top: var(--rule-width) solid var(--color-rule); }
+  .ficha dt { color: var(--color-ink-muted); }
+  @media (min-width: 30rem) { .ficha > div { grid-template-columns: 7.5rem minmax(0, 1fr); align-items: baseline; } }
+  .conta { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+  .conta > span { min-width: 0; }
+  .conta b { display: block; font-weight: 600; }
+  .email { color: var(--color-ink-muted); font-size: .9375rem; overflow-wrap: anywhere; }
+
+  /* Situação: forma + palavra (nunca só cor). ○ pendente · ● aprovado · ✕ recusado · — revogado */
+  .sit { display: inline-flex; align-items: baseline; gap: .45em; color: var(--color-ink); font-weight: 600; }
+  .sit::before { font-weight: 500; }
+  .sit--pendente::before { content: "○"; }
+  .sit--aprovado::before { content: "●"; }
+  .sit--recusado::before { content: "✕"; }
+  .sit--revogado::before { content: "—"; }
+
+  /* ===== Acessos ===== */
+  .resumo { margin-top: 1.25rem; color: var(--color-ink-muted); }
+  .resumo b { color: var(--color-ink); font-weight: 600; }
+  /* A região role="status" fica sempre no DOM; o filete aparece só quando há mensagem. */
+  .feito { max-width: var(--layout-measure); font: 400 1rem/1.45 var(--font-text); }
+  .feito > p { display: block; margin-top: 1.25rem; padding: .55rem 0 .55rem 1rem; border-left: var(--rule-width-strong) solid var(--color-accent); }
+  .grupo { padding-top: var(--space-section); }
+  .sec { margin-bottom: .25rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem .9rem; }
+  .sec::after { content: ""; order: 1; flex: 1; min-width: 2rem; height: var(--rule-width); align-self: center; background: var(--color-rule-strong); }
+  .sec h2 { font: italic 400 var(--text-section)/1 var(--font-display); letter-spacing: -.015em; }
+  .sec .label { order: 2; color: var(--color-ink-muted); }
+  .pessoas { container-type: inline-size; border-bottom: var(--rule-width) solid var(--color-rule-strong); }
+  .pessoa { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: .3rem .9rem; padding-block: 1rem; border-top: var(--rule-width) solid var(--color-rule); }
+  .pessoa:first-child { border-top-color: var(--color-rule-strong); }
+  .pessoa .av { grid-row: span 2; }
+  .pessoa__id { min-width: 0; }
+  .pessoa__nome { font: 600 1.0625rem/1.3 var(--font-text); }
+  .voce { margin-left: .4rem; padding: .2rem .4rem; border: var(--rule-width) solid var(--color-rule-strong); font: 600 .625rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; vertical-align: .15em; white-space: nowrap; }
+  .pessoa__meta { grid-column: 2; color: var(--color-ink-muted); }
+  .pessoa__acoes { grid-column: 2; margin-top: .45rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .pessoa__acoes form { display: contents; }
+  .sem-acao { color: var(--color-ink-muted); align-self: center; }
+  @container (min-width: 52rem) {
+    .pessoa { grid-template-columns: 2.5rem minmax(0, 1.25fr) minmax(0, 1fr) 13rem; align-items: center; gap: 1.25rem; }
+    .pessoa .av { grid-row: auto; }
+    .pessoa__meta { grid-column: 3; }
+    .pessoa__acoes { grid-column: 4; margin-top: 0; justify-content: flex-end; }
+    .sem-acao { text-align: right; }
+  }
+  /* Fonte ampliada em 320px: avatar em cima, o resto embaixo, sem coluna espremida. */
+  @container (max-width: 13rem) {
+    .pessoa { grid-template-columns: minmax(0, 1fr); }
+    .pessoa .av { grid-row: auto; }
+    .pessoa__meta, .pessoa__acoes { grid-column: 1; }
+  }
+  .vazio { padding-block: 1.25rem 1.5rem; border-top: var(--rule-width) solid var(--color-rule-strong); }
+  .vazio p:first-child { font: italic 400 var(--text-row-title)/1.1 var(--font-display); letter-spacing: -.012em; }
+  .vazio p + p { margin-top: .5rem; max-width: var(--layout-measure); color: var(--color-ink-muted); }
+
+  /* ===== NOVO: rodapé do admin (colofão no papel, sem a faixa noturna) ===== */
+  .adm-pe { margin-top: clamp(3rem, 7vw, 6rem); border-top: var(--rule-width) solid var(--color-rule-strong); }
+  .adm-pe .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .25rem 2rem; padding-block: .6rem 1.5rem; color: var(--color-ink-muted); }
+  .adm-pe a { display: inline-flex; align-items: center; min-height: var(--tap-min); color: var(--color-accent); }
+  .adm-pe a:hover { text-decoration: underline; text-underline-offset: .25em; }
+
+  /* ===== Estados: só no mockup (no app, cada estado é um ramo do JSX) ===== */
+  [data-so] { display: none !important; }
+  html:not([data-estado]) [data-so~="com-pedidos"],
+  html[data-estado="com-pedidos"] [data-so~="com-pedidos"],
+  html[data-estado="vazio"] [data-so~="vazio"] { display: revert !important; }
+  
+
+  /* ===== Ferramentas do mockup (não vão para o app) ===== */
+  .mock { position: fixed; right: .5rem; bottom: .5rem; z-index: 30; display: flex; flex-wrap: wrap; gap: .25rem; max-width: calc(100vw - 1rem); justify-content: flex-end; }
+  .mock a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 .6rem; border: 1px solid var(--color-ink); background: var(--color-bg); color: var(--color-ink);
+            font: 500 .6875rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
+  .mock a[aria-current="true"] { background: var(--color-ink); color: var(--color-bg); }
+  .shot .mock { display: none; }
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="adm-top">
+  <div class="wrap">
+    <div class="adm-linha label">
+      <span>Área restrita da redação</span>
+      <button class="tema" type="button" id="tema" aria-label="Tema: sistema. Mudar para claro">
+        <span class="tema__losango" aria-hidden="true"></span>
+        <span>Tema:&nbsp;<span class="tema__valor"><span data-rotulo="sistema">sistema</span><span data-rotulo="light">claro</span><span data-rotulo="dark">escuro</span></span></span>
+      </button>
+    </div>
+  </div>
+  <div class="adm-faixa">
+    <div class="wrap adm-main">
+      <a class="marca" href="/admin">
+        <span class="sr-only">Zona Mista Admin, painel</span>
+        <span class="marca__nome" aria-hidden="true">Zona<i>Mista</i></span>
+        <span class="marca__admin" aria-hidden="true">Admin</span>
+      </a>
+      <div class="quem">
+        <img class="av av--p" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23C9B79C%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%227.5%22%20fill%3D%22%235B4636%22%2F%3E%3Cpath%20d%3D%22M6%2040c1.5-9%207-13.5%2014-13.5S32.5%2031%2034%2040z%22%20fill%3D%22%235B4636%22%2F%3E%3C%2Fsvg%3E" alt="" width="32" height="32">
+        <span class="quem__nome"><span class="sr-only">Conectado como </span>Marina Couto</span>
+        <form action="/admin/sair" method="post"><button class="btn" type="button">Sair</button></form>
+      </div>
+    </div>
+  </div>
+  <nav class="adm-nav" aria-label="Admin">
+    <ul>
+      <li><a href="/admin">Painel</a></li>
+      <li><a href="/admin/acessos" aria-current="page">Acessos</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="conteudo" tabindex="-1">
+  <div class="wrap pag">
+    <p class="chapeu label">Admin</p>
+    <h1 class="titulo">Acessos</h1>
+    <p class="fina">Quem pode entrar no painel. Cada pessoa entra uma vez com o Google e aparece aqui como pedido.</p>
+    <p class="resumo label" data-so="com-pedidos"><b>2</b> pendentes · <b>3</b> aprovados · <b>2</b> recusados ou revogados</p>
+    <p class="resumo label" data-so="vazio"><b>0</b> pendentes · <b>5</b> aprovados · <b>2</b> recusados ou revogados</p>
+    <!-- Retorno da última ação. role="status": sempre no DOM, vazio até a action responder. -->
+    <div class="feito" role="status"><p data-so="vazio">Pedido de <strong>Rafael Lima</strong> aceito. Ele já pode abrir o painel.</p></div>
+
+    <section class="grupo" aria-labelledby="g-pendentes">
+        <div class="sec"><h2 id="g-pendentes">Pendentes</h2><span class="label" aria-hidden="true"><span data-so="com-pedidos">02</span><span data-so="vazio">00</span></span></div>
+      <div data-so="com-pedidos">
+        <ul class="pessoas">
+          <li class="pessoa">
+            <img class="av" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%239FB4C7%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%227.5%22%20fill%3D%22%232F3E4E%22%2F%3E%3Cpath%20d%3D%22M6%2040c1.5-9%207-13.5%2014-13.5S32.5%2031%2034%2040z%22%20fill%3D%22%232F3E4E%22%2F%3E%3C%2Fsvg%3E" alt="" width="40" height="40">
+            <p class="pessoa__id"><span class="pessoa__nome">Joana Prado</span><br><span class="email">joana.prado@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--pendente">Pendente</span> · pediu em <span class="mono">21.11.2026 · 09:14</span></p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn btn--cheio" type="button">Aceitar<span class="sr-only"> Joana Prado</span></button></form>
+              <form action="" method="post"><button class="btn" type="button">Recusar<span class="sr-only"> Joana Prado</span></button></form>
+            </div>
+          </li>
+          <li class="pessoa">
+            <span class="av" aria-hidden="true">RL</span>
+            <p class="pessoa__id"><span class="pessoa__nome">Rafael Lima</span><br><span class="email">rafa.lima@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--pendente">Pendente</span> · pediu em <span class="mono">21.11.2026 · 10:02</span></p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn btn--cheio" type="button">Aceitar<span class="sr-only"> Rafael Lima</span></button></form>
+              <form action="" method="post"><button class="btn" type="button">Recusar<span class="sr-only"> Rafael Lima</span></button></form>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="vazio" data-so="vazio">
+        <p>Nenhum pedido pendente.</p>
+        <p>Quando alguém entrar pela primeira vez em <span class="mono">/admin/entrar</span>, o pedido aparece aqui.</p>
+      </div>
+    </section>
+
+    <section class="grupo" aria-labelledby="g-aprovados">
+        <div class="sec"><h2 id="g-aprovados">Aprovados</h2><span class="label" aria-hidden="true"><span data-so="com-pedidos">03</span><span data-so="vazio">05</span></span></div>
+      <ul class="pessoas" data-so="com-pedidos">
+          <li class="pessoa">
+            <img class="av" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23C9B79C%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%227.5%22%20fill%3D%22%235B4636%22%2F%3E%3Cpath%20d%3D%22M6%2040c1.5-9%207-13.5%2014-13.5S32.5%2031%2034%2040z%22%20fill%3D%22%235B4636%22%2F%3E%3C%2Fsvg%3E" alt="" width="40" height="40">
+            <p class="pessoa__id"><span class="pessoa__nome">Marina Couto</span><span class="voce">Você</span><br><span class="email">marina.couto@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--aprovado">Aprovada</span> em <span class="mono">19.11.2026</span> · por comando</p>
+            <div class="pessoa__acoes"><p class="sem-acao label">Sua conta · sem ações</p></div>
+          </li>
+          <li class="pessoa">
+            <span class="av" aria-hidden="true">TM</span>
+            <p class="pessoa__id"><span class="pessoa__nome">Tiago Moreira</span><br><span class="email">tiago.moreira@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--aprovado">Aprovado</span> em <span class="mono">20.11.2026</span> · por Marina Couto</p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn" type="button">Revogar<span class="sr-only"> Tiago Moreira</span></button></form>
+            </div>
+          </li>
+          <li class="pessoa">
+            <img class="av" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23B7C79F%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%227.5%22%20fill%3D%22%233D4A2B%22%2F%3E%3Cpath%20d%3D%22M6%2040c1.5-9%207-13.5%2014-13.5S32.5%2031%2034%2040z%22%20fill%3D%22%233D4A2B%22%2F%3E%3C%2Fsvg%3E" alt="" width="40" height="40">
+            <p class="pessoa__id"><span class="pessoa__nome">Beatriz Sales</span><br><span class="email">bia.sales@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--aprovado">Aprovada</span> em <span class="mono">20.11.2026</span> · por Tiago Moreira</p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn" type="button">Revogar<span class="sr-only"> Beatriz Sales</span></button></form>
+            </div>
+          </li>
+      </ul>
+      <ul class="pessoas" data-so="vazio">
+          <li class="pessoa">
+            <img class="av" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23C9B79C%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%227.5%22%20fill%3D%22%235B4636%22%2F%3E%3Cpath%20d%3D%22M6%2040c1.5-9%207-13.5%2014-13.5S32.5%2031%2034%2040z%22%20fill%3D%22%235B4636%22%2F%3E%3C%2Fsvg%3E" alt="" width="40" height="40">
+            <p class="pessoa__id"><span class="pessoa__nome">Marina Couto</span><span class="voce">Você</span><br><span class="email">marina.couto@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--aprovado">Aprovada</span> em <span class="mono">19.11.2026</span> · por comando</p>
+            <div class="pessoa__acoes"><p class="sem-acao label">Sua conta · sem ações</p></div>
+          </li>
+          <li class="pessoa">
+            <span class="av" aria-hidden="true">TM</span>
+            <p class="pessoa__id"><span class="pessoa__nome">Tiago Moreira</span><br><span class="email">tiago.moreira@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--aprovado">Aprovado</span> em <span class="mono">20.11.2026</span> · por Marina Couto</p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn" type="button">Revogar<span class="sr-only"> Tiago Moreira</span></button></form>
+            </div>
+          </li>
+          <li class="pessoa">
+            <img class="av" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23B7C79F%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%227.5%22%20fill%3D%22%233D4A2B%22%2F%3E%3Cpath%20d%3D%22M6%2040c1.5-9%207-13.5%2014-13.5S32.5%2031%2034%2040z%22%20fill%3D%22%233D4A2B%22%2F%3E%3C%2Fsvg%3E" alt="" width="40" height="40">
+            <p class="pessoa__id"><span class="pessoa__nome">Beatriz Sales</span><br><span class="email">bia.sales@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--aprovado">Aprovada</span> em <span class="mono">20.11.2026</span> · por Tiago Moreira</p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn" type="button">Revogar<span class="sr-only"> Beatriz Sales</span></button></form>
+            </div>
+          </li>
+          <li class="pessoa">
+            <span class="av" aria-hidden="true">RL</span>
+            <p class="pessoa__id"><span class="pessoa__nome">Rafael Lima</span><br><span class="email">rafa.lima@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--aprovado">Aprovado</span> em <span class="mono">21.11.2026</span> · por Marina Couto</p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn" type="button">Revogar<span class="sr-only"> Rafael Lima</span></button></form>
+            </div>
+          </li>
+          <li class="pessoa">
+            <img class="av" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%239FB4C7%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%227.5%22%20fill%3D%22%232F3E4E%22%2F%3E%3Cpath%20d%3D%22M6%2040c1.5-9%207-13.5%2014-13.5S32.5%2031%2034%2040z%22%20fill%3D%22%232F3E4E%22%2F%3E%3C%2Fsvg%3E" alt="" width="40" height="40">
+            <p class="pessoa__id"><span class="pessoa__nome">Joana Prado</span><br><span class="email">joana.prado@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--aprovado">Aprovada</span> em <span class="mono">21.11.2026</span> · por Marina Couto</p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn" type="button">Revogar<span class="sr-only"> Joana Prado</span></button></form>
+            </div>
+          </li>
+      </ul>
+    </section>
+
+    <section class="grupo" aria-labelledby="g-negados">
+        <div class="sec"><h2 id="g-negados">Recusados ou revogados</h2><span class="label" aria-hidden="true">02</span></div>
+      <ul class="pessoas">
+          <li class="pessoa">
+            <span class="av" aria-hidden="true">CD</span>
+            <p class="pessoa__id"><span class="pessoa__nome">Carlos Henrique Duarte</span><br><span class="email">carlos.henrique.duarte.redacao@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--recusado">Recusado</span> em <span class="mono">20.11.2026</span> · por Marina Couto</p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn" type="button">Reabrir<span class="sr-only"> Carlos Henrique Duarte</span></button></form>
+            </div>
+          </li>
+          <li class="pessoa">
+            <span class="av" aria-hidden="true">PV</span>
+            <p class="pessoa__id"><span class="pessoa__nome">Paula Viana</span><br><span class="email">paula.viana@exemplo.test</span></p>
+            <p class="pessoa__meta label"><span class="sit sit--revogado">Revogada</span> em <span class="mono">20.11.2026</span> · por Tiago Moreira</p>
+            <div class="pessoa__acoes">
+              <form action="" method="post"><button class="btn" type="button">Reabrir<span class="sr-only"> Paula Viana</span></button></form>
+            </div>
+          </li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<footer class="adm-pe">
+  <div class="wrap label">
+    <span>© <span class="mono">2026</span> Zona Mista · Admin</span>
+    <a href="/">Ir para o portal →</a>
+  </div>
+</footer>
+
+<div class="mock" role="group" aria-label="Ferramentas do mockup">
+  <a href="?" data-mock="">Com pedidos</a>
+  <a href="?estado=vazio" data-mock="estado=vazio">Sem pendentes</a>
+  <a href="entrar.html">→ Entrar</a>
+  <a href="pedido-enviado.html">→ Pedido</a>
+  <a href="acesso-nao-autorizado.html">→ Negado</a>
+</div>
+
+<script>
+  /* BotaoDeTema (história 07) em JS puro, como no mockup 07. */
+  (function () {
+    var h = document.documentElement, b = document.getElementById('tema');
+    var ROTULO = { sistema: 'sistema', light: 'claro', dark: 'escuro' };
+    var PROXIMO = { sistema: 'light', light: 'dark', dark: 'sistema' };
+    function atual() { var t = h.getAttribute('data-theme'); return t === 'light' || t === 'dark' ? t : 'sistema'; }
+    function rotular() { var t = atual(); b.setAttribute('aria-label', 'Tema: ' + ROTULO[t] + '. Mudar para ' + ROTULO[PROXIMO[t]]); }
+    b.addEventListener('click', function () {
+      var t = PROXIMO[atual()];
+      if (t === 'sistema') h.removeAttribute('data-theme'); else h.setAttribute('data-theme', t);
+      try { if (t === 'sistema') localStorage.removeItem('tema'); else localStorage.setItem('tema', t); } catch (e) {}
+      rotular();
+    });
+    rotular();
+    var q = location.search.replace(/^\?/, '').replace(/&?shot/, '').replace(/&?theme=[a-z]+/, '').replace(/^&/, '');
+    document.querySelectorAll('.mock a[data-mock]').forEach(function (a) { if (a.dataset.mock === q) a.setAttribute('aria-current', 'true'); });
+  })();
+</script>
+</body>
+</html>
