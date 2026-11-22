@@ -49,6 +49,20 @@ História: `docs/backlog/16-login-admin.md`. Decisões: ADR 0009 e ADR 0006 ("Ex
 5. **Primeiro admin.** `pnpm admin:promover <e-mail do usuário> --prod --sim`. O e-mail vem da memória da sessão, nunca do git. A saída mostra só o e-mail mascarado. Se responder "Nenhum perfil com o e-mail…", o passo 4 ainda não aconteceu: registre como pendência e não tente criar o perfil à mão.
 6. **Conferir.** O usuário recarrega `/admin` e vê o painel. Em `/admin/acessos`, a linha dele aparece sem ação.
 
+## Estado final da v2 (2026-11-22)
+Produção: `https://blog-fut-tau.vercel.app`. As histórias 13 a 18 estão na `main` (PRs #16, #17, #19, #20, #21 e #22, mais o #18 de docs).
+
+| O que foi verificado | Resultado |
+|---|---|
+| Migrações na produção | ✅ Seis migrações aplicadas pelo `migracoes.yml`: `articles`, `webhook_revalidar`, `squad_no_banco`, `perfis`, `painel` e `criar_materia`. Todas rodaram verdes. |
+| Site público | ✅ A capa mostra as 9 matérias vindas do banco. Responderam 200: a matéria do PSG, `/busca?q=sao ciriaco` e `/sitemap.xml`. `/materias/nao-existe` responde 404. O JSON-LD do PSG traz `Organization`. |
+| Admin | ✅ `/admin/entrar` responde 200. O painel (`/admin/materias/nova`, por exemplo) redireciona para entrar quem não tem sessão. |
+| Login | ✅ Só o Google está ligado; o e-mail e o login anônimo estão desligados (`/auth/v1/settings`). |
+| Primeiro admin | ✅ O `admin:promover --prod --sim` respondeu "já é admin": o usuário entrou com o Google e o perfil está aprovado. |
+| Webhook e cache | ✅ A importação atualizou a capa sem deploy novo (história 14). |
+| Keep-alive | ✅ O cron `/api/manter-ativo` (`0 9 * * *`) está registrado e responde 401 sem segredo. |
+| CI | ✅ O `portoes.yml` passou em todos os PRs desde o #17. |
+
 ## Pendências conhecidas
 - O índice de rotas do Proxy é por instância. Na Vercel, cada função aquecida tem o seu, e o prazo de 60 s para uma matéria nova sair do 404 vale para cada uma.
 - A primeira chamada do cron só acontece no dia seguinte ao deploy, às 9h UTC.
