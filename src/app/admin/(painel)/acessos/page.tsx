@@ -5,6 +5,7 @@ import { ListaDeAcessos } from "@/components/admin/ListaDeAcessos";
 import { listarPedidosDeAcesso } from "@/lib/admin/perfis";
 import {
   criarClienteDoServidor,
+  exigirAdminLigado,
   obterSessaoDoAdmin,
 } from "@/lib/auth/servidor";
 
@@ -17,6 +18,9 @@ export const metadata: Metadata = { title: "Acessos" };
  * sessão do usuário, então o RLS é a última camada.
  */
 export default async function Acessos() {
+  // O segmento da página é pré-renderizado à parte do layout: precisa do próprio ponto
+  // dinâmico antes de ler a sessão (o build do PR #20 quebrou aqui).
+  await exigirAdminLigado();
   const sessao = await obterSessaoDoAdmin();
   if (sessao?.perfil?.status !== "aprovado") notFound();
   const pedidos = await listarPedidosDeAcesso(

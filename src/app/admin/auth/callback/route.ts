@@ -1,4 +1,6 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { notFound } from "next/navigation";
+import { connection, NextResponse, type NextRequest } from "next/server";
+import { adminHabilitado } from "@/lib/auth/config";
 import { criarClienteDoServidor } from "@/lib/auth/servidor";
 
 /**
@@ -11,9 +13,14 @@ import { criarClienteDoServidor } from "@/lib/auth/servidor";
  * vencido ou já usado, verificador ausente): volta para `/admin/entrar?erro=login`, que
  * mostra a mensagem em pt-BR. O texto do erro nunca vai para a URL.
  *
- * Com `ADMIN_HABILITADO` desligado, o Proxy responde 404 antes de chegar aqui.
+ * Com `ADMIN_HABILITADO` desligado, o Proxy responde 404 antes de chegar aqui; o
+ * `notFound()` do começo é a defesa em profundidade (fora do `try`, para não ser engolido).
  */
 export async function GET(request: NextRequest) {
+  // Antes do 404: sem um ponto dinâmico, o GET seria pré-renderizado no build, e o 404
+  // de um build com o admin desligado ficaria congelado na rota.
+  await connection();
+  if (!adminHabilitado(process.env)) notFound();
   const code = request.nextUrl.searchParams.get("code");
   if (code) {
     try {

@@ -2,9 +2,10 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { cache } from "react";
-import { lerConexaoDoAuth } from "./config";
+import { adminHabilitado, lerConexaoDoAuth } from "./config";
 
 /**
  * Sessão do admin no servidor (história 16; spec v2 §7.6; ADR 0009).
@@ -79,14 +80,17 @@ export function paraPerfil(linha: LinhaDoPerfil): Perfil {
  * o `set` lança: o erro é engolido, porque quem renova a sessão antes da renderização é
  * o Proxy (`sessao-no-proxy.ts`).
  *
- * O `connection()` vem antes: o cliente do Auth lê o relógio (`Date.now()`) para saber se
- * o token venceu, e com Cache Components isso só pode rodar na fase da requisição, não
- * na pré-renderização (doc `connection.md`). Sem ele, o Next acusa
- * "encountered the unstable value Date.now() while prerendering".
+ * O `connection()` vem **antes de tudo**, inclusive da leitura da config (doc
+ * `connection.md`: "prerendering stops here"):
+ * - o build do CI e o do Preview da Vercel rodam sem as variáveis do Supabase; lida antes
+ *   do ponto dinâmico, a config ausente lança no prerender e derruba o build (PR #20);
+ * - o cliente do Auth lê o relógio (`Date.now()`) para saber se o token venceu, o que
+ *   com Cache Components só pode rodar na fase da requisição.
+ * `tests/unit/auth/servidor-no-prerender.test.ts` trava a ordem.
  */
 export async function criarClienteDoServidor(): Promise<SupabaseClient> {
-  const { url, anonKey } = lerConexaoDoAuth(process.env);
   await connection();
+  const { url, anonKey } = lerConexaoDoAuth(process.env);
   const loja = await cookies();
   return createServerClient(url, anonKey, {
     cookies: {
@@ -102,6 +106,17 @@ export async function criarClienteDoServidor(): Promise<SupabaseClient> {
       },
     },
   });
+}
+
+/**
+ * Primeira linha de toda página do painel: espera a requisição (`connection()`, o ponto
+ * em que o prerender para) e, com o admin desligado, responde 404. Assim, no build sem as
+ * variáveis do Supabase (CI e Preview), nada do admin lê config nem sessão. O Proxy já dá
+ * 404 com o admin desligado; isto é a defesa em profundidade.
+ */
+export async function exigirAdminLigado(): Promise<void> {
+  await connection();
+  if (!adminHabilitado(process.env)) notFound();
 }
 
 /**

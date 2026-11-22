@@ -17,6 +17,14 @@ const TAMANHOS = {
 } as const;
 
 /**
+ * Só foto `https:`. O `avatar_url` vem dos metadados da conta, que o usuário consegue
+ * influenciar: `javascript:`, `data:`, `http:` ou lixo viram as iniciais.
+ */
+function ehFotoSegura(url: string | null): url is string {
+  return url !== null && URL.parse(url)?.protocol === "https:";
+}
+
+/**
  * Avatar quadrado do admin (README do design, "Avatar"). O nome está sempre escrito ao
  * lado, então o avatar é decorativo: a foto leva `alt=""` e as iniciais, `aria-hidden`.
  *
@@ -28,7 +36,7 @@ export function Avatar({ url, iniciais, tamanho, className = "" }: Props) {
   const [falhou, setFalhou] = useState(false);
   const { px, caixa, fonte } = TAMANHOS[tamanho];
 
-  if (url && !falhou) {
+  if (ehFotoSegura(url) && !falhou) {
     return (
       // A foto vem de um domínio do Google que muda; o next/image pediria cada host na config.
       // eslint-disable-next-line @next/next/no-img-element

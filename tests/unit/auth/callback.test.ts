@@ -10,6 +10,19 @@ vi.mock("@/lib/auth/servidor", () => ({
   criarClienteDoServidor: async () => ({ auth: { exchangeCodeForSession } }),
 }));
 
+/** Com `noPrerender`, o connection() imita o build: nunca resolve. */
+let noPrerender = false;
+vi.mock("next/server", async (original) => ({
+  ...(await original<typeof import("next/server")>()),
+  connection: () =>
+    noPrerender ? new Promise<void>(() => {}) : Promise.resolve(),
+}));
+vi.mock("next/navigation", () => ({
+  notFound: () => {
+    throw new Error("404");
+  },
+}));
+
 const { GET } = await import("@/app/admin/auth/callback/route");
 
 function chamar(busca: string) {
@@ -24,11 +37,33 @@ function destino(resposta: Response) {
 }
 
 beforeEach(() => {
+  noPrerender = false;
+  vi.unstubAllEnvs();
+  vi.stubEnv("ADMIN_HABILITADO", "true");
   exchangeCodeForSession.mockReset();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 describe("callback do login", () => {
+  it("no build, para no connection() antes do 404: a rota não sai estática", async () => {
+    noPrerender = true;
+    vi.stubEnv("ADMIN_HABILITADO", "false");
+    const situacao = await Promise.race([
+      chamar("?code=abc").then(
+        () => "respondeu",
+        () => "lançou",
+      ),
+      new Promise((r) => setTimeout(() => r("parada"), 50)),
+    ]);
+    expect(situacao).toBe("parada");
+  });
+
+  it("com o admin desligado: 404, sem tentar a troca (defesa em profundidade)", async () => {
+    vi.stubEnv("ADMIN_HABILITADO", "false");
+    await expect(chamar("?code=abc")).rejects.toThrow("404");
+    expect(exchangeCodeForSession).not.toHaveBeenCalled();
+  });
+
   it("troca o code pela sessão e vai para /admin", async () => {
     exchangeCodeForSession.mockResolvedValue({ error: null });
     const resposta = await chamar("?code=abc");

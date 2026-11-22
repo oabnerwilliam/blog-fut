@@ -6,7 +6,7 @@ import {
   PedidoEnviado,
 } from "@/components/admin/TelasDeAcesso";
 import { iniciaisDe, nomeParaExibir } from "@/lib/admin/formatos";
-import { obterSessaoDoAdmin } from "@/lib/auth/servidor";
+import { exigirAdminLigado, obterSessaoDoAdmin } from "@/lib/auth/servidor";
 
 /**
  * Porteiro do painel (história 16, critério 4): confere a sessão e o status no servidor,
@@ -46,6 +46,7 @@ function Espera() {
 }
 
 async function Porteiro({ children }: { children: ReactNode }) {
+  await exigirAdminLigado();
   const sessao = await obterSessaoDoAdmin();
   if (sessao === null) redirect("/admin/entrar");
 
