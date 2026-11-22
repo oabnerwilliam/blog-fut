@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   adminHabilitado,
+  ehRotaAbertaDoAdmin,
   ehRotaDoAdmin,
   lerConexaoDoAuth,
 } from "@/lib/auth/config";
@@ -36,6 +37,25 @@ describe("ehRotaDoAdmin", () => {
       expect(ehRotaDoAdmin(caminho)).toBe(false);
     },
   );
+});
+
+describe("ehRotaAbertaDoAdmin", () => {
+  it.each(["/admin/entrar", "/admin/auth/callback", "/admin/auth/qualquer"])(
+    "%s não exige sessão",
+    (caminho) => {
+      expect(ehRotaAbertaDoAdmin(caminho)).toBe(true);
+    },
+  );
+
+  it.each([
+    "/admin",
+    "/admin/",
+    "/admin/acessos",
+    "/admin/entrarx",
+    "/admin/autor",
+  ])("%s exige", (caminho) => {
+    expect(ehRotaAbertaDoAdmin(caminho)).toBe(false);
+  });
 });
 
 describe("lerConexaoDoAuth", () => {

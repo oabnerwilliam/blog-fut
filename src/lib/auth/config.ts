@@ -25,6 +25,35 @@ export function ehRotaDoAdmin(caminho: string): boolean {
   return caminho === "/admin" || caminho.startsWith("/admin/");
 }
 
+/**
+ * A origem da requisição de uma Server Action (`https://dominio`), para o callback do
+ * login voltar ao mesmo site (local, preview ou produção). O Next já recusa a action
+ * quando o `Origin` não bate com o `Host` (guia `server-actions.md`, "CSRF check"), e o
+ * Auth só aceita os `redirectTo` da lista do projeto.
+ */
+export function origemDaAcao(cabecalhos: Headers): string {
+  let origem = cabecalhos.get("origin");
+  if (!origem) {
+    const host = cabecalhos.get("x-forwarded-host") ?? cabecalhos.get("host");
+    const protocolo = cabecalhos.get("x-forwarded-proto") ?? "http";
+    origem = host ? `${protocolo}://${host}` : null;
+  }
+  const url = origem ? URL.parse(origem) : null;
+  if (!url || (url.protocol !== "http:" && url.protocol !== "https:")) {
+    throw new Error("Origem da requisição inválida.");
+  }
+  return url.origin;
+}
+
+/** Rotas do admin que existem para começar a sessão e por isso nunca a exigem. */
+export function ehRotaAbertaDoAdmin(caminho: string): boolean {
+  return (
+    caminho === "/admin/entrar" ||
+    caminho.startsWith("/admin/entrar/") ||
+    caminho.startsWith("/admin/auth/")
+  );
+}
+
 const VARIAVEIS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",

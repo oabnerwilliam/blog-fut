@@ -30,11 +30,13 @@ const PODEM_IMPORTAR_O_SSR = [
 ].map((pasta) => pasta + path.sep);
 
 const APP_DO_ADMIN = path.join(SRC, "app", "admin");
+const COMPONENTES_DO_ADMIN = path.join(SRC, "components", "admin");
 const PROXY = path.join(SRC, "proxy.ts");
 
 /** Quem pode importar `@/lib/admin` e `@/lib/auth`: o próprio admin e o Proxy. */
 const PODEM_IMPORTAR_O_ADMIN = [
   APP_DO_ADMIN,
+  COMPONENTES_DO_ADMIN,
   path.join(SRC, "lib", "admin"),
   path.join(SRC, "lib", "auth"),
 ].map((pasta) => pasta + path.sep);
@@ -232,8 +234,12 @@ describe("regra do repositório", () => {
     ).not.toEqual([]);
   });
 
-  it("as páginas do /admin obtêm dados só por src/lib/admin e src/lib/auth", () => {
-    const paginas = existsSync(APP_DO_ADMIN) ? listarCodigo(APP_DO_ADMIN) : [];
+  it("as páginas e os componentes do /admin obtêm dados só por src/lib/admin e src/lib/auth", () => {
+    const paginas = [APP_DO_ADMIN, COMPONENTES_DO_ADMIN].flatMap((pasta) =>
+      existsSync(pasta) ? listarCodigo(pasta) : [],
+    );
+    // O caso positivo existe: as páginas do admin estão lá.
+    expect(paginas.length).toBeGreaterThan(0);
     expect(
       achadosEm(paginas, (codigo) => [
         ...encontrarImportsDoModulo(codigo, "@/lib/content"),

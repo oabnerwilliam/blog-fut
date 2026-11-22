@@ -28,6 +28,17 @@ export interface OpcoesDaRenovacao {
   readonly limiteMs?: number;
 }
 
+/**
+ * O navegador mandou algum cookie de sessão do Supabase? Só olha o nome: não diz se a
+ * sessão vale. Serve ao Proxy para mandar direto para `/admin/entrar` quem nem tentou
+ * entrar (a checagem otimista do guia `authentication.md`), sem rede.
+ */
+export function temCookieDeSessao(request: NextRequest): boolean {
+  return request.cookies
+    .getAll()
+    .some((cookie) => COOKIE_DE_SESSAO.test(cookie.name));
+}
+
 export async function renovarSessaoDoAdmin(
   request: NextRequest,
   env: AmbienteDoAuth = process.env,
@@ -35,10 +46,7 @@ export async function renovarSessaoDoAdmin(
 ): Promise<NextResponse> {
   let resposta = NextResponse.next({ request });
 
-  const temSessao = request.cookies
-    .getAll()
-    .some((cookie) => COOKIE_DE_SESSAO.test(cookie.name));
-  if (!temSessao) return resposta;
+  if (!temCookieDeSessao(request)) return resposta;
 
   let conexao;
   try {

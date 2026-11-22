@@ -2,6 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { cache } from "react";
 import { lerConexaoDoAuth } from "./config";
 
@@ -77,9 +78,15 @@ export function paraPerfil(linha: LinhaDoPerfil): Perfil {
  * renovada). Num Server Component, o Next não deixa gravar cookie (doc `cookies.md`), e
  * o `set` lança: o erro é engolido, porque quem renova a sessão antes da renderização é
  * o Proxy (`sessao-no-proxy.ts`).
+ *
+ * O `connection()` vem antes: o cliente do Auth lê o relógio (`Date.now()`) para saber se
+ * o token venceu, e com Cache Components isso só pode rodar na fase da requisição, não
+ * na pré-renderização (doc `connection.md`). Sem ele, o Next acusa
+ * "encountered the unstable value Date.now() while prerendering".
  */
 export async function criarClienteDoServidor(): Promise<SupabaseClient> {
   const { url, anonKey } = lerConexaoDoAuth(process.env);
+  await connection();
   const loja = await cookies();
   return createServerClient(url, anonKey, {
     cookies: {

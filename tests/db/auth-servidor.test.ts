@@ -27,6 +27,8 @@ import {
 
 let pote = poteDeCookies();
 vi.mock("next/headers", () => ({ cookies: async () => pote }));
+// Fora do Next não há requisição: o connection() só marca a fase, então aqui resolve.
+vi.mock("next/server", () => ({ connection: async () => {} }));
 
 const { criarClienteDoServidor, obterSessaoDoAdmin } =
   await import("@/lib/auth/servidor");
