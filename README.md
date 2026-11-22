@@ -46,5 +46,5 @@ Não commite arquivos `.env*` (o repositório é público).
 ## Fluxo de conteúdo
 
 1. O squad-fut produz a matéria e o diagramador grava `content/entrada/<slug>.md` (fora do git).
-2. O versionador do squad-blog publica a matéria por um PR `content/<slug>`, que move o arquivo para `content/materias/`.
-3. Depois do code review e da homologação, a matéria entra na `main`.
+2. O versionador do squad-blog roda `pnpm materia:enviar <slug>`. A matéria vai para o Supabase como **rascunho**, com o texto original como revisão 1, e o arquivo é movido para `content/entrada/enviadas/`.
+3. Quando o usuário pedir, `pnpm materia:publicar <slug>` põe a matéria no ar. O banco avisa o site, que atualiza em segundos. O passo a passo está em [`docs/operacao/materias.md`](docs/operacao/materias.md).

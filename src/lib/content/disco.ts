@@ -36,6 +36,23 @@ export function lerRotulosDoDisco(contentDir: string): RotulosDeTags {
   return lerRotulosDeTags(json);
 }
 
+/**
+ * Um `.md` avulso → Article validado pelo mesmo `parseArticleFile` do site. Usado pelo
+ * `pnpm materia:enviar` (história 15) para ler `content/entrada/<slug>.md`.
+ *
+ * Os finais de linha viram LF antes do parse. Os arquivos de `content/materias/` já são
+ * LF (o `.gitattributes` força `eol=lf`), mas a caixa de entrada fica fora do git e pode
+ * chegar com CRLF do Windows. Nada mais muda: espaços, acentos e o resto do texto ficam
+ * exatamente como o squad entregou. Lança o erro do `readFileSync` (ENOENT) se faltar.
+ */
+export function lerArtigoDoArquivo(
+  caminho: string,
+  rotuloDaTag: (slug: string) => string,
+): ArtigoCarregado {
+  const conteudo = readFileSync(caminho, "utf8").replace(/\r\n/g, "\n");
+  return parseArticleFile(path.basename(caminho), conteudo, rotuloDaTag);
+}
+
 function listarArquivosDeMaterias(pasta: string): string[] {
   try {
     return readdirSync(pasta, { withFileTypes: true })

@@ -81,7 +81,10 @@ export function fonteDoArtigo(artigo: Article): Fonte {
   return !artigo.ficticio && artigo.origem !== null ? "squad" : "importacao";
 }
 
-export function linhaDoArtigo(artigo: Article): LinhaDaMateria {
+/** O Article do parser → colunas de `articles`, sem `fonte` e `status` (quem grava decide). */
+export function camposDoArtigo(
+  artigo: Article,
+): Omit<LinhaDaMateria, "fonte" | "status"> {
   return {
     slug: artigo.slug,
     titulo: artigo.titulo,
@@ -96,6 +99,12 @@ export function linhaDoArtigo(artigo: Article): LinhaDaMateria {
     ficticio: artigo.ficticio,
     origem: artigo.origem,
     corpo_md: artigo.corpo_md,
+  };
+}
+
+export function linhaDoArtigo(artigo: Article): LinhaDaMateria {
+  return {
+    ...camposDoArtigo(artigo),
     fonte: fonteDoArtigo(artigo),
     status: "publicado",
   };
