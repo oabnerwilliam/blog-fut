@@ -1,6 +1,6 @@
 # T02: Prévia do link no WhatsApp (imagem Open Graph)
 
-**Status:** em andamento
+**Status:** feita (#27)
 **Branch sugerida:** feat/T02-previa-do-link
 **Registrada em:** 2026-11-22, a pedido do usuário.
 
