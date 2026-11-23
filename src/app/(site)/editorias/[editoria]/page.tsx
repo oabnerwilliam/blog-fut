@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import {
   metadadosDaRotaDeListagem,
   PaginaDeListagem,
@@ -14,12 +14,12 @@ export async function generateStaticParams() {
   return paramsDasEditorias(getRepository());
 }
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: PageProps<"/editorias/[editoria]">): Promise<Metadata> {
+export async function generateMetadata(
+  { params, searchParams }: PageProps<"/editorias/[editoria]">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const { editoria } = await params;
-  return metadadosDaRotaDeListagem({ editoria }, searchParams);
+  return metadadosDaRotaDeListagem({ editoria }, searchParams, parent);
 }
 
 export default async function PaginaDaEditoria({

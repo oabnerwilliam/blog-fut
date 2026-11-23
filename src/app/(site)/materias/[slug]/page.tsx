@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { AvisoFicticio } from "@/components/materia/AvisoFicticio";
 import { CabecalhoDaMateria } from "@/components/materia/CabecalhoDaMateria";
@@ -22,13 +22,18 @@ export async function generateStaticParams() {
   return paramsDasMaterias(getRepository());
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/materias/[slug]">): Promise<Metadata> {
+/**
+ * A prévia do link (`opengraph-image.tsx` deste segmento, T02) já chega resolvida no
+ * `parent`, com a URL absoluta; os metadados a repassam com o título no alt.
+ */
+export async function generateMetadata(
+  { params }: PageProps<"/materias/[slug]">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const { slug } = await params;
   const artigo = await getRepository().getBySlug(slug);
   if (!artigo) notFound();
-  return metadadosDaMateria(artigo);
+  return metadadosDaMateria(artigo, (await parent).openGraph?.images);
 }
 
 export default async function PaginaDaMateria({

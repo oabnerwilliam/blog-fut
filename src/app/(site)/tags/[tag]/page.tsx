@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import {
   metadadosDaRotaDeListagem,
   PaginaDeListagem,
@@ -14,12 +14,12 @@ export async function generateStaticParams() {
   return paramsDasTags(getRepository());
 }
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: PageProps<"/tags/[tag]">): Promise<Metadata> {
+export async function generateMetadata(
+  { params, searchParams }: PageProps<"/tags/[tag]">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const { tag } = await params;
-  return metadadosDaRotaDeListagem({ tag }, searchParams);
+  return metadadosDaRotaDeListagem({ tag }, searchParams, parent);
 }
 
 export default async function PaginaDaTag({
