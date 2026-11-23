@@ -1,6 +1,6 @@
 # T03: README do repositório
 
-**Status:** registrada
+**Status:** em andamento
 **Branch sugerida:** chore/T03-readme
 **Registrada em:** 2026-11-22, a pedido do usuário.
 
