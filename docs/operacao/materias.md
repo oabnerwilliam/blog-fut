@@ -46,3 +46,10 @@ Num terminal, sem `--sim`, o comando pergunta `s/N`. Fora de um terminal (sessã
 | `Matéria inválida em ...` | O squad-fut corrige o arquivo; depois, rode de novo. |
 | `Já existe uma matéria com o slug ...` | Reenviar é decisão do painel (histórias 16 e 17). |
 | `... foi gravada no banco como rascunho, mas o arquivo não foi movido` | O banco já tem a matéria. Mova o arquivo à mão para `enviadas/`. |
+
+## Prévia do link (WhatsApp, LinkedIn)
+
+Cada matéria tem uma imagem de prévia (`/materias/<slug>/opengraph-image-…`) que o site refaz quando a matéria muda (etiqueta `materia:<slug>`). A URL da imagem, porém, não muda. Por isso, quem já guardou a prévia (WhatsApp, Facebook, LinkedIn) pode continuar mostrando a antiga por um tempo. Depois de editar o título de uma matéria já compartilhada:
+
+- **WhatsApp e Facebook:** cole o link no [Sharing Debugger da Meta](https://developers.facebook.com/tools/debug/) e clique em "Scrape Again".
+- **LinkedIn:** cole o link no [Post Inspector](https://www.linkedin.com/post-inspector/).

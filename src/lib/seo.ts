@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvedMetadata } from "next";
 import type { Article } from "@/lib/content";
 import type { Editoria } from "@/lib/editorias";
 import {
@@ -6,6 +6,7 @@ import {
   rotuloDaContagem,
   type Listagem,
 } from "@/lib/listagens";
+import { altDaPrevia } from "@/lib/og/previa";
 import { NOME_DO_PORTAL } from "@/lib/site";
 
 /** Editorias de opinião e texto autoral: no JSON-LD viram `Article`, não `NewsArticle`. */
@@ -15,8 +16,40 @@ export function caminhoDaMateria(slug: string): `/materias/${string}` {
   return `/materias/${slug}`;
 }
 
-/** Metadados da página da matéria (spec 6.5). URLs relativas: o `metadataBase` do layout completa. */
-export function metadadosDaMateria(artigo: Article): Metadata {
+/**
+ * Imagens de prévia (`og:image`) já resolvidas pelo Next nos segmentos de cima: o
+ * `openGraph` de `await parent` no `generateMetadata` (T02).
+ */
+export type ImagensDoSegmento = NonNullable<
+  NonNullable<ResolvedMetadata["openGraph"]>["images"]
+>;
+
+/**
+ * O `openGraph` de uma página substitui o dos segmentos de cima, inclusive as imagens das
+ * rotas `opengraph-image`. Por isso a página repassa as que recebeu, e só se houver: sem
+ * `images`, o arquivo do próprio segmento continua valendo.
+ */
+function comImagens(imagens: ImagensDoSegmento, alt?: string) {
+  if (imagens.length === 0) return {};
+  if (alt === undefined) return { images: imagens };
+  return {
+    images: imagens.map((imagem) =>
+      typeof imagem === "string" || imagem instanceof URL
+        ? { url: imagem, alt }
+        : { ...imagem, alt },
+    ),
+  };
+}
+
+/**
+ * Metadados da página da matéria (spec 6.5). URLs relativas: o `metadataBase` do layout
+ * completa. `imagens` é a prévia de `materias/[slug]/opengraph-image.tsx`, que chega pelo
+ * `parent`; aqui ela ganha o título no `og:image:alt` (o arquivo só exporta um alt fixo).
+ */
+export function metadadosDaMateria(
+  artigo: Article,
+  imagens: ImagensDoSegmento = [],
+): Metadata {
   const titulo = artigo.titulo_seo ?? artigo.titulo;
   const descricao = artigo.meta_description ?? artigo.linha_fina;
   const url = caminhoDaMateria(artigo.slug);
@@ -37,8 +70,14 @@ export function metadadosDaMateria(artigo: Article): Metadata {
       publishedTime: artigo.publicado_em,
       section: artigo.editoria.rotulo,
       tags: artigo.tags.map((tag) => tag.rotulo),
+      ...comImagens(imagens, altDaPrevia(artigo)),
     },
-    twitter: { card: "summary", title: titulo, description: descricao },
+    // Sem `images` aqui: o Next copia as do `openGraph`.
+    twitter: {
+      card: "summary_large_image",
+      title: titulo,
+      description: descricao,
+    },
     ...(artigo.ficticio ? { robots: { index: false, follow: false } } : {}),
   };
 }
@@ -46,8 +85,12 @@ export function metadadosDaMateria(artigo: Article): Metadata {
 /**
  * Metadados de uma página de editoria ou de tag. A página 1 tem o canonical sem query; as
  * outras apontam para si mesmas (`?pagina=N`). Lista só de fictícias leva noindex.
+ * `imagens` é a prévia padrão do portal (`(site)/opengraph-image.tsx`), repassada.
  */
-export function metadadosDaListagem(listagem: Listagem): Metadata {
+export function metadadosDaListagem(
+  listagem: Listagem,
+  imagens: ImagensDoSegmento = [],
+): Metadata {
   const { tipo, slug, rotulo, total, pagina, soFicticias } = listagem;
   const nome = tipo === "editoria" ? rotulo : `Tag: ${rotulo}`;
   const titulo = pagina > 1 ? `${nome} · página ${pagina}` : nome;
@@ -66,6 +109,7 @@ export function metadadosDaListagem(listagem: Listagem): Metadata {
       url,
       siteName: NOME_DO_PORTAL,
       locale: "pt_BR",
+      ...comImagens(imagens),
     },
     ...(soFicticias ? { robots: { index: false, follow: false } } : {}),
   };

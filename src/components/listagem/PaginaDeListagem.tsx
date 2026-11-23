@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getRepository } from "@/lib/content";
@@ -42,13 +42,20 @@ async function listagemDaQuery(
  * ar no build) teria metadados dinâmicos num corpo estático (o 404), e o Next recusa o
  * build ("uncached or runtime data in generateMetadata"). A leitura da página 1 é a mesma
  * do corpo, e sai do cache.
+ *
+ * O `parent` traz a prévia padrão do portal (`(site)/opengraph-image.tsx`, T02), que o
+ * `openGraph` da listagem substituiria se não fosse repassada.
  */
 export async function metadadosDaRotaDeListagem(
   filtro: FiltroDaListagem,
   searchParams: SearchParams,
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   if (!(await montarListagem(getRepository(), filtro, 1))) notFound();
-  return metadadosDaListagem(await listagemDaQuery(filtro, searchParams));
+  return metadadosDaListagem(
+    await listagemDaQuery(filtro, searchParams),
+    (await parent).openGraph?.images,
+  );
 }
 
 /** Itens e paginação de uma página já conhecida. */

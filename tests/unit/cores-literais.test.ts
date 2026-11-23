@@ -9,6 +9,12 @@ import {
 const RAIZ = path.resolve(__dirname, "../..");
 const SRC = path.join(RAIZ, "src");
 const ARQUIVO_DE_TOKENS = path.join(SRC, "styles", "tokens.css");
+/**
+ * Exceção da T02: o `ImageResponse` (prévia do link) não lê CSS, então as cores da arte
+ * são literais neste único módulo, cópias dos tokens (conferidas em tests/unit/og/cores.test.ts).
+ */
+const CORES_DA_PREVIA = path.join(SRC, "lib", "og", "cores.ts");
+const PODEM_TER_COR_LITERAL = [ARQUIVO_DE_TOKENS, CORES_DA_PREVIA];
 
 function listarArquivos(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
@@ -221,9 +227,9 @@ describe("cores literais", () => {
     expect(achados).toEqual([]);
   });
 
-  it("nenhuma cor literal em src/ fora de src/styles/tokens.css", () => {
+  it("nenhuma cor literal em src/ fora de src/styles/tokens.css e src/lib/og/cores.ts", () => {
     const achados = listarArquivos(SRC)
-      .filter((arquivo) => arquivo !== ARQUIVO_DE_TOKENS)
+      .filter((arquivo) => !PODEM_TER_COR_LITERAL.includes(arquivo))
       .flatMap((arquivo) => {
         const tipo = arquivo.endsWith(".css") ? "css" : "ts";
         const relativo = path.relative(RAIZ, arquivo).replace(/\\/g, "/");
@@ -232,5 +238,9 @@ describe("cores literais", () => {
         );
       });
     expect(achados).toEqual([]);
+    // O caso positivo existe: a exceção tem cor literal de fato.
+    expect(
+      encontrarCoresLiterais(readFileSync(CORES_DA_PREVIA, "utf8"), "ts"),
+    ).not.toEqual([]);
   });
 });

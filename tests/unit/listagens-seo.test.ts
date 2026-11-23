@@ -46,6 +46,21 @@ describe("metadadosDaListagem", () => {
     expect(m.alternates?.canonical).toBe("/editorias/cronica?pagina=2");
   });
 
+  it("repassa a prévia padrão do portal, que o openGraph da página substituiria (T02)", () => {
+    const imagem = {
+      url: "https://zonamista.example/opengraph-image-x?1",
+      width: 1200,
+      height: 630,
+      alt: "Zona Mista",
+    };
+    expect(metadadosDaListagem(listagem(), [imagem]).openGraph?.images).toEqual(
+      [imagem],
+    );
+    expect(metadadosDaListagem(listagem(), []).openGraph).not.toHaveProperty(
+      "images",
+    );
+  });
+
   it("lista só de fictícias recebe noindex", () => {
     const m = metadadosDaListagem(listagem({ soFicticias: true }));
     expect(m.robots).toEqual({ index: false, follow: false });

@@ -1,6 +1,6 @@
 # T02: Prévia do link no WhatsApp (imagem Open Graph)
 
-**Status:** registrada
+**Status:** feita (#27)
 **Branch sugerida:** feat/T02-previa-do-link
 **Registrada em:** 2026-11-22, a pedido do usuário.
 
@@ -20,3 +20,9 @@ Quando alguém manda o link de uma matéria no WhatsApp (ou no Telegram, no X ou
 ## Notas
 
 - Com UI nova (a arte da imagem), o designer entra antes do dev, e o usuário aprova a arte.
+
+## Decisões do usuário (2026-11-23)
+
+- **Fontes:** exceção restrita à regra do `fs`. Só `src/lib/og/fontes.ts` lê `assets/fontes/*.ttf` (TTF estáticas, licença OFL). A exceção fica registrada no `CLAUDE.md`.
+- **Arte:** o designer apresenta duas ou três direções, e o usuário escolhe uma.
+- **Conferência no ar:** o orquestrador confere por `curl` as tags e a imagem na produção (status, tipo e tamanho). O usuário cola o link no Sharing Debugger ou no WhatsApp e informa o resultado, que é registrado no PR.

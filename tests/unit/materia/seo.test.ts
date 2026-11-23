@@ -33,7 +33,7 @@ describe("metadadosDaMateria", () => {
     expect(m).not.toHaveProperty("keywords");
   });
 
-  it("monta Open Graph de artigo e Twitter summary", () => {
+  it("monta Open Graph de artigo e Twitter summary_large_image", () => {
     const m = metadadosDaMateria(
       montarArtigo({ slug: "abc", publicado_em: "2026-10-20" }),
     );
@@ -46,7 +46,38 @@ describe("metadadosDaMateria", () => {
       section: rotuloDaEditoria("analise"),
       tags: ["FC Aurora"],
     });
-    expect(m.twitter).toMatchObject({ card: "summary" });
+    expect(m.twitter).toMatchObject({ card: "summary_large_image" });
+  });
+
+  it("repassa a prévia do segmento com o título no alt (T02)", () => {
+    const imagem = {
+      url: "https://zonamista.example/materias/abc/opengraph-image-x?1",
+      width: 1200,
+      height: 630,
+      type: "image/png",
+      alt: "alt padrão do arquivo",
+    };
+    const real = metadadosDaMateria(
+      montarArtigo({ slug: "abc", titulo: "Um título" }),
+      [imagem],
+    );
+    expect(real.openGraph?.images).toEqual([{ ...imagem, alt: "Um título" }]);
+    const ficticia = metadadosDaMateria(
+      montarArtigo({ titulo: "Um título", ficticio: true }),
+      [imagem, "https://zonamista.example/outra.png"],
+    );
+    expect(ficticia.openGraph?.images).toEqual([
+      { ...imagem, alt: "Exemplo: Um título" },
+      { url: "https://zonamista.example/outra.png", alt: "Exemplo: Um título" },
+    ]);
+  });
+
+  it("sem imagem do segmento, não declara images (o arquivo do segmento vale)", () => {
+    const m = metadadosDaMateria(montarArtigo(), []);
+    expect(m.openGraph).not.toHaveProperty("images");
+    expect(metadadosDaMateria(montarArtigo()).openGraph).not.toHaveProperty(
+      "images",
+    );
   });
 
   it("marca noindex/nofollow só nas fictícias", () => {
