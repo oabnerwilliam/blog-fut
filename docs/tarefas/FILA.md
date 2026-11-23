@@ -13,7 +13,7 @@ A ordem abaixo é a de entrada. O usuário decide a prioridade antes de cada uma
 |---|---|---|---|
 | T01 | [Histórico da matéria volta para a listagem](T01-historico-volta-para-listagem.md) | feat | registrada |
 | T02 | [Prévia do link no WhatsApp (imagem Open Graph)](T02-previa-do-link.md) | feat | registrada |
-| T03 | [README do repositório](T03-readme.md) | docs | em andamento |
+| T03 | [README do repositório](T03-readme.md) | docs | feita (#26) |
 | T04 | [Acesso de admin conferido num lugar só](T04-acesso-admin-central.md) | refactor | registrada |
 
 ## Histórias registradas (em `docs/backlog/`)
