@@ -23,7 +23,8 @@
     "materia:enviar": "tsx scripts/materia-enviar.ts",
     "materia:publicar": "tsx scripts/materia-publicar.ts",
     "admin:promover": "tsx scripts/admin-promover.ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "readme:imagens": "playwright test -c playwright.readme.config.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
