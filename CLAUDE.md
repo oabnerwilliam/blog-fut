@@ -53,7 +53,7 @@ pnpm build
 ## Regras do projeto
 
 - **Next.js 16**: as APIs mudaram em relação ao que você conhece. Antes de escrever código de framework, consulte `node_modules/next/dist/docs/` (veja `AGENTS.md`).
-- **Regra do repositório:** páginas e componentes obtêm dados só por `getRepository()` de `@/lib/content`. É proibido importar `fs` ou ler `content/` fora de `src/lib/content/`.
+- **Regra do repositório:** páginas e componentes obtêm dados só por `getRepository()` de `@/lib/content`. É proibido importar `fs` ou ler `content/` fora de `src/lib/content/`. Única exceção: `src/lib/og/fontes.ts` lê as fontes de `assets/fontes/` para as prévias do link (T02).
 - **Prefixo `_` no lint:** só para parâmetro ou desestruturação exigidos por um contrato e ainda não usados, com comentário apontando a história que vai usá-los. Código que deixou de ser usado é apagado, não renomeado. Veja `docs/adr/0003-prefixo-underscore-no-lint.md`.
 - **Texto do squad:** a revisão 1 de uma matéria do squad é o texto literal e nunca muda. Edições posteriores são revisões novas, registradas com autor (spec v2 §7.7). O site renderiza a revisão publicada exatamente como está gravada.
 - **Matérias fictícias** (`ficticio: true`): clubes e jogadores inventados, selo "Exemplo", aviso no topo, `noindex`, fora do sitemap e nunca no destaque da capa enquanto existir uma matéria real.

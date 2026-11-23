@@ -60,6 +60,12 @@ const foraDaCamada = () =>
     (arquivo) => !arquivo.startsWith(CAMADA_DE_CONTEUDO + path.sep),
   );
 
+/**
+ * Exceção da T02 (decisão do usuário, registrada no CLAUDE.md): só este módulo lê
+ * `assets/fontes/*.ttf` com `node:fs`, para as fontes do `ImageResponse`.
+ */
+const FONTES_DA_PREVIA = path.join(SRC, "lib", "og", "fontes.ts");
+
 describe("regra do repositório", () => {
   it("os detectores acham os casos positivos e ignoram os negativos", () => {
     // fs: positivos
@@ -134,8 +140,23 @@ describe("regra do repositório", () => {
     }
   });
 
-  it("nenhum arquivo fora de src/lib/content importa fs", () => {
-    expect(achadosEm(foraDaCamada(), encontrarImportsDeFs)).toEqual([]);
+  it("nenhum arquivo fora de src/lib/content importa fs, salvo src/lib/og/fontes.ts", () => {
+    const comFs = foraDaCamada()
+      .filter(
+        (arquivo) =>
+          encontrarImportsDeFs(readFileSync(arquivo, "utf8")).length > 0,
+      )
+      .map(relativo);
+    expect(comFs).toEqual(["src/lib/og/fontes.ts"]);
+  });
+
+  it("src/lib/og/fontes.ts só lê .ttf de assets/fontes, nunca content/", () => {
+    const codigo = readFileSync(FONTES_DA_PREVIA, "utf8");
+    expect(encontrarCaminhosParaContent(codigo)).toEqual([]);
+    expect(codigo).toMatch(/"assets",\s*"fontes"/);
+    const arquivos = [...codigo.matchAll(/"([\w-]+\.\w+)"/g)].map((m) => m[1]);
+    expect(arquivos.length).toBeGreaterThan(0);
+    expect(arquivos.every((nome) => nome.endsWith(".ttf"))).toBe(true);
   });
 
   it("dentro de src/lib/content, só disco.ts importa fs", () => {
